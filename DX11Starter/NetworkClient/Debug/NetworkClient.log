@@ -1,0 +1,4 @@
+﻿  main.cpp
+c:\users\markadelf\desktop\network\networkclient\main.cpp(28): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+c:\users\markadelf\desktop\network\networkclient\main.cpp(28): warning C4244: 'argument': conversion from 'size_t' to 'TimeStamp', possible loss of data
+  NetworkClient.vcxproj -> C:\Users\Markadelf\Desktop\Network\Debug\NetworkClient.exe
