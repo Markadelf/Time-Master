@@ -1,5 +1,7 @@
 #include "Game.h"
 #include "Vertex.h"
+#include "WICTextureLoader.h"
+#include "FilePathHelper.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -20,11 +22,6 @@ Game::Game(HINSTANCE hInstance)
 		720,			// Height of the window's client area
 		true)			// Show extra stats (fps) in title bar?
 {
-	// Initialize fields
-	vertexBuffer = 0;
-	indexBuffer = 0;
-	vertexShader = 0;
-	pixelShader = 0;
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
@@ -43,13 +40,17 @@ Game::~Game()
 {
 	// Release any (and all!) DirectX objects
 	// we've made in the Game class
-	if (vertexBuffer) { vertexBuffer->Release(); }
-	if (indexBuffer) { indexBuffer->Release(); }
+	meshManager.Release();
+	materialManager.Release();
 
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
-	delete vertexShader;
-	delete pixelShader;
+	vertexShaderManager.ReleasePointers();
+	pixelShaderManager.ReleasePointers();
+
+	// Clean up my texture pointers
+	textureManager.ReleaseDXPointers();
+	samplerManager.ReleaseDXPointers();
 }
 
 // --------------------------------------------------------
@@ -61,14 +62,51 @@ void Game::Init()
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
+	LoadTextures();
 	LoadShaders();
-	CreateMatrices();
+	InitializeCamera();
 	CreateBasicGeometry();
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	DirectionalLight light1;
+	light1.AmbientColor = DirectX::XMFLOAT4(.3f, .3f, .3f, 1);
+	light1.DiffuseColor = DirectX::XMFLOAT4(0, 0, 1, 1);
+	light1.Direction = DirectX::XMFLOAT3(1, 20, 10);
+
+	DirectionalLight light2;
+	light2.AmbientColor = DirectX::XMFLOAT4(.3f, .3f, .3f, 1);
+	light2.DiffuseColor = DirectX::XMFLOAT4(1, 1, 0, 1);
+	light2.Direction = DirectX::XMFLOAT3(-1, -10, -20);
+
+	lightList.push_back(light1);
+	lightList.push_back(light2);
+}
+
+void Game::LoadTextures()
+{
+	ID3D11ShaderResourceView* image;
+	// Add if successful
+	if(CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/poster.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/poster.png", image);
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/stripes.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/stripes.png", image);
+
+	ID3D11SamplerState* sampler;
+	D3D11_SAMPLER_DESC desc = {};
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// Add if successful
+	if(device->CreateSamplerState(&desc, &sampler) == 0)
+		samplerManager.AddResource("0", sampler);
 }
 
 // --------------------------------------------------------
@@ -79,11 +117,18 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	vertexShader = new SimpleVertexShader(device, context);
+    SimpleVertexShader* vertexShader = new SimpleVertexShader(device, context);
 	vertexShader->LoadShaderFile(L"VertexShader.cso");
 
-	pixelShader = new SimplePixelShader(device, context);
+	int vHandle = vertexShaderManager.AddResource("V1", vertexShader);
+
+	SimplePixelShader* pixelShader = new SimplePixelShader(device, context);
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
+
+	int pHandle = pixelShaderManager.AddResource("P1", pixelShader);
+
+	materialManager.AddResource("DEFAULT", Material(vHandle, pHandle, textureManager.GetHandle("Textures/poster.png"), 0));
+	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/stripes.png"), 0));
 }
 
 
@@ -92,42 +137,11 @@ void Game::LoadShaders()
 // Initializes the matrices necessary to represent our geometry's 
 // transformations and our 3D camera
 // --------------------------------------------------------
-void Game::CreateMatrices()
+void Game::InitializeCamera()
 {
-	// Set up world matrix
-	// - In an actual game, each object will need one of these and they should
-	//    update when/if the object moves (every frame)
-	// - You'll notice a "transpose" happening below, which is redundant for
-	//    an identity matrix.  This is just to show that HLSL expects a different
-	//    matrix (column major vs row major) than the DirectX Math library
-	XMMATRIX W = XMMatrixIdentity();
-	XMStoreFloat4x4(&worldMatrix, XMMatrixTranspose(W)); // Transpose for HLSL!
-
-	// Create the View matrix
-	// - In an actual game, recreate this matrix every time the camera 
-	//    moves (potentially every frame)
-	// - We're using the LOOK TO function, which takes the position of the
-	//    camera and the direction vector along which to look (as well as "up")
-	// - Another option is the LOOK AT function, to look towards a specific
-	//    point in 3D space
-	XMVECTOR pos = XMVectorSet(0, 0, -5, 0);
-	XMVECTOR dir = XMVectorSet(0, 0, 1, 0);
-	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
-	XMMATRIX V = XMMatrixLookToLH(
-		pos,     // The position of the "camera"
-		dir,     // Direction the camera is looking
-		up);     // "Up" direction in 3D space (prevents roll)
-	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(V)); // Transpose for HLSL!
-
-	// Create the Projection matrix
-	// - This should match the window's aspect ratio, and also update anytime
-	//    the window resizes (which is already happening in OnResize() below)
-	XMMATRIX P = XMMatrixPerspectiveFovLH(
-		0.25f * 3.1415926535f,		// Field of View Angle
-		(float)width / height,		// Aspect ratio
-		0.1f,						// Near clip plane distance
-		100.0f);					// Far clip plane distance
-	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
+	camera.SetPosition(XMFLOAT3(0, 0, -5));
+	camera.SetYaw(0);
+	camera.SetAspectRatio((float)width / height);
 }
 
 
@@ -136,71 +150,25 @@ void Game::CreateMatrices()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	// Create some temporary variables to represent colors
-	// - Not necessary, just makes things more readable
-	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	// Load in the files and get the handles for each from the meshManager
+	int coneHandle = meshManager.AddResource("OBJ Files/cone.obj", Mesh("OBJ Files/cone.obj", device));
 
-	// Set up the vertices of the triangle we would like to draw
-	// - We're going to copy this array, exactly as it exists in memory
-	//    over to a DirectX-controlled data structure (the vertex buffer)
-	Vertex vertices[] =
-	{
-		{ XMFLOAT3(+0.0f, +1.0f, +0.0f), red },
-		{ XMFLOAT3(+1.5f, -1.0f, +0.0f), blue },
-		{ XMFLOAT3(-1.5f, -1.0f, +0.0f), green },
-	};
+	int cubeHandle = meshManager.AddResource("OBJ Files/cube.obj", Mesh("OBJ Files/cube.obj", device));
 
-	// Set up the indices, which tell us which vertices to use and in which order
-	// - This is somewhat redundant for just 3 vertices (it's a simple example)
-	// - Indices are technically not required if the vertices are in the buffer 
-	//    in the correct order and each one will be used exactly once
-	// - But just to see how it's done...
-	int indices[] = { 0, 1, 2 };
+	int cylinderHandle = meshManager.AddResource("OBJ Files/cylinder.obj", Mesh("OBJ Files/cylinder.obj", device));
+
+	int matHandle = materialManager.GetHandle("DEFAULT");
+	int matHandle2 = materialManager.GetHandle("STRIPES");
 
 
-	// Create the VERTEX BUFFER description -----------------------------------
-	// - The description is created on the stack because we only need
-	//    it to create the buffer.  The description is then useless.
-	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex) * 3;       // 3 = number of vertices in the buffer
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Tells DirectX this is a vertex buffer
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
+	// Make a bunch of entities
+	entityList.push_back(Entity(coneHandle, matHandle, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.05f, .05f, .05f), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	entityList.push_back(Entity(cubeHandle, matHandle2, DirectX::XMFLOAT3(-2, 0, 0)));
+	entityList.push_back(Entity(cubeHandle, matHandle, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
+	entityList.push_back(Entity(coneHandle, matHandle2, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.15f, .15f, .15f), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	entityList.push_back(Entity(cylinderHandle, matHandle2, DirectX::XMFLOAT3(1, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
+	entityList.push_back(Entity(cylinderHandle, matHandle, DirectX::XMFLOAT3(2, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 0, 1)));
 
-	// Create the proper struct to hold the initial vertex data
-	// - This is how we put the initial data into the buffer
-	D3D11_SUBRESOURCE_DATA initialVertexData;
-	initialVertexData.pSysMem = vertices;
-
-	// Actually create the buffer with the initial data
-	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
-	device->CreateBuffer(&vbd, &initialVertexData, &vertexBuffer);
-
-
-
-	// Create the INDEX BUFFER description ------------------------------------
-	// - The description is created on the stack because we only need
-	//    it to create the buffer.  The description is then useless.
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(int) * 3;         // 3 = number of indices in the buffer
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER; // Tells DirectX this is an index buffer
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	ibd.StructureByteStride = 0;
-
-	// Create the proper struct to hold the initial index data
-	// - This is how we put the initial data into the buffer
-	D3D11_SUBRESOURCE_DATA initialIndexData;
-	initialIndexData.pSysMem = indices;
-
-	// Actually create the buffer with the initial data
-	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
-	device->CreateBuffer(&ibd, &initialIndexData, &indexBuffer);
 }
 
 
@@ -213,13 +181,7 @@ void Game::OnResize()
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
 
-	// Update our projection matrix since the window size changed
-	XMMATRIX P = XMMatrixPerspectiveFovLH(
-		0.25f * 3.1415926535f,	// Field of View Angle
-		(float)width / height,	// Aspect ratio
-		0.1f,				  	// Near clip plane distance
-		100.0f);			  	// Far clip plane distance
-	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
+	camera.SetAspectRatio((float)width / height);
 }
 
 // --------------------------------------------------------
@@ -230,6 +192,31 @@ void Game::Update(float deltaTime, float totalTime)
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
+	if (GetAsyncKeyState('W') & 0x8000) 
+	{
+		camera.MoveRelative(XMFLOAT3(0, 0, 1 * deltaTime));
+	}
+	if (GetAsyncKeyState('A') & 0x8000)
+	{
+		camera.MoveRelative(XMFLOAT3(1 * deltaTime, 0, 0));
+	}
+	if (GetAsyncKeyState('S') & 0x8000)
+	{
+		camera.MoveRelative(XMFLOAT3(0, 0, -1 * deltaTime));
+	}
+	if (GetAsyncKeyState('D') & 0x8000)
+	{
+		camera.MoveRelative(XMFLOAT3(-1 * deltaTime, 0, 0));
+	}
+	if (GetAsyncKeyState(' ') & 0x8000)
+	{
+		camera.MoveRelative(XMFLOAT3(0, 1 * deltaTime, 0));
+	}
+	if (GetAsyncKeyState(VK_LSHIFT) & 0x8000)
+	{
+		camera.MoveRelative(XMFLOAT3(0, -1 * deltaTime, 0));
+	}
+	entityList[1].Move(XMFLOAT3(1 * deltaTime, 0, 0));
 }
 
 // --------------------------------------------------------
@@ -250,51 +237,68 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-	// Send data to shader variables
-	//  - Do this ONCE PER OBJECT you're drawing
-	//  - This is actually a complex process of copying data to a local buffer
-	//    and then copying that entire buffer to the GPU.  
-	//  - The "SimpleShader" class handles all of that for you.
-	vertexShader->SetMatrix4x4("world", worldMatrix);
-	vertexShader->SetMatrix4x4("view", viewMatrix);
-	vertexShader->SetMatrix4x4("projection", projectionMatrix);
 
-	// Once you've set all of the data you care to change for
-	// the next draw call, you need to actually send it to the GPU
-	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
-	vertexShader->CopyAllBufferData();
+	for (int i = 0; i < entityList.size(); i++) {
+		Material* mat = materialManager.GetResourcePointer(entityList[i].GetMaterialHandle());
+		SimplePixelShader* pixelShader = *pixelShaderManager.GetResourcePointer(mat->GetPixelShaderHandle());
+		SimpleVertexShader* vertexShader = *vertexShaderManager.GetResourcePointer(mat->GetVertexShaderHandle());
 
-	// Set the vertex and pixel shaders to use for the next Draw() command
-	//  - These don't technically need to be set every frame...YET
-	//  - Once you start applying different shaders to different objects,
-	//    you'll need to swap the current shaders before each draw
-	vertexShader->SetShader();
-	pixelShader->SetShader();
+		// Send data to shader variables
+		//  - Do this ONCE PER OBJECT you're drawing
+		//  - This is actually a complex process of copying data to a local buffer
+		//    and then copying that entire buffer to the GPU.  
+		//  - The "SimpleShader" class handles all of that for you.
+		vertexShader->SetMatrix4x4("world", entityList[i].GetTransform());
+		vertexShader->SetMatrix4x4("view", camera.GetView());
+		vertexShader->SetMatrix4x4("projection", camera.GetProjection());
 
-	// Set buffers in the input assembler
-	//  - Do this ONCE PER OBJECT you're drawing, since each object might
-	//    have different geometry.
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		// Once you've set all of the data you care to change for
+		// the next draw call, you need to actually send it to the GPU
+		//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
+		vertexShader->CopyAllBufferData();
+		pixelShader->SetInt("lightAmount", (int)lightList.size());
+		// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
+		pixelShader->SetData("light",  &lightList[0], sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
+		pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
+		pixelShader->SetSamplerState("basicSampler", *samplerManager.GetResourcePointer(mat->GetSamplerHandle()));
+		pixelShader->CopyAllBufferData();
 
-	// Finally do the actual drawing
-	//  - Do this ONCE PER OBJECT you intend to draw
-	//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
-	//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
-	//     vertices in the currently set VERTEX BUFFER
-	context->DrawIndexed(
-		3,     // The number of indices to use (we could draw a subset if we wanted)
-		0,     // Offset to the first index we want to use
-		0);    // Offset to add to each index when looking up vertices
+		// Set the vertex and pixel shaders to use for the next Draw() command
+		//  - These don't technically need to be set every frame...YET
+		//  - Once you start applying different shaders to different objects,
+		//    you'll need to swap the current shaders before each draw
+		vertexShader->SetShader();
+		pixelShader->SetShader();
 
+		// Set buffers in the input assembler
+		//  - Do this ONCE PER OBJECT you're drawing, since each object might
+		//    have different geometry.
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
 
+		Mesh* mesh = meshManager.GetResourcePointer(entityList[i].GetMeshHandle());
+
+		ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
+		context->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
+		context->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+		// Finally do the actual drawing
+		//  - Do this ONCE PER OBJECT you intend to draw
+		//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
+		//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
+		//     vertices in the currently set VERTEX BUFFER
+		context->DrawIndexed(
+			mesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
+	}
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
 	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
 	swapChain->Present(0, 0);
+
+	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 }
 
 
@@ -338,7 +342,14 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
-	// Add any custom code here...
+	int dY = (y - prevMousePos.y);
+	int dX = (x - prevMousePos.x);
+
+	dX = dX % 10;
+	dY = dY % 10;
+
+	camera.SetYaw(camera.GetYaw() + dX / 180.f);
+	camera.SetPitch(camera.GetPitch() + dY / 180.f);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
