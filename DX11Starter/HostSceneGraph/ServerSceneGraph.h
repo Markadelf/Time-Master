@@ -4,7 +4,7 @@
 #include "PlayerObject.h"
 #include "ColliderManager.h"
 #include "ProjectileManager.h"
-#include "PhantomImageData.h"
+#include "PlayerKeyFrameData.h"
 
 class ServerSceneGraph
 {
@@ -43,7 +43,7 @@ public:
 	~ServerSceneGraph();
 
 
-	void StackPhantom(PhantomImageData phantom);
+	void StackKeyFrame(PlayerKeyFrameData phantom);
 	// Collision Checks
 };
 

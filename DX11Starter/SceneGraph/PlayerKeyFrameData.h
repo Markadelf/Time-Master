@@ -4,7 +4,8 @@
 #include "Projectile.h"
 #include <Serializer.h>
 
-class PhantomImageData
+// This is how the client will send keyframe data to the server
+class PlayerKeyFrameData
 {
 	Transform m_transform;
 	TimeStamp m_timeStamp;
@@ -13,9 +14,9 @@ class PhantomImageData
 	bool m_shot;
 
 public:
-	PhantomImageData();
-	PhantomImageData(Transform transform, TimeStamp time, int id, bool shot, TimeStamp timeShot = 0);
-	~PhantomImageData();
+	PlayerKeyFrameData();
+	PlayerKeyFrameData(Transform transform, TimeStamp time, int id, bool shot, TimeStamp timeShot = -1);
+	~PlayerKeyFrameData();
 
 	// Accessor
 	Transform GetTransform();

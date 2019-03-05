@@ -1,7 +1,6 @@
 #pragma once
 #include "Transform.h"
 #include "TimeInstableTransform.h"
-#include "HandleObject.h"
 
 namespace Colliders2D {
 

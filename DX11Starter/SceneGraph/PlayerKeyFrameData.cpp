@@ -1,15 +1,15 @@
 #include "stdafx.h"
-#include "PhantomImageData.h"
+#include "PlayerKeyFrameData.h"
 
 
-PhantomImageData::PhantomImageData()
+PlayerKeyFrameData::PlayerKeyFrameData()
 {
 	m_playerId = -1;
 	m_shotTime = -1;
 	m_shot = false;
 }
 
-PhantomImageData::PhantomImageData(Transform transform, TimeStamp time, int id, bool shot, TimeStamp timeShot)
+PlayerKeyFrameData::PlayerKeyFrameData(Transform transform, TimeStamp time, int id, bool shot, TimeStamp timeShot)
 {
 	m_transform = transform;
 	m_timeStamp = time;
@@ -19,36 +19,36 @@ PhantomImageData::PhantomImageData(Transform transform, TimeStamp time, int id, 
 }
 
 
-PhantomImageData::~PhantomImageData()
+PlayerKeyFrameData::~PlayerKeyFrameData()
 {
 }
 
-Transform PhantomImageData::GetTransform()
+Transform PlayerKeyFrameData::GetTransform()
 {
 	return m_transform;
 }
 
-TimeStamp PhantomImageData::GetTimeStamp()
+TimeStamp PlayerKeyFrameData::GetTimeStamp()
 {
 	return m_timeStamp;
 }
 
-int PhantomImageData::GetPlayerId()
+int PlayerKeyFrameData::GetPlayerId()
 {
 	return m_playerId;
 }
 
-TimeStamp PhantomImageData::GetShotTime()
+TimeStamp PlayerKeyFrameData::GetShotTime()
 {
 	return m_shotTime;
 }
 
-bool PhantomImageData::GetShot()
+bool PlayerKeyFrameData::GetShot()
 {
 	return m_shot;
 }
 
-bool PhantomImageData::Serialize(Buffer & buffer) const
+bool PlayerKeyFrameData::Serialize(Buffer & buffer) const
 {
 	return
 		m_transform.Serialize(buffer) &&
@@ -58,7 +58,7 @@ bool PhantomImageData::Serialize(Buffer & buffer) const
 		(m_shot ? Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_shotTime) : true);
 }
 
-bool PhantomImageData::Deserialize(Buffer & buffer)
+bool PlayerKeyFrameData::Deserialize(Buffer & buffer)
 {
 	return
 		m_transform.Deserialize(buffer) &&

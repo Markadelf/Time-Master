@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\SharedDataStructures\;..\Debug\SharedDataStructures.lib;..\SerializerCore\;..\Debug\SerializerCore.lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\GameMath\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\SharedDataStructures\;..\Debug\SharedDataStructures.lib;..\SerializerCore\;..\Debug\SerializerCore.lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\GameMath\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\SharedDataStructures\;..\Debug\SharedDataStructures.lib;..\SerializerCore\;..\Debug\SerializerCore.lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\GameMath\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\SharedDataStructures\;..\Debug\SharedDataStructures.lib;..\SerializerCore\;..\Debug\SerializerCore.lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\GameMath\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,29 +151,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ClientSceneGraph.h" />
     <ClInclude Include="ColliderManager.h" />
-    <ClInclude Include="PhantomImageData.h" />
-    <ClInclude Include="PlayerObject.h" />
-    <ClInclude Include="Collider.h" />
+    <ClInclude Include="Phantom.h" />
+    <ClInclude Include="PlayerKeyFrameData.h" />
     <ClInclude Include="HandleObject.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="ProjectileManager.h" />
-    <ClInclude Include="ServerSceneGraph.h" />
     <ClInclude Include="StaticObject.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TimeInstableTransform.h" />
-    <ClInclude Include="Transform.h" />
-    <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ColliderManager.cpp" />
-    <ClCompile Include="PhantomImageData.cpp" />
-    <ClCompile Include="PlayerObject.cpp" />
-    <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="Phantom.cpp" />
+    <ClCompile Include="PlayerKeyFrameData.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="ProjectileManager.cpp" />
-    <ClCompile Include="ServerSceneGraph.cpp" />
     <ClCompile Include="StaticObject.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -181,9 +175,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TimeInstableTransform.cpp" />
-    <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

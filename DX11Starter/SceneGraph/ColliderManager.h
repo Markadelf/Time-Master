@@ -1,5 +1,7 @@
 #pragma once
 #include "Collider.h"
+#include "HandleObject.h"
+
 class ColliderManager
 {
 	Colliders2D::CircleCollider* m_circles;

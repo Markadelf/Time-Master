@@ -15,7 +15,7 @@ PlayerObject::PlayerObject(int maxImages, int maxBullets, const Transform& start
 	m_lastTimeStamp = initialTime;
 
 	// Initialize Buffers
-	m_images = new TimeInstableTransform[maxImages];
+	m_images = new Phantom[maxImages];
 	m_projectileHandles = new ProjectileLaunchInfo[maxBullets];
 
 	// Intialize indices
@@ -41,40 +41,37 @@ ProjectileHandle PlayerObject::GetKilledBy()
 	return m_killedBy;
 }
 
-TimeInstableTransform PlayerObject::Head()
+Phantom PlayerObject::Head()
 {
 	return m_images[m_imageCount - 1];
 }
 
-void PlayerObject::TrackMovement(Transform newTrans, TimeStamp timeStamp)
+void PlayerObject::StackKeyFrame(PlayerKeyFrameData keyFrame)
 {
 	if (m_killedBy.m_playerId != -1)
 	{
 		return;
 	}
-	if(timeStamp < m_lastTimeStamp) 
+
+	TimeStamp timeStamp = keyFrame.GetTimeStamp();
+	if (timeStamp < m_lastTimeStamp)
 	{
-		m_images[m_imageCount] = TimeInstableTransform(newTrans, m_currentTransform, timeStamp, m_lastTimeStamp, true);
+		m_images[m_imageCount] = Phantom(TimeInstableTransform(keyFrame.GetTransform(), m_currentTransform, timeStamp, m_lastTimeStamp, true), keyFrame);
 		m_imageCount++;
 	}
 	else
 	{
-		m_images[m_imageCount] = TimeInstableTransform(m_currentTransform, newTrans, m_lastTimeStamp, timeStamp, false);
+		m_images[m_imageCount] = Phantom(TimeInstableTransform(m_currentTransform, keyFrame.GetTransform(), m_lastTimeStamp, timeStamp, false), keyFrame);
 		m_imageCount++;
 	}
-	m_lastTimeStamp = timeStamp;
-	m_currentTransform = newTrans;
-}
+	m_lastTimeStamp = keyFrame.GetTimeStamp();
+	m_currentTransform = keyFrame.GetTransform();
 
-void PlayerObject::TrackBulletShot(TimeStamp timeStamp)
-{
-	if (m_killedBy.m_playerId != -1)
+	if (keyFrame.GetShot())
 	{
-		return;
+		m_projectileHandles[m_projectileCount] = ProjectileLaunchInfo(m_imageCount, timeStamp);
+		m_projectileCount++;
 	}
-	m_projectileHandles[m_projectileCount] = ProjectileLaunchInfo(m_imageCount, timeStamp);
-	m_projectileCount++;
-
 }
 
 void PlayerObject::Kill(int imageIndex, TimeStamp time, ProjectileHandle murderHandle, ProjectileHandle& bulletResetHandle)
@@ -83,24 +80,13 @@ void PlayerObject::Kill(int imageIndex, TimeStamp time, ProjectileHandle murderH
 	{
 		return;
 	}
-
-	m_imageCount = imageIndex;
-	TimeInstableTransform* slot = &m_images[imageIndex];
-	m_currentTransform = slot->GetTransform(time);
 	m_killedBy = murderHandle;
-	m_reversed = slot->GetReversed();
 
-	// Don't fuck up the time reversing
-	if (m_reversed)
-	{
-		float end = slot->GetEndTime();
-		*slot = TimeInstableTransform(m_currentTransform, slot->GetTransform(end), time, end, true);
-	}
-	else
-	{
-		float start = slot->GetStartTime();
-		*slot = TimeInstableTransform(slot->GetTransform(start), m_currentTransform, start, time, false);
-	}
+	// Fix image stack
+	m_imageCount = imageIndex;
+	m_images[imageIndex].Trim(time);
+	m_currentTransform = m_images[imageIndex].GetTransform().GetTransform(time);
+	m_reversed = m_images[imageIndex].GetTransform().GetReversed();
 
 	// Get the bullet handle to reset to
 	bulletResetHandle = ProjectileHandle(m_playerId, -1);

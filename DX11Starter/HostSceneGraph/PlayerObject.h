@@ -2,6 +2,8 @@
 #include "TimeInstableTransform.h"
 #include "HandleObject.h"
 #include "ProjectileManager.h"
+#include "Phantom.h"
+#include "PlayerKeyFrameData.h"
 
 // The player object keeps a record of all of the actions a player has taken
 class PlayerObject
@@ -26,7 +28,7 @@ class PlayerObject
 	};
 
 	// Stack of positions at various times
-	TimeInstableTransform* m_images;
+	Phantom* m_images;
 	// Buffer containing indexes of projectiles
 	ProjectileLaunchInfo* m_projectileHandles;
 
@@ -57,12 +59,11 @@ public:
 
 	// Accessor functions
 	ProjectileHandle GetKilledBy();
-	TimeInstableTransform Head();
+	Phantom Head();
 
 	// Upkeep/Update functions
-	void TrackMovement(Transform newTrans, TimeStamp timeStamp);
-	void TrackBulletShot(TimeStamp timeStamp);
-
+	// NOTE THIS WILL NOT CREATE BULLETS, IT WILL KEEP TRACK OF BULLETS CREATED
+	void StackKeyFrame(PlayerKeyFrameData keyFrame);
 
 	// Kill a player at a given time
 	void Kill(int imageIndex, TimeStamp time, ProjectileHandle murderHandle, ProjectileHandle& bulletResetHandle);
