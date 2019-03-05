@@ -44,6 +44,8 @@ public:
 	float GetPitch();
 	void SetPitch(float);
 
+	DirectX::XMFLOAT4 GetRot();
+
 private:
 	// Internal function for fixing the view matrix
 	void recalculateViewMatrix();

@@ -28,7 +28,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-	
+
 }
 
 // --------------------------------------------------------
@@ -90,7 +90,7 @@ void Game::LoadTextures()
 {
 	ID3D11ShaderResourceView* image;
 	// Add if successful
-	if(CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/poster.png").c_str(), 0, &image) == 0)
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/poster.png").c_str(), 0, &image) == 0)
 		textureManager.AddResource("Textures/poster.png", image);
 	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/stripes.png").c_str(), 0, &image) == 0)
 		textureManager.AddResource("Textures/stripes.png", image);
@@ -105,7 +105,7 @@ void Game::LoadTextures()
 	desc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	// Add if successful
-	if(device->CreateSamplerState(&desc, &sampler) == 0)
+	if (device->CreateSamplerState(&desc, &sampler) == 0)
 		samplerManager.AddResource("0", sampler);
 }
 
@@ -117,7 +117,7 @@ void Game::LoadTextures()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-    SimpleVertexShader* vertexShader = new SimpleVertexShader(device, context);
+	SimpleVertexShader* vertexShader = new SimpleVertexShader(device, context);
 	vertexShader->LoadShaderFile(L"VertexShader.cso");
 
 	int vHandle = vertexShaderManager.AddResource("V1", vertexShader);
@@ -171,6 +171,62 @@ void Game::CreateBasicGeometry()
 
 }
 
+void Game::RenderEntity(Entity& entity)
+{
+	Material* mat = materialManager.GetResourcePointer(entity.GetMaterialHandle());
+	SimplePixelShader* pixelShader = *pixelShaderManager.GetResourcePointer(mat->GetPixelShaderHandle());
+	SimpleVertexShader* vertexShader = *vertexShaderManager.GetResourcePointer(mat->GetVertexShaderHandle());
+
+	// Send data to shader variables
+	//  - Do this ONCE PER OBJECT you're drawing
+	//  - This is actually a complex process of copying data to a local buffer
+	//    and then copying that entire buffer to the GPU.  
+	//  - The "SimpleShader" class handles all of that for you.
+	vertexShader->SetMatrix4x4("world", entity.GetTransform());
+	vertexShader->SetMatrix4x4("view", camera.GetView());
+	vertexShader->SetMatrix4x4("projection", camera.GetProjection());
+
+	// Once you've set all of the data you care to change for
+	// the next draw call, you need to actually send it to the GPU
+	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
+	vertexShader->CopyAllBufferData();
+	pixelShader->SetInt("lightAmount", (int)lightList.size());
+	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
+	pixelShader->SetData("light", &lightList[0], sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
+	pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
+	pixelShader->SetSamplerState("basicSampler", *samplerManager.GetResourcePointer(mat->GetSamplerHandle()));
+	pixelShader->CopyAllBufferData();
+
+	// Set the vertex and pixel shaders to use for the next Draw() command
+	//  - These don't technically need to be set every frame...YET
+	//  - Once you start applying different shaders to different objects,
+	//    you'll need to swap the current shaders before each draw
+	vertexShader->SetShader();
+	pixelShader->SetShader();
+
+	// Set buffers in the input assembler
+	//  - Do this ONCE PER OBJECT you're drawing, since each object might
+	//    have different geometry.
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+
+	Mesh* mesh = meshManager.GetResourcePointer(entity.GetMeshHandle());
+
+	ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
+	context->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
+	context->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+	// Finally do the actual drawing
+	//  - Do this ONCE PER OBJECT you intend to draw
+	//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
+	//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
+	//     vertices in the currently set VERTEX BUFFER
+	context->DrawIndexed(
+		mesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+		0,     // Offset to the first index we want to use
+		0);    // Offset to add to each index when looking up vertices
+}
+
 
 // --------------------------------------------------------
 // Handle resizing DirectX "stuff" to match the new window size.
@@ -192,7 +248,7 @@ void Game::Update(float deltaTime, float totalTime)
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
-	if (GetAsyncKeyState('W') & 0x8000) 
+	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		camera.MoveRelative(XMFLOAT3(0, 0, 1 * deltaTime));
 	}
@@ -208,15 +264,34 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		camera.MoveRelative(XMFLOAT3(-1 * deltaTime, 0, 0));
 	}
+	static bool held = false;
 	if (GetAsyncKeyState(' ') & 0x8000)
 	{
-		camera.MoveRelative(XMFLOAT3(0, 1 * deltaTime, 0));
+		if (!held)
+		{
+			Entity bullet = Entity(meshManager.GetHandle("OBJ Files/cube.obj"), 0, camera.GetPosition());
+			bullet.SetRotation(camera.GetRot());
+			bullet.SetScale(DirectX::XMFLOAT3(.5f, .5f, .5f));
+			// Add to update list
+			bulletList.push_back(bullet);
+			held = true;
+		}
 	}
+	else
+	{
+		held = false;
+	}
+	/*
 	if (GetAsyncKeyState(VK_LSHIFT) & 0x8000)
 	{
 		camera.MoveRelative(XMFLOAT3(0, -1 * deltaTime, 0));
+	}*/
+	//entityList[1].Move(XMFLOAT3(1 * deltaTime, 0, 0));
+	for (size_t i = 0; i < bulletList.size(); i++)
+	{
+		bulletList[i].MoveForward(XMFLOAT3(0, 0, 5 * deltaTime));
 	}
-	entityList[1].Move(XMFLOAT3(1 * deltaTime, 0, 0));
+
 }
 
 // --------------------------------------------------------
@@ -239,58 +314,10 @@ void Game::Draw(float deltaTime, float totalTime)
 
 
 	for (int i = 0; i < entityList.size(); i++) {
-		Material* mat = materialManager.GetResourcePointer(entityList[i].GetMaterialHandle());
-		SimplePixelShader* pixelShader = *pixelShaderManager.GetResourcePointer(mat->GetPixelShaderHandle());
-		SimpleVertexShader* vertexShader = *vertexShaderManager.GetResourcePointer(mat->GetVertexShaderHandle());
-
-		// Send data to shader variables
-		//  - Do this ONCE PER OBJECT you're drawing
-		//  - This is actually a complex process of copying data to a local buffer
-		//    and then copying that entire buffer to the GPU.  
-		//  - The "SimpleShader" class handles all of that for you.
-		vertexShader->SetMatrix4x4("world", entityList[i].GetTransform());
-		vertexShader->SetMatrix4x4("view", camera.GetView());
-		vertexShader->SetMatrix4x4("projection", camera.GetProjection());
-
-		// Once you've set all of the data you care to change for
-		// the next draw call, you need to actually send it to the GPU
-		//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
-		vertexShader->CopyAllBufferData();
-		pixelShader->SetInt("lightAmount", (int)lightList.size());
-		// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
-		pixelShader->SetData("light",  &lightList[0], sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
-		pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
-		pixelShader->SetSamplerState("basicSampler", *samplerManager.GetResourcePointer(mat->GetSamplerHandle()));
-		pixelShader->CopyAllBufferData();
-
-		// Set the vertex and pixel shaders to use for the next Draw() command
-		//  - These don't technically need to be set every frame...YET
-		//  - Once you start applying different shaders to different objects,
-		//    you'll need to swap the current shaders before each draw
-		vertexShader->SetShader();
-		pixelShader->SetShader();
-
-		// Set buffers in the input assembler
-		//  - Do this ONCE PER OBJECT you're drawing, since each object might
-		//    have different geometry.
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-
-		Mesh* mesh = meshManager.GetResourcePointer(entityList[i].GetMeshHandle());
-
-		ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
-		context->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-		context->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-		// Finally do the actual drawing
-		//  - Do this ONCE PER OBJECT you intend to draw
-		//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
-		//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
-		//     vertices in the currently set VERTEX BUFFER
-		context->DrawIndexed(
-			mesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-			0,     // Offset to the first index we want to use
-			0);    // Offset to add to each index when looking up vertices
+		RenderEntity(entityList[i]);
+	}
+	for (int i = 0; i < bulletList.size(); i++) {
+		RenderEntity(bulletList[i]);
 	}
 
 	// Present the back buffer to the user
@@ -349,7 +376,7 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 	dY = dY % 10;
 
 	camera.SetYaw(camera.GetYaw() + dX / 180.f);
-	camera.SetPitch(camera.GetPitch() + dY / 180.f);
+	//camera.SetPitch(camera.GetPitch() + dY / 180.f);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

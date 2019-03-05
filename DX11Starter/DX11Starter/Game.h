@@ -40,6 +40,9 @@ private:
 	void InitializeCamera();
 	void CreateBasicGeometry();
 
+	// Render logic
+	void RenderEntity(Entity& entity);
+
 	// The matrices to go from model space to screen space
 	Camera camera;
 
@@ -49,6 +52,7 @@ private:
 
 	// Tracks all entities
 	std::vector<Entity> entityList;
+	std::vector<Entity> bulletList;
 	std::vector<DirectionalLight> lightList;
 
 	// Managers
