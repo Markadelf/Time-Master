@@ -60,6 +60,19 @@ void Entity::Move(DirectX::XMFLOAT3 displacement)
 	isDirty = true;
 }
 
+void Entity::MoveForward(DirectX::XMFLOAT3 displacement)
+{
+	XMVECTOR pos = XMLoadFloat3(&position);
+	XMVECTOR disp = XMLoadFloat3(&displacement);
+	XMVECTOR rot = XMLoadFloat4(&rotation);
+	disp = XMVector3Rotate(disp, rot);
+
+	pos = XMVectorAdd(pos, disp);
+
+	XMStoreFloat3(&position, pos);
+	isDirty = true;
+}
+
 DirectX::XMFLOAT3 Entity::GetPosition()
 {
 	return position;

@@ -117,6 +117,13 @@ void Camera::SetPitch(float pitch)
 	viewDirty = true;
 }
 
+XMFLOAT4 Camera::GetRot()
+{
+	XMFLOAT4 ret;
+	XMStoreFloat4(&ret, XMQuaternionRotationRollPitchYaw(pitch, yaw, 0));
+	return ret;
+}
+
 void Camera::recalculateViewMatrix()
 {
 	XMVECTOR dir = XMVector3Rotate(XMVectorSet(0,0,1,0), XMQuaternionRotationRollPitchYaw(pitch, yaw, 0));

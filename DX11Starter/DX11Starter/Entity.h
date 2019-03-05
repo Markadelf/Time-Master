@@ -33,6 +33,7 @@ public:
 
 	void SetPosition(DirectX::XMFLOAT3 pos);
 	void Move(DirectX::XMFLOAT3 displacement);
+	void MoveForward(DirectX::XMFLOAT3 displacement);
 	DirectX::XMFLOAT3 GetPosition();
 
 	void SetScale(DirectX::XMFLOAT3 scale);
