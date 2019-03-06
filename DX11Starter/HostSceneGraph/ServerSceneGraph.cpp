@@ -3,6 +3,8 @@
 
 ServerSceneGraph::ServerSceneGraph()
 {
+	m_players = nullptr;
+	m_statics = nullptr;
 }
 
 ServerSceneGraph::ServerSceneGraph(int teams, int playersPerTeam, int maxBullets, int maxColliders, StaticObject* staticObjs, int staticobjectCount)
@@ -32,8 +34,13 @@ ServerSceneGraph::ServerSceneGraph(int teams, int playersPerTeam, int maxBullets
 
 ServerSceneGraph::~ServerSceneGraph()
 {
-	delete[] m_players;
-	delete[] m_statics;
+	if (m_players)
+	{
+		delete[] m_players;
+	}
+	if (m_statics) {
+		delete[] m_statics;
+	}
 }
 
 void ServerSceneGraph::StackKeyFrame(PlayerKeyFrameData keyFrame)

@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "DXCore.h"
 #include "SimpleShader.h"
 #include <DirectXMath.h>
@@ -11,6 +12,12 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Lights.h"
+
+#include "ServerSceneGraph.h"
+
+//#include "ServerSceneGraph.h"
+//#include "Vector2.h"
+ 
 
 class Game 
 	: public DXCore
@@ -64,6 +71,7 @@ private:
 
 	ResourceManager<ID3D11ShaderResourceView*> textureManager;
 	ResourceManager<ID3D11SamplerState*> samplerManager;
-
+	
+	ServerSceneGraph sceneGraph;
 };
 
