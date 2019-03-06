@@ -2,6 +2,10 @@
 #include "Buffer.h"
 
 
+Buffer::Buffer(): Buffer(1200)
+{
+}
+
 // Allocate buffer
 Buffer::Buffer(int sizeInBytes) {
 	bitIndex = 0;

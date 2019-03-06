@@ -151,7 +151,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ClientSceneGraph.h" />
     <ClInclude Include="ColliderManager.h" />
     <ClInclude Include="Phantom.h" />
     <ClInclude Include="PlayerKeyFrameData.h" />

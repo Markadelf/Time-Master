@@ -9,6 +9,7 @@ class Buffer
 	unsigned __int8* bytes;
 
 public:
+	Buffer();
 	Buffer(int sizeInBytes);
 	~Buffer();
 

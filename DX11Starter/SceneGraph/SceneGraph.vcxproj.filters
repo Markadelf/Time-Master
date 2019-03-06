@@ -51,9 +51,6 @@
     <ClInclude Include="PlayerKeyFrameData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ClientSceneGraph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
