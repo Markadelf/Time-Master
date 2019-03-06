@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "SocketWrapper.h"
 #include <iostream>
 

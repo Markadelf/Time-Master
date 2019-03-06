@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Address.h"
 
 Address::Address(sockaddr_in sockAddress)

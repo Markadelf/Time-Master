@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ColliderManager.h"
 
 using namespace Colliders2D;

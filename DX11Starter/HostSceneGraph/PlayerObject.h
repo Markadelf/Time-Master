@@ -60,6 +60,8 @@ public:
 	// Accessor functions
 	ProjectileHandle GetKilledBy();
 	Phantom Head();
+	int GetImageCount() const;
+	Phantom* GetPhantomBuffer() const;
 
 	// Upkeep/Update functions
 	// NOTE THIS WILL NOT CREATE BULLETS, IT WILL KEEP TRACK OF BULLETS CREATED

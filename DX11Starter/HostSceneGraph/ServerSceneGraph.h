@@ -42,8 +42,6 @@ public:
 	ServerSceneGraph(int teams, int playersPerTeam, int maxBullets, int maxColliders, StaticObject* staticObjs, int staticobjectCount);
 	~ServerSceneGraph();
 
-
 	void StackKeyFrame(PlayerKeyFrameData phantom);
-	// Collision Checks
 };
 

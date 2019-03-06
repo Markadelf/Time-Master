@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "PlayerObject.h"
 
 
@@ -44,6 +43,16 @@ ProjectileHandle PlayerObject::GetKilledBy()
 Phantom PlayerObject::Head()
 {
 	return m_images[m_imageCount - 1];
+}
+
+int PlayerObject::GetImageCount() const
+{
+	return m_imageCount;
+}
+
+Phantom* PlayerObject::GetPhantomBuffer() const
+{
+	return m_images;
 }
 
 void PlayerObject::StackKeyFrame(PlayerKeyFrameData keyFrame)

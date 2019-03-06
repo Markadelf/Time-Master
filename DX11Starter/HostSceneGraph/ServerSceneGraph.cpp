@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "ServerSceneGraph.h"
 
 
@@ -6,9 +5,35 @@ ServerSceneGraph::ServerSceneGraph()
 {
 }
 
+ServerSceneGraph::ServerSceneGraph(int teams, int playersPerTeam, int maxBullets, int maxColliders, StaticObject* staticObjs, int staticobjectCount)
+{
+	m_playerCount = teams * playersPerTeam;
+	m_colliderManager = ColliderManager(maxColliders, maxColliders);
+	m_projectileManager = ProjectileManager(teams, playersPerTeam, maxBullets);
+
+	m_players = new PlayerObject[teams * playersPerTeam];
+
+	// Static Object Buffer
+	m_statics = new StaticObject[staticobjectCount];
+	memcpy(m_statics, staticObjs, staticobjectCount);
+
+	m_playerCount = teams * playersPerTeam;
+	// Number of StaticObjects
+	int m_staticObjectCount;
+
+	// Time limit of match in real time
+	m_matchTimeRealTime = 300;
+	// Time constarints of match space
+	m_matchTimeRangeGameTime = 60;
+
+	m_matchTimer = 0;
+}
+
 
 ServerSceneGraph::~ServerSceneGraph()
 {
+	delete[] m_players;
+	delete[] m_statics;
 }
 
 void ServerSceneGraph::StackKeyFrame(PlayerKeyFrameData keyFrame)

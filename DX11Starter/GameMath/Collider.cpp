@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Collider.h"
 #include <math.h>
 
