@@ -48,7 +48,9 @@ private:
 	void CreateBasicGeometry();
 
 	// Render logic
+	void Render(Material* mat, DirectX::XMFLOAT4X4& transform, int meshHandle);
 	void RenderEntity(Entity& entity);
+	void RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t);
 
 	// The matrices to go from model space to screen space
 	Camera camera;

@@ -168,12 +168,10 @@ void Game::CreateBasicGeometry()
 	entityList.push_back(Entity(coneHandle, matHandle2, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.15f, .15f, .15f), DirectX::XMFLOAT4(0, 0, 0, 1)));
 	entityList.push_back(Entity(cylinderHandle, matHandle2, DirectX::XMFLOAT3(1, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
 	entityList.push_back(Entity(cylinderHandle, matHandle, DirectX::XMFLOAT3(2, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 0, 1)));
-
 }
 
-void Game::RenderEntity(Entity& entity)
+void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 {
-	Material* mat = materialManager.GetResourcePointer(entity.GetMaterialHandle());
 	SimplePixelShader* pixelShader = *pixelShaderManager.GetResourcePointer(mat->GetPixelShaderHandle());
 	SimpleVertexShader* vertexShader = *vertexShaderManager.GetResourcePointer(mat->GetVertexShaderHandle());
 
@@ -182,7 +180,7 @@ void Game::RenderEntity(Entity& entity)
 	//  - This is actually a complex process of copying data to a local buffer
 	//    and then copying that entire buffer to the GPU.  
 	//  - The "SimpleShader" class handles all of that for you.
-	vertexShader->SetMatrix4x4("world", entity.GetTransform());
+	vertexShader->SetMatrix4x4("world", transform);
 	vertexShader->SetMatrix4x4("view", camera.GetView());
 	vertexShader->SetMatrix4x4("projection", camera.GetProjection());
 
@@ -190,9 +188,9 @@ void Game::RenderEntity(Entity& entity)
 	// the next draw call, you need to actually send it to the GPU
 	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
 	vertexShader->CopyAllBufferData();
-	pixelShader->SetInt("lightAmount", (int)lightList.size());
+	pixelShader->SetInt("lightAmount", lightList.size());
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
-	pixelShader->SetData("light", &lightList[0], sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
+	pixelShader->SetData("light", (&lightList[0]), sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
 	pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
 	pixelShader->SetSamplerState("basicSampler", *samplerManager.GetResourcePointer(mat->GetSamplerHandle()));
 	pixelShader->CopyAllBufferData();
@@ -210,7 +208,7 @@ void Game::RenderEntity(Entity& entity)
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
-	Mesh* mesh = meshManager.GetResourcePointer(entity.GetMeshHandle());
+	Mesh* mesh = meshManager.GetResourcePointer(meshHandle);
 
 	ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
 	context->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
@@ -225,6 +223,23 @@ void Game::RenderEntity(Entity& entity)
 		mesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
 		0,     // Offset to the first index we want to use
 		0);    // Offset to add to each index when looking up vertices
+}
+
+void Game::RenderEntity(Entity& entity)
+{
+	Render(materialManager.GetResourcePointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
+}
+
+void Game::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
+{
+	Transform current = trans.GetTransform(t);
+	//XMMATRIX matrix = XMMatrixScaling(1, 1, 1);
+	//matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, current.GetRot(), 0));
+	XMMATRIX matrix = XMMatrixTranslation(current.GetPos().GetX(), 0, current.GetPos().GetY());
+	XMFLOAT4X4 transform;
+	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
+
+	Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
 }
 
 

@@ -12,11 +12,11 @@ namespace Colliders2D {
 	struct ColliderHandle
 	{
 		ColliderType m_type;
-		unsigned int m_handle;
+		int m_handle;
 
 		ColliderHandle() {
 			m_type = ColliderType::None;
-			m_handle = 0;
+			m_handle = -1;
 		}
 
 		ColliderHandle(ColliderType type, unsigned int handle) {
@@ -29,12 +29,17 @@ namespace Colliders2D {
 struct HandleObject
 {
 	Colliders2D::ColliderHandle m_collider;
-	int m_teamID;
-	// Add render handles
-	// Mesh Handle
-	// Material Handle
 
-	HandleObject() { m_teamID = -1; }
+	// Layer for collisions
+	int m_layer;
+
+	// Handle for the relevant mesh 
+	int m_mesh;
+
+	// Handle for the relevant material
+	int m_material;
+
+	HandleObject() {m_layer = 0; m_mesh = -1; m_material = -1; }
 	~HandleObject() {}
 };
 
