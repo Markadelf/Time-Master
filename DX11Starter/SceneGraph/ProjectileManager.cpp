@@ -1,7 +1,7 @@
 #include "ProjectileManager.h"
 
 
-ProjectileManager::ProjectileManager() : ProjectileManager(1, 1, 64)
+ProjectileManager::ProjectileManager() : ProjectileManager(1, 1, 1)
 {
 }
 

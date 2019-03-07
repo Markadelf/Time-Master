@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include "WICTextureLoader.h"
 #include "FilePathHelper.h"
+#include <cmath>
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -51,6 +52,8 @@ Game::~Game()
 	// Clean up my texture pointers
 	textureManager.ReleaseDXPointers();
 	samplerManager.ReleaseDXPointers();
+
+	delete sceneGraph;
 }
 
 // --------------------------------------------------------
@@ -162,12 +165,31 @@ void Game::CreateBasicGeometry()
 
 
 	// Make a bunch of entities
-	entityList.push_back(Entity(coneHandle, matHandle, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.05f, .05f, .05f), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	/*entityList.push_back(Entity(coneHandle, matHandle, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.05f, .05f, .05f), DirectX::XMFLOAT4(0, 0, 0, 1)));
 	entityList.push_back(Entity(cubeHandle, matHandle2, DirectX::XMFLOAT3(-2, 0, 0)));
 	entityList.push_back(Entity(cubeHandle, matHandle, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
 	entityList.push_back(Entity(coneHandle, matHandle2, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.15f, .15f, .15f), DirectX::XMFLOAT4(0, 0, 0, 1)));
 	entityList.push_back(Entity(cylinderHandle, matHandle2, DirectX::XMFLOAT3(1, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
-	entityList.push_back(Entity(cylinderHandle, matHandle, DirectX::XMFLOAT3(2, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	entityList.push_back(Entity(cylinderHandle, matHandle, DirectX::XMFLOAT3(2, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 0, 1)));*/
+
+	// Add static objects to scene graph
+	const int div = 20;
+	StaticObject objs[div];
+	Vector2 right = Vector2(5, 0);
+	HandleObject handle;
+	handle.m_material = matHandle;
+	handle.m_mesh = cubeHandle;
+
+	for (size_t i = 0; i < div; i++)
+	{
+		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
+	}
+
+	handle.m_material = matHandle2;
+	handle.m_mesh = cylinderHandle;
+	sceneGraph = new ServerSceneGraph(1, 10, 10, &objs[0], div);
+	XMFLOAT3 pos = camera.GetPosition();
+	sceneGraph->GetPlayerPhantoms(0)->Initialize(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, handle);
 }
 
 void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
@@ -230,16 +252,34 @@ void Game::RenderEntity(Entity& entity)
 	Render(materialManager.GetResourcePointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
 }
 
-void Game::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
+void Game::RenderObjectAtPos(HandleObject& handle, Transform trans)
 {
-	Transform current = trans.GetTransform(t);
-	//XMMATRIX matrix = XMMatrixScaling(1, 1, 1);
-	//matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, current.GetRot(), 0));
-	XMMATRIX matrix = XMMatrixTranslation(current.GetPos().GetX(), 0, current.GetPos().GetY());
+	XMMATRIX matrix = XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0);
+	matrix = XMMatrixMultiply(matrix, XMMatrixTranslation(trans.GetPos().GetX(), 0, trans.GetPos().GetY()));
 	XMFLOAT4X4 transform;
 	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
 
 	Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
+}
+
+void Game::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
+{
+	RenderObjectAtPos(handle, trans.GetTransform(t));
+}
+
+void Game::RenderPhantoms(TemporalEntity& phantom, float t)
+{
+	int phantoms = phantom.GetImageCount();
+	Phantom* pBuffer = phantom.GetPhantomBuffer();
+	HandleObject handle = phantom.GetHandle();
+	for (size_t i = 0; i < phantoms; i++)
+	{
+		TimeInstableTransform trans = pBuffer[i].GetTransform();
+		if (trans.GetEndTime() > t && trans.GetStartTime() < t)
+		{
+			RenderLerpObject(handle, trans, t);
+		}
+	}
 }
 
 
@@ -260,6 +300,7 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	time += deltaTime * (reversed ? -1 : 1);
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
@@ -279,6 +320,19 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		camera.MoveRelative(XMFLOAT3(-1 * deltaTime, 0, 0));
 	}
+	static bool rHeld = false;
+	if (GetAsyncKeyState('R') & 0x8000)
+	{
+		if (!rHeld)
+		{
+			reversed = !reversed;
+			rHeld = true;
+		}
+	}
+	else
+	{
+		rHeld = false;
+	}
 	static bool held = false;
 	if (GetAsyncKeyState(' ') & 0x8000)
 	{
@@ -288,7 +342,7 @@ void Game::Update(float deltaTime, float totalTime)
 			bullet.SetRotation(camera.GetRot());
 			bullet.SetScale(DirectX::XMFLOAT3(.5f, .5f, .5f));
 			// Add to update list
-			bulletList.push_back(bullet);
+			//bulletList.push_back(bullet);
 			held = true;
 		}
 	}
@@ -296,17 +350,18 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		held = false;
 	}
-	/*
-	if (GetAsyncKeyState(VK_LSHIFT) & 0x8000)
-	{
-		camera.MoveRelative(XMFLOAT3(0, -1 * deltaTime, 0));
-	}*/
-	//entityList[1].Move(XMFLOAT3(1 * deltaTime, 0, 0));
-	for (size_t i = 0; i < bulletList.size(); i++)
-	{
-		bulletList[i].MoveForward(XMFLOAT3(0, 0, 5 * deltaTime));
-	}
 
+	static int frame = 0;
+	if (frame > 10)
+	{
+		XMFLOAT3 pos = camera.GetPosition();
+		sceneGraph->StackKeyFrame(PlayerKeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, 0, false));
+		frame = 0;
+	}
+	else 
+	{
+		frame++;
+	}
 }
 
 // --------------------------------------------------------
@@ -328,12 +383,21 @@ void Game::Draw(float deltaTime, float totalTime)
 		0);
 
 
-	for (int i = 0; i < entityList.size(); i++) {
+	/*for (int i = 0; i < entityList.size(); i++) {
 		RenderEntity(entityList[i]);
 	}
 	for (int i = 0; i < bulletList.size(); i++) {
 		RenderEntity(bulletList[i]);
+	}*/
+	StaticObject* objs;
+	int sCount;
+	sceneGraph->GetStatics(&objs, sCount);
+	for (size_t i = 0; i < sCount; i++)
+	{
+		RenderObjectAtPos(objs[i].GetHandles(), objs[i].GetTransform());
 	}
+	TemporalEntity* playerOne = sceneGraph->GetPlayerPhantoms(0);
+	RenderPhantoms(*playerOne, time);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it

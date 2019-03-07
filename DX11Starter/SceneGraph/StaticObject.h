@@ -11,6 +11,7 @@ class StaticObject
 
 public:
 	StaticObject();
+	StaticObject(Transform& t, HandleObject& obj);
 	~StaticObject();
 	
 	Transform GetTransform() const;

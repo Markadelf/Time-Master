@@ -1,11 +1,11 @@
-#include "PlayerObject.h"
+#include "TemporalEntity.h"
 
 
-PlayerObject::PlayerObject() : PlayerObject(2048, 100, Transform(), 0, HandleObject(), -1)
+TemporalEntity::TemporalEntity() : TemporalEntity(2048, 100, Transform(), 0, HandleObject(), -1)
 {
 }
 
-PlayerObject::PlayerObject(int maxImages, int maxBullets, const Transform& startingPos, float initialTime, HandleObject handles, int playerId)
+TemporalEntity::TemporalEntity(int maxImages, int maxBullets, const Transform& startingPos, float initialTime, HandleObject handles, int playerId)
 {
 	m_maxImages = maxImages;
 	m_maxBullets = maxBullets;
@@ -29,33 +29,66 @@ PlayerObject::PlayerObject(int maxImages, int maxBullets, const Transform& start
 }
 
 
-PlayerObject::~PlayerObject()
+TemporalEntity::~TemporalEntity()
 {
-	delete[] m_images;
-	delete[] m_projectileHandles;
+	if (m_images)
+	{
+		delete[] m_images;
+	}
+	if (m_projectileHandles) 
+	{
+		delete[] m_projectileHandles;
+	}
 }
 
-ProjectileHandle PlayerObject::GetKilledBy()
+void TemporalEntity::Initialize(const Transform& startingPos, float initialTime, HandleObject handles)
+{
+	m_currentTransform = startingPos;
+	m_lastTimeStamp = initialTime;
+
+	// Intialize indices
+	m_imageCount = 0;
+	m_projectileCount = 0;
+
+	m_handles = handles;
+
+	// Initialize variables
+	m_killedBy = ProjectileHandle();
+	m_reversed = false;
+}
+
+ProjectileHandle TemporalEntity::GetKilledBy()
 {
 	return m_killedBy;
 }
 
-Phantom PlayerObject::Head()
+Phantom TemporalEntity::Head()
 {
 	return m_images[m_imageCount - 1];
 }
 
-int PlayerObject::GetImageCount() const
+int TemporalEntity::GetImageCount() const
 {
 	return m_imageCount;
 }
 
-Phantom* PlayerObject::GetPhantomBuffer() const
+Phantom* TemporalEntity::GetPhantomBuffer() const
 {
 	return m_images;
 }
 
-void PlayerObject::StackKeyFrame(PlayerKeyFrameData keyFrame)
+HandleObject TemporalEntity::GetHandle() const 
+{
+	return m_handles;
+}
+
+void TemporalEntity::SetHandle(HandleObject& obj)
+{
+	m_handles = obj;
+}
+
+
+void TemporalEntity::StackKeyFrame(PlayerKeyFrameData keyFrame)
 {
 	if (m_killedBy.m_playerId != -1)
 	{
@@ -83,7 +116,7 @@ void PlayerObject::StackKeyFrame(PlayerKeyFrameData keyFrame)
 	}
 }
 
-void PlayerObject::Kill(int imageIndex, TimeStamp time, ProjectileHandle murderHandle, ProjectileHandle& bulletResetHandle)
+void TemporalEntity::Kill(int imageIndex, TimeStamp time, ProjectileHandle murderHandle, ProjectileHandle& bulletResetHandle)
 {
 	if (imageIndex > m_imageCount)
 	{
@@ -126,7 +159,7 @@ void PlayerObject::Kill(int imageIndex, TimeStamp time, ProjectileHandle murderH
 	}
 }
 
-void PlayerObject::Revive()
+void TemporalEntity::Revive()
 {
 	// Most of the work was done by the kill function
 	m_killedBy = ProjectileHandle();

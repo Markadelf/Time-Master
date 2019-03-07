@@ -18,7 +18,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ServerSceneGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)PlayerObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)TemporalEntity.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ServerSceneGraph.h" />
   </ItemGroup>
 </Project>

@@ -39,7 +39,27 @@ struct HandleObject
 	// Handle for the relevant material
 	int m_material;
 
-	HandleObject() {m_layer = 0; m_mesh = -1; m_material = -1; }
+	HandleObject() 
+	{ 
+		m_layer = 0; 
+		m_mesh = -1; 
+		m_material = -1; 
+	}
+
+	HandleObject(const HandleObject& other)
+	{
+		m_layer = other.m_layer;
+		m_mesh = other.m_mesh;
+		m_material = other.m_material;
+	}
+
+	HandleObject& operator= (const HandleObject& other) {
+		m_layer = other.m_layer;
+		m_mesh = other.m_mesh;
+		m_material = other.m_material;
+		return *this;
+	}
+
 	~HandleObject() {}
 };
 

@@ -6,7 +6,7 @@
 #include "PlayerKeyFrameData.h"
 
 // The player object keeps a record of all of the actions a player has taken
-class PlayerObject
+class TemporalEntity
 {
 	struct ProjectileLaunchInfo
 	{
@@ -53,15 +53,22 @@ class PlayerObject
 	float m_lastTimeStamp;
 
 public:
-	PlayerObject();
-	PlayerObject(int maxImages, int maxBullets, const Transform& startingPos, float initialTime, HandleObject handles, int playerId);
-	~PlayerObject();
+	TemporalEntity();
+	TemporalEntity(int maxImages, int maxBullets, const Transform& startingPos, float initialTime, HandleObject handles, int playerId);
+	~TemporalEntity();
+
+	// Initialize
+	void Initialize(const Transform& startingPos, float initialTime, HandleObject handles);
 
 	// Accessor functions
 	ProjectileHandle GetKilledBy();
 	Phantom Head();
 	int GetImageCount() const;
 	Phantom* GetPhantomBuffer() const;
+	HandleObject GetHandle() const;
+
+	// Modifier functions
+	void SetHandle(HandleObject& obj);
 
 	// Upkeep/Update functions
 	// NOTE THIS WILL NOT CREATE BULLETS, IT WILL KEEP TRACK OF BULLETS CREATED

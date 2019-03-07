@@ -7,39 +7,43 @@ ServerSceneGraph::ServerSceneGraph()
 	m_statics = nullptr;
 }
 
-ServerSceneGraph::ServerSceneGraph(int teams, int playersPerTeam, int maxBullets, int maxColliders, StaticObject* staticObjs, int staticobjectCount)
+ServerSceneGraph::ServerSceneGraph(int maxEntities, int causalityPerEntity, int maxColliders, StaticObject* staticObjs, int staticobjectCount) 
 {
-	m_playerCount = teams * playersPerTeam;
-	m_colliderManager = ColliderManager(maxColliders, maxColliders);
-	m_projectileManager = ProjectileManager(teams, playersPerTeam, maxBullets);
+	m_maxEntities = maxEntities;
+	m_entityCount = 0;
+	m_colliderManager = new ColliderManager(maxColliders, maxColliders);
+	m_projectileManager = new ProjectileManager(1, maxEntities, causalityPerEntity);
 
-	m_players = new PlayerObject[teams * playersPerTeam];
+	m_players = new TemporalEntity[maxEntities];
 
 	// Static Object Buffer
 	m_statics = new StaticObject[staticobjectCount];
-	memcpy(m_statics, staticObjs, staticobjectCount);
+	memcpy(m_statics, staticObjs, staticobjectCount * sizeof(StaticObject));
 
-	m_playerCount = teams * playersPerTeam;
 	// Number of StaticObjects
-	int m_staticObjectCount;
-
-	// Time limit of match in real time
-	m_matchTimeRealTime = 300;
-	// Time constarints of match space
-	m_matchTimeRangeGameTime = 60;
-
-	m_matchTimer = 0;
+	m_staticObjectCount = staticobjectCount;
 }
-
 
 ServerSceneGraph::~ServerSceneGraph()
 {
 	if (m_players)
 	{
 		delete[] m_players;
+		m_players = nullptr;
 	}
 	if (m_statics) {
 		delete[] m_statics;
+		m_statics = nullptr;
+	}
+	if (m_colliderManager)
+	{
+		delete m_colliderManager;
+		m_colliderManager = nullptr;
+	}
+	if (m_projectileManager)
+	{
+		delete m_projectileManager;
+		m_projectileManager = nullptr;
 	}
 }
 
@@ -58,7 +62,23 @@ void ServerSceneGraph::StackKeyFrame(PlayerKeyFrameData keyFrame)
 		Vector2 finalPos = Vector2(BULLETRANGE, 0).Rotate(transform.GetRot());
 		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), keyFrame.GetShotTime(), keyFrame.GetShotTime() + BULLETPERIOD, false);
 		Projectile spawn = Projectile(traj, HandleObject());
-		m_projectileManager.AddBullet(playerId, spawn);
+		//	m_projectileManager.AddBullet(playerId, spawn);
 	}
 
 }
+
+void ServerSceneGraph::GetStatics(StaticObject** objs, int& count) {
+	*objs = m_statics;
+	count = m_staticObjectCount;
+}
+
+TemporalEntity* ServerSceneGraph::GetPlayerPhantoms(int index)
+{
+	return &m_players[index];
+}
+
+int ServerSceneGraph::AddEntity(TemporalEntity & entity)
+{
+	return 0;
+}
+

@@ -5,6 +5,12 @@ StaticObject::StaticObject()
 {
 }
 
+StaticObject::StaticObject(Transform& t, HandleObject& obj)
+{
+	m_transform = t;
+	m_handle = obj;
+}
+
 
 StaticObject::~StaticObject()
 {
