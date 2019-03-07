@@ -1,7 +1,6 @@
 #pragma once
 #include "TimeInstableTransform.h"
-#include "ProjectileManager.h"
-#include "Projectile.h"
+#include "Phenomina.h"
 #include <Serializer.h>
 
 // This is how the client will send keyframe data to the server
@@ -9,7 +8,7 @@ class PlayerKeyFrameData
 {
 	Transform m_transform;
 	TimeStamp m_timeStamp;
-	int m_playerId;
+	int m_entityId;
 	TimeStamp m_shotTime; // -1 if no shot was fired
 	bool m_shot;
 

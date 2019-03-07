@@ -3,14 +3,12 @@
 #include "StaticObject.h"
 #include "TemporalEntity.h"
 #include "ColliderManager.h"
-#include "ProjectileManager.h"
 #include "PlayerKeyFrameData.h"
 
 class ServerSceneGraph
 {
 	// Manager
 	ColliderManager* m_colliderManager;
-	ProjectileManager* m_projectileManager;
 
 	// Buffers
 	

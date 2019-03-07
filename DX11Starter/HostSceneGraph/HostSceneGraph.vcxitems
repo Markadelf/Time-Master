@@ -14,7 +14,7 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)PlayerObject.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)TemporalEntity.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ServerSceneGraph.cpp" />
   </ItemGroup>
   <ItemGroup>

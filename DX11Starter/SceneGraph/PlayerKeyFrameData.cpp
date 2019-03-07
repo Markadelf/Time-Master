@@ -3,7 +3,7 @@
 
 PlayerKeyFrameData::PlayerKeyFrameData()
 {
-	m_playerId = -1;
+	m_entityId = -1;
 	m_shotTime = -1;
 	m_shot = false;
 }
@@ -12,7 +12,7 @@ PlayerKeyFrameData::PlayerKeyFrameData(Transform transform, TimeStamp time, int 
 {
 	m_transform = transform;
 	m_timeStamp = time;
-	m_playerId = id;
+	m_entityId = id;
 	m_shot = shot;
 	m_shotTime = timeShot;
 }
@@ -34,7 +34,7 @@ TimeStamp PlayerKeyFrameData::GetTimeStamp()
 
 int PlayerKeyFrameData::GetPlayerId()
 {
-	return m_playerId;
+	return m_entityId;
 }
 
 TimeStamp PlayerKeyFrameData::GetShotTime()
@@ -52,7 +52,7 @@ bool PlayerKeyFrameData::Serialize(Buffer & buffer) const
 	return
 		m_transform.Serialize(buffer) &&
 		Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_timeStamp) &&
-		Serializer::SerializeInteger<-1, 14>(buffer, m_playerId) &&
+		Serializer::SerializeInteger<-1, 14>(buffer, m_entityId) &&
 		Serializer::SerializeBool(buffer, m_shot) &&
 		(m_shot ? Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_shotTime) : true);
 }
@@ -62,7 +62,7 @@ bool PlayerKeyFrameData::Deserialize(Buffer & buffer)
 	return
 		m_transform.Deserialize(buffer) &&
 		Serializer::DeserializeFloat<-1000, 1000, 1, 30>(buffer, m_timeStamp) &&
-		Serializer::DeserializeInteger<-1, 14>(buffer, m_playerId) &&
+		Serializer::DeserializeInteger<-1, 14>(buffer, m_entityId) &&
 		Serializer::DeserializeBool(buffer, m_shot) &&
 		(m_shot ? Serializer::DeserializeFloat<-1000, 1000, 1, 30>(buffer, m_shotTime) : true);
 }

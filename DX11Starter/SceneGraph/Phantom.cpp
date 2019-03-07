@@ -3,7 +3,7 @@
 
 Phantom::Phantom()
 {
-	m_playerId = -1;
+	m_entityId = -1;
 	m_activeHead = false;
 	m_shot = false;
 }
@@ -11,7 +11,7 @@ Phantom::Phantom()
 Phantom::Phantom(TimeInstableTransform transform, int id, bool activeHead, bool shot, TimeStamp timeShot)
 {
 	m_transform = transform;
-	m_playerId = id;
+	m_entityId = id;
 	m_activeHead = activeHead;
 	m_shot = shot;
 	m_shotTime = timeShot;
@@ -20,7 +20,7 @@ Phantom::Phantom(TimeInstableTransform transform, int id, bool activeHead, bool 
 Phantom::Phantom(TimeInstableTransform transform, PlayerKeyFrameData keyFrame)
 {
 	m_transform = transform;
-	m_playerId = keyFrame.GetPlayerId();
+	m_entityId = keyFrame.GetPlayerId();
 	m_activeHead = false;
 	m_shot = keyFrame.GetShot();
 	m_shotTime = keyFrame.GetShotTime();
@@ -38,7 +38,7 @@ TimeInstableTransform Phantom::GetTransform()
 
 int Phantom::GetPlayerId()
 {
-	return m_playerId;
+	return m_entityId;
 }
 
 float Phantom::GetShotTime()
@@ -74,7 +74,7 @@ bool Phantom::Serialize(Buffer& buffer) const
 {
 	return 
 		m_transform.Serialize(buffer) &&
-		Serializer::SerializeInteger<-1, 14>(buffer, m_playerId) &&
+		Serializer::SerializeInteger<-1, 14>(buffer, m_entityId) &&
 		Serializer::SerializeBool(buffer, m_activeHead) &&
 		Serializer::SerializeBool(buffer, m_shot) &&
 		(m_shot ? Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_shotTime) : true);
@@ -84,7 +84,7 @@ bool Phantom::Deserialize(Buffer& buffer)
 {
 	return 
 		m_transform.Deserialize(buffer) &&
-		Serializer::DeserializeInteger<-1, 14>(buffer, m_playerId) &&
+		Serializer::DeserializeInteger<-1, 14>(buffer, m_entityId) &&
 		Serializer::DeserializeBool(buffer, m_activeHead) &&
 		Serializer::DeserializeBool(buffer, m_shot) &&
 		(m_shot ? Serializer::DeserializeFloat<-1000, 1000, 1, 30>(buffer, m_shotTime) : true);

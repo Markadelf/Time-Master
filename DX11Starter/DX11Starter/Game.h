@@ -63,6 +63,8 @@ private:
 	float time = 0;
 	bool reversed = false;
 
+	float timeShot = -1;
+
 	// Tracks all entities
 	std::vector<DirectionalLight> lightList;
 

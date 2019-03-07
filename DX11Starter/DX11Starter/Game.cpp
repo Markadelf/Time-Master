@@ -270,13 +270,25 @@ void Game::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, f
 void Game::RenderPhantoms(TemporalEntity& phantom, float t)
 {
 	int phantoms = phantom.GetImageCount();
-	Phantom* pBuffer = phantom.GetPhantomBuffer();
+	Phantom* phantomBuffer = phantom.GetPhantomBuffer();
 	HandleObject handle = phantom.GetHandle();
 	for (size_t i = 0; i < phantoms; i++)
 	{
-		TimeInstableTransform trans = pBuffer[i].GetTransform();
+		TimeInstableTransform trans = phantomBuffer[i].GetTransform();
 		if (trans.GetEndTime() > t && trans.GetStartTime() < t)
 		{
+			RenderLerpObject(handle, trans, t);
+		}
+	}
+
+	int phenomina = phantom.GetPhenominaCount();
+	Phenomina* phenominaBuffer = phantom.GetPhenominaBuffer();
+	for (size_t i = 0; i < phenomina; i++)
+	{
+		TimeInstableTransform trans = phenominaBuffer[i].GetTransform();
+		if (trans.GetEndTime() > t && trans.GetStartTime() < t)
+		{
+			handle = phenominaBuffer[i].GetHandle();
 			RenderLerpObject(handle, trans, t);
 		}
 	}
@@ -338,9 +350,7 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		if (!held)
 		{
-			Entity bullet = Entity(meshManager.GetHandle("OBJ Files/cube.obj"), 0, camera.GetPosition());
-			bullet.SetRotation(camera.GetRot());
-			bullet.SetScale(DirectX::XMFLOAT3(.5f, .5f, .5f));
+			timeShot = time;
 			// Add to update list
 			//bulletList.push_back(bullet);
 			held = true;
@@ -355,8 +365,9 @@ void Game::Update(float deltaTime, float totalTime)
 	if (frame > 10)
 	{
 		XMFLOAT3 pos = camera.GetPosition();
-		sceneGraph->StackKeyFrame(PlayerKeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, 0, false));
+		sceneGraph->StackKeyFrame(PlayerKeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, 0, timeShot != -1, timeShot));
 		frame = 0;
+		timeShot = -1;
 	}
 	else 
 	{

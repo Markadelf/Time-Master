@@ -6,7 +6,7 @@
 class Phantom
 {
 	TimeInstableTransform m_transform;
-	int m_playerId;
+	int m_entityId;
 	TimeStamp m_shotTime;	// -1 if no shot was fired
 	bool m_shot;
 	bool m_activeHead;		// True if this phantom reflects a live character
