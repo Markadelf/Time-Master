@@ -396,7 +396,7 @@ void Game::Update(float deltaTime, float totalTime)
 		pos.x = nPos.GetX();
 		pos.z = nPos.GetY();
 		camera.SetPosition(pos);
-
+		camera.SetYaw(trans.GetRot());
 	}
 
 	static int frame = 0;
