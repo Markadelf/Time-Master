@@ -74,16 +74,6 @@ DXCore::~DXCore()
 
 	if (swapChain) { swapChain->Release();}
 	if (context) { context->Release();}
-#ifdef _DEBUG
-	ID3D11Debug* debugDevice = nullptr;
-	device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debugDevice));
-
-	debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-	if (debugDevice)
-	{
-		debugDevice->Release();
-	}
-#endif
 	if (device) { device->Release();}
 }
 
@@ -186,7 +176,7 @@ HRESULT DXCore::InitDirectX()
 	// Create a description of how our swap
 	// chain should work
 	DXGI_SWAP_CHAIN_DESC swapDesc = {};
-	swapDesc.BufferCount = 1;
+	swapDesc.BufferCount = 2;
 	swapDesc.BufferDesc.Width = width;
 	swapDesc.BufferDesc.Height = height;
 	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
@@ -199,7 +189,7 @@ HRESULT DXCore::InitDirectX()
 	swapDesc.OutputWindow = hWnd;
 	swapDesc.SampleDesc.Count = 1;
 	swapDesc.SampleDesc.Quality = 0;
-	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.Windowed = true;
 
 	// Result variable for below function calls
@@ -294,7 +284,7 @@ void DXCore::OnResize()
 
 	// Resize the underlying swap chain buffers
 	swapChain->ResizeBuffers(
-		1,
+		2,
 		width,
 		height,
 		DXGI_FORMAT_R8G8B8A8_UNORM,

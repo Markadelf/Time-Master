@@ -12,8 +12,37 @@ struct VertexToPixel
 	//  |    |                |
 	//  v    v                v
 	float4 position		: SV_POSITION;
-	float4 color		: COLOR;
+	float3 normal		: NORMAL;
+	float2 uv			: TEXCOORD;		//XY coord
 };
+
+// Struct for lights
+struct DirectionalLight
+{
+	float4 ambientColor;
+	float4 diffuseColor;
+	float3 direction;
+};
+
+// External Data for 
+cbuffer externalData : register(b0)
+{
+	DirectionalLight light[10];
+	int lightAmount;
+};
+
+Texture2D diffuseTexture : register(t0);
+SamplerState basicSampler : register(s0);
+
+// Helper function for lighting calc
+float4 lightCalc(float3 normal, DirectionalLight light) {
+	// Correct the direction
+	float3 lightDir = normalize(-light.direction);
+	// Get reflection value
+	float lightAmount = saturate(dot(normal, lightDir));
+	// Get the light value
+	return light.ambientColor + (light.diffuseColor * lightAmount);
+}
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -26,9 +55,15 @@ struct VertexToPixel
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	// Just return the input color
-	// - This color (like most values passing through the rasterizer) is 
-	//   interpolated for each pixel between the corresponding vertices 
-	//   of the triangle we're rendering
-	return input.color;
+	float4 surfaceColor = diffuseTexture.Sample(basicSampler, input.uv);
+	// Normalize normal
+	input.normal = normalize(input.normal);
+	
+	float4 netLight = float4(0, 0, 0, 1);
+	for (int i = 0; i < lightAmount; i++)
+	{
+		netLight += lightCalc(input.normal, light[i]);
+	}
+
+	return surfaceColor * netLight;
 }
