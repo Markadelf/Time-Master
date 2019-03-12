@@ -29,7 +29,7 @@ class TemporalEntity
 	// Stack of positions at various times
 	Phantom* m_images;
 	// Buffer containing indexes of projectiles
-	PhenominaCreationInfo* m_projectileHandles;
+	PhenominaCreationInfo* m_phenominaHandles;
 	// Buffer containing the phenomina
 	Phenomina* m_phenominaBuffer;
 
@@ -37,7 +37,7 @@ class TemporalEntity
 	Transform m_currentTransform;
 
 	// Handle object that includes info for rendering and collisions
-	HandleObject m_handles;
+	HandleObject m_handle;
 
 	// Buffer Sizes
 	int m_maxImages;
@@ -55,11 +55,11 @@ class TemporalEntity
 
 public:
 	TemporalEntity();
-	TemporalEntity(int maxImages, int maxPhenomina, const Transform& startingPos, float initialTime, HandleObject handles, int entityId);
+	TemporalEntity(int maxImages, int maxPhenomina, const Transform& startingPos, float initialTime, HandleObject handle, int entityId);
 	~TemporalEntity();
 
 	// Initialize
-	void Initialize(const Transform& startingPos, float initialTime, HandleObject handles);
+	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle);
 	void Initialize(int maxImages, int maxPhenomina, int entityId);
 
 	// Accessor functions
@@ -71,6 +71,7 @@ public:
 	Phenomina* GetPhenominaBuffer() const;
 	Transform GetTransform() const;
 	TimeStamp GetTimeStamp() const;
+	bool GetReversed() const;
 
 	HandleObject GetHandle() const;
 
@@ -81,7 +82,8 @@ public:
 	void StackKeyFrame(KeyFrameData keyFrame);
 
 	// Kill a player at a given time
-	void Kill(int imageIndex, TimeStamp time, const PhenominaHandle& murderHandle, PhenominaHandle& bulletResetHandle);
+	void Kill(int imageIndex, TimeStamp time, const PhenominaHandle& murderHandle, PhenominaHandle& phenominaResetHandle);
 	void Revive();
+	bool CheckRevive(const PhenominaHandle& resetHandle);
 };
 

@@ -25,16 +25,25 @@ TimeInstableTransform::~TimeInstableTransform()
 
 Transform TimeInstableTransform::GetTransform(TimeStamp timeStamp) const
 {
+	if (m_endTime == m_startTime) {
+		return m_start;
+	}
 	return Transform(GetPos(timeStamp), GetRot(timeStamp));
 }
 
 Vector2 TimeInstableTransform::GetPos(TimeStamp timeStamp) const
 {
+	if (m_endTime == m_startTime) {
+		return m_start.GetPos();
+	}
 	return Vector2::Lerp(m_start.GetPos(), m_end.GetPos(), (timeStamp - m_startTime) / (m_endTime - m_startTime));
 }
 
 float TimeInstableTransform::GetRot(TimeStamp timeStamp) const
 {
+	if (m_endTime == m_startTime) {
+		return m_start.GetRot();
+	}
 	return m_start.GetRot() + (m_end.GetRot() - m_start.GetRot()) * (timeStamp - m_startTime) / (m_endTime - m_startTime);
 }
 

@@ -370,6 +370,35 @@ void Game::Update(float deltaTime, float totalTime)
 		held = false;
 	}
 
+	static float tBack = 0;
+	static int fBack = 0;
+	if (GetAsyncKeyState('T') & 0x8000)
+	{
+		tBack = time;
+		fBack = sceneGraph->GetEntity(0)->GetImageCount();
+	}
+
+	if (GetAsyncKeyState('Q') & 0x8000)
+	{
+		TemporalEntity* e = sceneGraph->GetEntity(0);
+		PhenominaHandle reset;
+		e->Kill(fBack, tBack, PhenominaHandle(), reset);
+		if (e->CheckRevive(PhenominaHandle(0, 0)))
+		{
+			e->Revive();
+		}
+		time = e->GetTimeStamp();
+		reversed = e->GetReversed();
+
+		XMFLOAT3 pos = camera.GetPosition();
+		Transform trans = e->GetTransform();
+		Vector2 nPos = trans.GetPos();
+		pos.x = nPos.GetX();
+		pos.z = nPos.GetY();
+		camera.SetPosition(pos);
+
+	}
+
 	static int frame = 0;
 	if (frame > 30)
 	{
