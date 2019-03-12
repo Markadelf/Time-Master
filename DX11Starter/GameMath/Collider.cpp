@@ -72,11 +72,11 @@ bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& ci
 
 bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& circleA, const Transform& posB, const RectangleCollider& rectB, const Vector2& deltaPos, Vector2& overlap)
 {
-	Vector2 circleRelPos = (posA.GetPos() - posB.GetPos()).Rotate(-posB.GetRot());
+	Vector2 circleRelPos = (posA.GetPos() - posB.GetPos()).Rotate(posB.GetRot());
 	float effectiveWidth = circleA.GetRadius() + rectB.GetWidth();
 	float effectiveHeight = circleA.GetRadius() + rectB.GetHeight();
-	float overlapX = fabsf(circleRelPos.GetX()) - effectiveWidth;
-	float overlapY = fabsf(circleRelPos.GetY()) - effectiveHeight;
+	float overlapX = effectiveWidth - fabsf(circleRelPos.GetX());
+	float overlapY = effectiveHeight - fabsf(circleRelPos.GetY());
 	if (overlapX > 0 && overlapY > 0)
 	{
 		// We return an overlap vector parallel to the normal of the surface we are skimming
@@ -88,7 +88,7 @@ bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& ci
 		{
 			overlap = Vector2(0, circleRelPos.GetY() / fabsf(circleRelPos.GetY()) * overlapY);
 		}
-		overlap = overlap.Rotate(posB.GetRot());
+		overlap = overlap.Rotate(-posB.GetRot());
 		return true;
 	}
 	return false;

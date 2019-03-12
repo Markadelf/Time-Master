@@ -1,14 +1,14 @@
 #include "PlayerKeyFrameData.h"
 
 
-PlayerKeyFrameData::PlayerKeyFrameData()
+KeyFrameData::KeyFrameData()
 {
 	m_entityId = -1;
 	m_shotTime = -1;
 	m_shot = false;
 }
 
-PlayerKeyFrameData::PlayerKeyFrameData(Transform transform, TimeStamp time, int id, bool shot, TimeStamp timeShot)
+KeyFrameData::KeyFrameData(Transform transform, TimeStamp time, int id, bool shot, TimeStamp timeShot)
 {
 	m_transform = transform;
 	m_timeStamp = time;
@@ -18,36 +18,11 @@ PlayerKeyFrameData::PlayerKeyFrameData(Transform transform, TimeStamp time, int 
 }
 
 
-PlayerKeyFrameData::~PlayerKeyFrameData()
+KeyFrameData::~KeyFrameData()
 {
 }
 
-Transform PlayerKeyFrameData::GetTransform()
-{
-	return m_transform;
-}
-
-TimeStamp PlayerKeyFrameData::GetTimeStamp()
-{
-	return m_timeStamp;
-}
-
-int PlayerKeyFrameData::GetPlayerId()
-{
-	return m_entityId;
-}
-
-TimeStamp PlayerKeyFrameData::GetShotTime()
-{
-	return m_shotTime;
-}
-
-bool PlayerKeyFrameData::GetShot()
-{
-	return m_shot;
-}
-
-bool PlayerKeyFrameData::Serialize(Buffer & buffer) const
+bool KeyFrameData::Serialize(Buffer & buffer) const
 {
 	return
 		m_transform.Serialize(buffer) &&
@@ -57,7 +32,7 @@ bool PlayerKeyFrameData::Serialize(Buffer & buffer) const
 		(m_shot ? Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_shotTime) : true);
 }
 
-bool PlayerKeyFrameData::Deserialize(Buffer & buffer)
+bool KeyFrameData::Deserialize(Buffer & buffer)
 {
 	return
 		m_transform.Deserialize(buffer) &&

@@ -17,13 +17,13 @@ Phantom::Phantom(TimeInstableTransform transform, int id, bool activeHead, bool 
 	m_shotTime = timeShot;
 }
 
-Phantom::Phantom(TimeInstableTransform transform, PlayerKeyFrameData keyFrame)
+Phantom::Phantom(TimeInstableTransform transform, KeyFrameData keyFrame)
 {
 	m_transform = transform;
-	m_entityId = keyFrame.GetPlayerId();
+	m_entityId = keyFrame.m_entityId;
 	m_activeHead = false;
-	m_shot = keyFrame.GetShot();
-	m_shotTime = keyFrame.GetShotTime();
+	m_shot = keyFrame.m_shot;
+	m_shotTime = keyFrame.m_shotTime;
 }
 
 

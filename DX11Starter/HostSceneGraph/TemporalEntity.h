@@ -55,11 +55,12 @@ class TemporalEntity
 
 public:
 	TemporalEntity();
-	TemporalEntity(int maxImages, int maxBullets, const Transform& startingPos, float initialTime, HandleObject handles, int entityId);
+	TemporalEntity(int maxImages, int maxPhenomina, const Transform& startingPos, float initialTime, HandleObject handles, int entityId);
 	~TemporalEntity();
 
 	// Initialize
 	void Initialize(const Transform& startingPos, float initialTime, HandleObject handles);
+	void Initialize(int maxImages, int maxPhenomina, int entityId);
 
 	// Accessor functions
 	PhenominaHandle GetKilledBy();
@@ -68,6 +69,8 @@ public:
 	int GetPhenominaCount() const;
 	Phantom* GetPhantomBuffer() const;
 	Phenomina* GetPhenominaBuffer() const;
+	Transform GetTransform() const;
+	TimeStamp GetTimeStamp() const;
 
 	HandleObject GetHandle() const;
 
@@ -75,7 +78,7 @@ public:
 	void SetHandle(HandleObject& obj);
 
 	// Upkeep/Update functions
-	void StackKeyFrame(PlayerKeyFrameData keyFrame);
+	void StackKeyFrame(KeyFrameData keyFrame);
 
 	// Kill a player at a given time
 	void Kill(int imageIndex, TimeStamp time, const PhenominaHandle& murderHandle, PhenominaHandle& bulletResetHandle);

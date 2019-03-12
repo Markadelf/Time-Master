@@ -14,7 +14,7 @@ class Phantom
 public:
 	Phantom();
 	Phantom(TimeInstableTransform transform, int id, bool activeHead, bool shot, TimeStamp timeShot = -1);
-	Phantom(TimeInstableTransform transform, PlayerKeyFrameData keyFrame);
+	Phantom(TimeInstableTransform transform, KeyFrameData keyFrame);
 	~Phantom();
 
 	// Accessor

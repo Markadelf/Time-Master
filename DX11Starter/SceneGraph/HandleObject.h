@@ -46,7 +46,7 @@ struct HandleObject
 		m_material = -1; 
 	}
 
-	HandleObject(const HandleObject& other)
+	/*HandleObject(const HandleObject& other)
 	{
 		m_layer = other.m_layer;
 		m_mesh = other.m_mesh;
@@ -58,7 +58,7 @@ struct HandleObject
 		m_mesh = other.m_mesh;
 		m_material = other.m_material;
 		return *this;
-	}
+	}*/
 
 	~HandleObject() {}
 };

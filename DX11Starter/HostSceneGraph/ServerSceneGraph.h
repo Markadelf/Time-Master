@@ -13,7 +13,7 @@ class ServerSceneGraph
 	// Buffers
 	
 	// Player Buffer
-	TemporalEntity* m_players;
+	TemporalEntity* m_entities;
 
 	// Static Object Buffer
 	StaticObject* m_statics;
@@ -34,15 +34,20 @@ class ServerSceneGraph
 	
 public:
 	ServerSceneGraph();
-	ServerSceneGraph(int maxEntities, int causalityPerEntity, int maxColliders, StaticObject* staticObjs, int staticobjectCount);
+	ServerSceneGraph(int maxEntities, int causalityPerEntity, int maxColliders);
 	~ServerSceneGraph();
 
-	void StackKeyFrame(PlayerKeyFrameData phantom);
+	void Init(StaticObject* staticObjs, int staticobjectCount);
+
+	void StackKeyFrame(KeyFrameData phantom);
+	bool PreventCollision(int entityId, Transform& position);
 
 	void GetStatics(StaticObject** objs, int& count);
 
-	TemporalEntity* GetPlayerPhantoms(int index);
+	TemporalEntity* GetEntity(int index);
 
-	int AddEntity(TemporalEntity& entity);
+	int AddEntity(int maxImages, int maxPhenomina);
+
+	Colliders2D::ColliderHandle GetColliderHandle(Colliders2D::ColliderType cType, float a = 0, float b = 0);
 };
 

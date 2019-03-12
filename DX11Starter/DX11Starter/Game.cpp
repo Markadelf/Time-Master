@@ -142,7 +142,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::InitializeCamera()
 {
-	camera.SetPosition(XMFLOAT3(0, 0, -5));
+	camera.SetPosition(XMFLOAT3(0, 0, -3));
 	camera.SetYaw(0);
 	camera.SetAspectRatio((float)width / height);
 }
@@ -163,14 +163,7 @@ void Game::CreateBasicGeometry()
 	int matHandle = materialManager.GetHandle("DEFAULT");
 	int matHandle2 = materialManager.GetHandle("STRIPES");
 
-
-	// Make a bunch of entities
-	/*entityList.push_back(Entity(coneHandle, matHandle, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.05f, .05f, .05f), DirectX::XMFLOAT4(0, 0, 0, 1)));
-	entityList.push_back(Entity(cubeHandle, matHandle2, DirectX::XMFLOAT3(-2, 0, 0)));
-	entityList.push_back(Entity(cubeHandle, matHandle, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
-	entityList.push_back(Entity(coneHandle, matHandle2, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.15f, .15f, .15f), DirectX::XMFLOAT4(0, 0, 0, 1)));
-	entityList.push_back(Entity(cylinderHandle, matHandle2, DirectX::XMFLOAT3(1, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
-	entityList.push_back(Entity(cylinderHandle, matHandle, DirectX::XMFLOAT3(2, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 0, 1)));*/
+	sceneGraph = new ServerSceneGraph(1, 10, 10);
 
 	// Add static objects to scene graph
 	const int div = 20;
@@ -179,17 +172,22 @@ void Game::CreateBasicGeometry()
 	HandleObject handle;
 	handle.m_material = matHandle;
 	handle.m_mesh = cubeHandle;
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Rectangle, 1, 1);
+
 
 	for (size_t i = 0; i < div; i++)
 	{
 		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
 	}
 
+	sceneGraph->Init(&objs[0], div);
+
 	handle.m_material = matHandle2;
-	handle.m_mesh = cylinderHandle;
-	sceneGraph = new ServerSceneGraph(1, 10, 10, &objs[0], div);
+	handle.m_mesh = coneHandle;
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, 0);
 	XMFLOAT3 pos = camera.GetPosition();
-	sceneGraph->GetPlayerPhantoms(0)->Initialize(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, handle);
+	int id = sceneGraph->AddEntity(2048, 100);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, handle);
 }
 
 void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
@@ -275,7 +273,7 @@ void Game::RenderPhantoms(TemporalEntity& phantom, float t)
 	for (size_t i = 0; i < phantoms; i++)
 	{
 		TimeInstableTransform trans = phantomBuffer[i].GetTransform();
-		if (trans.GetEndTime() > t && trans.GetStartTime() < t)
+		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
 		{
 			RenderLerpObject(handle, trans, t);
 		}
@@ -286,7 +284,7 @@ void Game::RenderPhantoms(TemporalEntity& phantom, float t)
 	for (size_t i = 0; i < phenomina; i++)
 	{
 		TimeInstableTransform trans = phenominaBuffer[i].GetTransform();
-		if (trans.GetEndTime() > t && trans.GetStartTime() < t)
+		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
 		{
 			handle = phenominaBuffer[i].GetHandle();
 			RenderLerpObject(handle, trans, t);
@@ -332,6 +330,17 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		camera.MoveRelative(XMFLOAT3(-1 * deltaTime, 0, 0));
 	}
+	//Keep camera from moving into walls
+	XMFLOAT3 pos = camera.GetPosition();
+	Transform trans = Transform(Vector2(pos.x, pos.z), 0);
+	if (sceneGraph->PreventCollision(0, trans))
+	{
+		Vector2 nPos = trans.GetPos();
+		pos.x = nPos.GetX();
+		pos.z = nPos.GetY();
+		camera.SetPosition(pos);
+	}
+
 	static bool rHeld = false;
 	if (GetAsyncKeyState('R') & 0x8000)
 	{
@@ -362,10 +371,10 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 
 	static int frame = 0;
-	if (frame > 10)
+	if (frame > 30)
 	{
 		XMFLOAT3 pos = camera.GetPosition();
-		sceneGraph->StackKeyFrame(PlayerKeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, 0, timeShot != -1, timeShot));
+		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, 0, timeShot != -1, timeShot));
 		frame = 0;
 		timeShot = -1;
 	}
@@ -407,7 +416,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		RenderObjectAtPos(objs[i].GetHandles(), objs[i].GetTransform());
 	}
-	TemporalEntity* playerOne = sceneGraph->GetPlayerPhantoms(0);
+	TemporalEntity* playerOne = sceneGraph->GetEntity(0);
 	RenderPhantoms(*playerOne, time);
 
 	// Present the back buffer to the user
