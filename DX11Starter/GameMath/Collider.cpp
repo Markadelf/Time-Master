@@ -59,7 +59,7 @@ bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& ci
 	if (mag < combineRad * combineRad)
 	{
 		mag = sqrtf(mag);
-		overlap = (delta / mag) * (combineRad - mag);
+		overlap = (delta / mag) * (combineRad - mag) * -1;
 		return true;
 	}
 	return false;
@@ -104,8 +104,8 @@ bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& ci
 
 bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const CircleCollider& circleA, const TimeInstableTransform& posB, const CircleCollider& circleB, TimeStamp& timeStamp)
 {
-	TimeStamp tI = (TimeStamp) posA.GetStartTime() > posB.GetStartTime() ? posA.GetStartTime() : posB.GetStartTime();
-	TimeStamp tF = (TimeStamp) posA.GetEndTime() < posB.GetEndTime() ? posA.GetEndTime() : posB.GetEndTime();
+	TimeStamp tI = (TimeStamp)posA.GetStartTime() > posB.GetStartTime() ? posA.GetStartTime() : posB.GetStartTime();
+	TimeStamp tF = (TimeStamp)posA.GetEndTime() < posB.GetEndTime() ? posA.GetEndTime() : posB.GetEndTime();
 
 	Vector2 aStart = posA.GetPos(tI);
 	Vector2 bStart = posB.GetPos(tI);
@@ -118,15 +118,21 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 
 	// Our friend the dot product
 	TimeStamp t = tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / relVel.SquareMagnitude();
-	if (t < tI && CheckCircleCollisionFast(posA.GetPos(tI), posB.GetPos(tI), circleA.GetRadius() + circleB.GetRadius()))
+	if (t < tI)
 	{
-		timeStamp = tI;
-		return true;
+		if (CheckCircleCollisionFast(posA.GetPos(tI), posB.GetPos(tI), circleA.GetRadius() + circleB.GetRadius()))
+		{
+			timeStamp = tI;
+			return true;
+		}
 	}
-	else if (t > tF && CheckCircleCollisionFast(posA.GetPos(tF), posB.GetPos(tF), circleA.GetRadius() + circleB.GetRadius())) 
+	else if (t > tF)
 	{
-		timeStamp = tF;
-		return true;
+		if (CheckCircleCollisionFast(posA.GetPos(tF), posB.GetPos(tF), circleA.GetRadius() + circleB.GetRadius())) 
+		{
+			timeStamp = tF;
+			return true;
+		}
 	}
 	else if (CheckCircleCollisionFast(posA.GetPos(t), posB.GetPos(t), circleA.GetRadius() + circleB.GetRadius())) {
 		timeStamp = t;
@@ -134,3 +140,99 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 	}
 	return false;
 }
+
+bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const CircleCollider& circleA, const Transform& posB, const CircleCollider& circleB, TimeStamp& timeStamp)
+{
+	TimeStamp tI = posA.GetStartTime();
+	TimeStamp tF = posA.GetEndTime();
+
+	Vector2 aStart = posA.GetPos(tI);
+	Vector2 bPos = posB.GetPos();
+
+	Vector2 aFinal = posA.GetPos(tF);
+
+	Vector2 relVel = (aFinal - aStart) / (tF - tI);
+	Vector2 aRelB = aStart - bPos;
+	float sqrMag = relVel.SquareMagnitude();
+	if (sqrMag == 0)
+	{
+		if (CheckCircleCollisionFast(posA.GetPos(tI), bPos, circleA.GetRadius() + circleB.GetRadius()))
+		{
+			timeStamp = posA.GetReversed() ? tF : tI;
+			return true;
+		}
+	}
+
+	// Our friend the dot product
+	TimeStamp t = tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / sqrMag;
+	if (t < tI)
+	{
+		if (CheckCircleCollisionFast(posA.GetPos(tI), bPos, circleA.GetRadius() + circleB.GetRadius()))
+		{
+			timeStamp = tI;
+			return true;
+		}
+	}
+	else if (t > tF)
+	{
+		if (CheckCircleCollisionFast(posA.GetPos(tF), bPos, circleA.GetRadius() + circleB.GetRadius()))
+		{
+			timeStamp = tF;
+			return true;
+		}
+	}
+	else if (CheckCircleCollisionFast(posA.GetPos(t), bPos, circleA.GetRadius() + circleB.GetRadius())) {
+		timeStamp = t;
+		return true;
+	}
+	return false;
+}
+
+bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const CircleCollider& circleA, const Transform& posB, const RectangleCollider& rectB, TimeStamp& timeStamp)
+{
+	TimeStamp tI = posA.GetStartTime();
+	TimeStamp tF = posA.GetEndTime();
+
+	Vector2 aStart = posA.GetPos(tI);
+	Vector2 bPos = posB.GetPos();
+
+	Vector2 aFinal = posA.GetPos(tF);
+
+	Vector2 relVel = (aFinal - aStart) / (tF - tI);
+	Vector2 aRelB = aStart - bPos;
+	float sqrMag = relVel.SquareMagnitude();
+	if (sqrMag == 0)
+	{
+		if (CheckCollision(posA.GetTransform(tI), circleA, posB, rectB))
+		{
+			timeStamp = posA.GetReversed() ? tF : tI;
+			return true;
+		}
+	}
+
+	// Our friend the dot product
+	TimeStamp t = tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / sqrMag;
+	if (t < tI)
+	{
+		if (CheckCollision(posA.GetTransform(tI), circleA, posB, rectB))
+		{
+			timeStamp = tI;
+			return true;
+		}
+	}
+	else if (t > tF)
+	{
+		if (CheckCollision(posA.GetTransform(tF), circleA, posB, rectB))
+		{
+			timeStamp = tF;
+			return true;
+		}
+	}
+	else if (CheckCollision(posA.GetTransform(t), circleA, posB, rectB))
+	{
+		timeStamp = t;
+		return true;
+	}
+	return false;
+}
+

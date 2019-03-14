@@ -31,6 +31,9 @@ public:
 
 	bool GetReversed() const;
 
+	// Modifiers
+	void Trim(TimeStamp time);
+
 	// Serialization
 	bool Serialize(Buffer& buffer) const;
 	bool Deserialize(Buffer& buffer);

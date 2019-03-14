@@ -30,5 +30,6 @@ public:
 	// TIME INSTABLE COLLISION
 	// Returns if the collision occured and the timestamp of the collision
 	bool CheckCollision(const TimeInstableTransform& posA, const Colliders2D::ColliderHandle& objA, const TimeInstableTransform& posB, const Colliders2D::ColliderHandle& objB, TimeStamp& timeStamp);
+	bool CheckCollision(const TimeInstableTransform& posA, const Colliders2D::ColliderHandle& objA, const Transform& posB, const Colliders2D::ColliderHandle& objB, TimeStamp& timeStamp);
 };
 

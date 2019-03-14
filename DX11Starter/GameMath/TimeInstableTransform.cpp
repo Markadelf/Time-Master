@@ -62,6 +62,20 @@ bool TimeInstableTransform::GetReversed() const
 	return m_reversed;
 }
 
+void TimeInstableTransform::Trim(TimeStamp time)
+{
+	if (m_reversed)
+	{
+		m_start = GetTransform(time);
+		m_startTime = time;
+	}
+	else
+	{
+		m_end = GetTransform(time);
+		m_endTime = time;
+	}
+}
+
 bool TimeInstableTransform::Serialize(Buffer& buffer) const
 {
 	return 

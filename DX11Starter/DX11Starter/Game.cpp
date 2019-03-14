@@ -97,7 +97,8 @@ void Game::LoadTextures()
 		textureManager.AddResource("Textures/poster.png", image);
 	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/stripes.png").c_str(), 0, &image) == 0)
 		textureManager.AddResource("Textures/stripes.png", image);
-
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/player3.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/player3.png", image);
 	ID3D11SamplerState* sampler;
 	D3D11_SAMPLER_DESC desc = {};
 	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -132,6 +133,7 @@ void Game::LoadShaders()
 
 	materialManager.AddResource("DEFAULT", Material(vHandle, pHandle, textureManager.GetHandle("Textures/poster.png"), 0));
 	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/stripes.png"), 0));
+	materialManager.AddResource("PLAYER3", Material(vHandle, pHandle, textureManager.GetHandle("Textures/player3.png"), 0));
 }
 
 
@@ -162,12 +164,13 @@ void Game::CreateBasicGeometry()
 
 	int matHandle = materialManager.GetHandle("DEFAULT");
 	int matHandle2 = materialManager.GetHandle("STRIPES");
+	int matHandle3 = materialManager.GetHandle("PLAYER3");
 
-	sceneGraph = new ServerSceneGraph(1, 10, 10);
+	sceneGraph = new ServerSceneGraph(3, 10, 10);
 
 	// Add static objects to scene graph
 	const int div = 20;
-	StaticObject objs[div];
+	StaticObject objs[div + 1];
 	Vector2 right = Vector2(5, 0);
 	HandleObject handle;
 	handle.m_material = matHandle;
@@ -179,15 +182,33 @@ void Game::CreateBasicGeometry()
 	{
 		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
 	}
+	handle.m_material = matHandle2;
+	handle.m_mesh = cylinderHandle;
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, 1);
 
-	sceneGraph->Init(&objs[0], div);
+	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
+
+	sceneGraph->Init(&objs[0], div + 1);
 
 	handle.m_material = matHandle2;
 	handle.m_mesh = coneHandle;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, 0);
 	XMFLOAT3 pos = camera.GetPosition();
+	// Add player
 	int id = sceneGraph->AddEntity(2048, 100);
 	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, handle);
+
+	// Add another player
+	id = sceneGraph->AddEntity(2048, 100);
+	handle.m_material = matHandle;
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .5f);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), camera.GetYaw()), time, handle);
+
+	// Add another player
+	id = sceneGraph->AddEntity(2048, 100);
+	handle.m_material = matHandle3;
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .5f);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera.GetYaw()), time, handle);
 }
 
 void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
@@ -399,11 +420,67 @@ void Game::Update(float deltaTime, float totalTime)
 		camera.SetYaw(trans.GetRot());
 	}
 
+	static int activePlayer = 0;
+	if (GetAsyncKeyState('1') & 0x8000)
+	{
+		if (activePlayer != 0)
+		{
+			TemporalEntity* e = sceneGraph->GetEntity(0);
+			time = e->GetTimeStamp();
+			reversed = e->GetReversed();
+
+			XMFLOAT3 pos = camera.GetPosition();
+			Transform trans = e->GetTransform();
+			Vector2 nPos = trans.GetPos();
+			pos.x = nPos.GetX();
+			pos.z = nPos.GetY();
+			camera.SetPosition(pos);
+			camera.SetYaw(trans.GetRot());
+			activePlayer = 0;
+		}
+	}
+	if (GetAsyncKeyState('2') & 0x8000)
+	{
+		if (activePlayer != 1)
+		{
+			TemporalEntity* e = sceneGraph->GetEntity(1);
+			time = e->GetTimeStamp();
+			reversed = e->GetReversed();
+
+			XMFLOAT3 pos = camera.GetPosition();
+			Transform trans = e->GetTransform();
+			Vector2 nPos = trans.GetPos();
+			pos.x = nPos.GetX();
+			pos.z = nPos.GetY();
+			camera.SetPosition(pos);
+			camera.SetYaw(trans.GetRot());
+			activePlayer = 1;
+		}
+	}
+	if (GetAsyncKeyState('3') & 0x8000)
+	{
+		if (activePlayer != 2)
+		{
+			TemporalEntity* e = sceneGraph->GetEntity(2);
+			time = e->GetTimeStamp();
+			reversed = e->GetReversed();
+
+			XMFLOAT3 pos = camera.GetPosition();
+			Transform trans = e->GetTransform();
+			Vector2 nPos = trans.GetPos();
+			pos.x = nPos.GetX();
+			pos.z = nPos.GetY();
+			camera.SetPosition(pos);
+			camera.SetYaw(trans.GetRot());
+			activePlayer = 2;
+		}
+	}
 	static int frame = 0;
 	if (frame > 30)
 	{
 		XMFLOAT3 pos = camera.GetPosition();
-		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, 0, timeShot != -1, timeShot));
+		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, activePlayer, timeShot != -1, timeShot));
+		//sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z).Rotate(3.14f), camera.GetYaw()), time, 1, false, timeShot));
 		frame = 0;
 		timeShot = -1;
 	}
@@ -445,8 +522,11 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		RenderObjectAtPos(objs[i].GetHandles(), objs[i].GetTransform());
 	}
-	TemporalEntity* playerOne = sceneGraph->GetEntity(0);
-	RenderPhantoms(*playerOne, time);
+	int eCount = sceneGraph->GetEntityCount();
+	for (size_t i = 0; i < eCount; i++)
+	{
+		RenderPhantoms(*sceneGraph->GetEntity(i), time);
+	}
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it

@@ -58,16 +58,7 @@ bool Phantom::GetShot()
 
 void Phantom::Trim(TimeStamp time)
 {
-	if (m_transform.GetReversed())
-	{
-		float end = m_transform.GetEndTime();
-		m_transform = TimeInstableTransform(m_transform.GetTransform(time), m_transform.GetTransform(end), time, end, true);
-	}
-	else
-	{
-		float start = m_transform.GetStartTime();
-		m_transform = TimeInstableTransform(m_transform.GetTransform(start), m_transform.GetTransform(time), start, time, false);
-	}
+	m_transform.Trim(time);
 }
 
 bool Phantom::Serialize(Buffer& buffer) const

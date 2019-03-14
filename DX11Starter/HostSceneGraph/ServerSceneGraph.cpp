@@ -65,8 +65,67 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			keyFrame.m_transform.SetPos(newP);
 		}
 	}
+	Phantom* phantom = entity->StackKeyFrame(keyFrame);
+	if (keyFrame.m_shot && phantom != nullptr)
+	{
+		// TODO: MAKE DIFFERENT BULLET TYPES POSSIBLE
+		Transform transform = phantom->GetTransform().GetTransform(keyFrame.m_shotTime);
+		const float BULLETRANGE = 10;
+		const TimeStamp BULLETPERIOD = 1;
+		Vector2 finalPos = Vector2(0, BULLETRANGE).Rotate(-transform.GetRot());
+		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), keyFrame.m_shotTime, keyFrame.m_shotTime + BULLETPERIOD, false);
 
-	entity->StackKeyFrame(keyFrame);
+		TimeStamp timeStamp;
+		TimeStamp firstTimeStamp = traj.GetReversed() ? traj.GetStartTime() : traj.GetEndTime();
+		// Check for collisions with walls
+		for (size_t i = 0; i < m_staticObjectCount; i++)
+		{
+			// TODO: DONT USE THE SHOOTER'S COLLIDER
+			if (m_colliderManager->CheckCollision(traj, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, timeStamp))
+			{
+				if (traj.GetReversed() ? firstTimeStamp < timeStamp : firstTimeStamp > timeStamp)
+				{
+					firstTimeStamp = timeStamp;
+				}
+			}
+		}
+		traj.Trim(firstTimeStamp);
+		// Check for collisions with entities
+		for (size_t i = 0; i < m_entityCount; i++)
+		{
+			// Bullets don't collide with shooter
+			if (i == keyFrame.m_entityId)
+			{
+				continue;
+			}
+			Phantom* pBuffer = m_entities[i].GetPhantomBuffer();
+			int pCount = m_entities[i].GetImageCount();
+			for (size_t j = 0; j < pCount; j++)
+			{
+				if (m_colliderManager->CheckCollision(traj, handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
+				{
+					PhenominaHandle reset;
+					m_entities[i].Kill(j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
+					for (size_t k = 0; k < m_entityCount; k++)
+					{
+						if (m_entities[k].CheckRevive(reset)) 
+						{
+							m_entities[k].Revive();
+						}
+					}
+				}
+			}
+
+
+		}
+
+		// TODO: MAKE DIFFERENT BULLET HANDLES POSSIBLE
+		HandleObject bulletHandle = HandleObject();
+		bulletHandle.m_material = 1;
+		bulletHandle.m_mesh = 1;
+
+		entity->TrackPhenomina(Phenomina(traj, bulletHandle), keyFrame.m_shotTime);
+	}
 }
 
 bool ServerSceneGraph::PreventCollision(int entityId, Transform& trans) {
@@ -96,6 +155,11 @@ void ServerSceneGraph::GetStatics(StaticObject** objs, int& count) {
 TemporalEntity* ServerSceneGraph::GetEntity(int index)
 {
 	return &m_entities[index];
+}
+
+int ServerSceneGraph::GetEntityCount() const
+{
+	return m_entityCount;
 }
 
 int ServerSceneGraph::AddEntity(int maxImages, int maxPhenomina)

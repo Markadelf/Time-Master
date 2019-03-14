@@ -45,9 +45,11 @@ public:
 	void GetStatics(StaticObject** objs, int& count);
 
 	TemporalEntity* GetEntity(int index);
+	int GetEntityCount() const;
 
 	int AddEntity(int maxImages, int maxPhenomina);
 
 	Colliders2D::ColliderHandle GetColliderHandle(Colliders2D::ColliderType cType, float a = 0, float b = 0);
+
 };
 

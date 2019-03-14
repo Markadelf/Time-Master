@@ -11,15 +11,29 @@ namespace Colliders2D {
 	// Collider Handles are used by the handle
 	struct ColliderHandle
 	{
+		// Layer for collisions
+		int m_layer;
+
+		// Type of collider
 		ColliderType m_type;
+
+		// Actual handle
 		int m_handle;
 
 		ColliderHandle() {
+			m_layer = -1;
 			m_type = ColliderType::None;
 			m_handle = -1;
 		}
 
+		ColliderHandle(int layer, ColliderType type, unsigned int handle) {
+			m_layer = layer;
+			m_type = type;
+			m_handle = handle;
+		}
+
 		ColliderHandle(ColliderType type, unsigned int handle) {
+			m_layer = 0;
 			m_type = type;
 			m_handle = handle;
 		}
@@ -30,9 +44,6 @@ struct HandleObject
 {
 	Colliders2D::ColliderHandle m_collider;
 
-	// Layer for collisions
-	int m_layer;
-
 	// Handle for the relevant mesh 
 	int m_mesh;
 
@@ -41,24 +52,9 @@ struct HandleObject
 
 	HandleObject() 
 	{ 
-		m_layer = 0; 
 		m_mesh = -1; 
 		m_material = -1; 
 	}
-
-	/*HandleObject(const HandleObject& other)
-	{
-		m_layer = other.m_layer;
-		m_mesh = other.m_mesh;
-		m_material = other.m_material;
-	}
-
-	HandleObject& operator= (const HandleObject& other) {
-		m_layer = other.m_layer;
-		m_mesh = other.m_mesh;
-		m_material = other.m_material;
-		return *this;
-	}*/
 
 	~HandleObject() {}
 };

@@ -164,11 +164,11 @@ void TemporalEntity::SetHandle(HandleObject& obj)
 }
 
 
-void TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
+Phantom* TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
 {
 	if (m_killedBy.m_entity != -1)
 	{
-		return;
+		return nullptr;
 	}
 
 	TimeStamp timeStamp = keyFrame.m_timeStamp;
@@ -183,26 +183,16 @@ void TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
 	m_lastTimeStamp = timeStamp;
 	m_currentTransform = keyFrame.m_transform;
 
-	if (keyFrame.m_shot)
-	{
-		m_phenominaHandles[m_phenominaCount] = PhenominaCreationInfo(m_imageCount, timeStamp);
-		// TODO: Check for collisions
-		// TODO: Fix handles
-		// TODO: MAKE DIFFERENT BULLET TYPES POSSIBLE
-		Transform transform = m_images[m_imageCount].GetTransform().GetTransform(keyFrame.m_shotTime);
-		const float BULLETRANGE = 10;
-		const TimeStamp BULLETPERIOD = 1;
-		Vector2 finalPos = Vector2(0, BULLETRANGE).Rotate(-transform.GetRot());
-		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), keyFrame.m_shotTime, keyFrame.m_shotTime + BULLETPERIOD, false);
-		HandleObject bulletHandle = HandleObject();
-		bulletHandle.m_material = 1;
-		bulletHandle.m_mesh = 1;
-		m_phenominaBuffer[m_phenominaCount] = Phenomina(traj, bulletHandle);
-		m_phenominaCount++;
-	}
-
-	m_imageCount++;
+	return &m_images[m_imageCount++];
 }
+
+void TemporalEntity::TrackPhenomina(Phenomina phenomina, TimeStamp time)
+{
+	m_phenominaHandles[m_phenominaCount] = PhenominaCreationInfo(m_imageCount, time);
+	m_phenominaBuffer[m_phenominaCount] = phenomina;
+	m_phenominaCount++;
+}
+
 
 void TemporalEntity::Kill(int imageIndex, TimeStamp time, const PhenominaHandle& murderHandle, PhenominaHandle& phenominaResetHandle)
 {

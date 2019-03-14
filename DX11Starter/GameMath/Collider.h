@@ -52,6 +52,8 @@ namespace Colliders2D {
 	// TIME INSTABLE COLLISION
 	// Returns if the collision occured and the timestamp of the collision
 	bool CheckCollision(const TimeInstableTransform& posA, const CircleCollider& circleA, const TimeInstableTransform& posB, const CircleCollider& circleB, TimeStamp& timeStamp);
+	bool CheckCollision(const TimeInstableTransform& posA, const CircleCollider& circleA, const Transform& posB, const CircleCollider& circleB, TimeStamp& timeStamp);
+	bool CheckCollision(const TimeInstableTransform& posA, const CircleCollider& circleA, const Transform& posB, const RectangleCollider& rectB, TimeStamp& timeStamp);
 
 
 

@@ -97,3 +97,17 @@ bool ColliderManager::CheckCollision(const TimeInstableTransform& posA, const Co
 		return false;
 	}
 }
+
+bool ColliderManager::CheckCollision(const TimeInstableTransform& posA, const Colliders2D::ColliderHandle& objA, const Transform& posB, const Colliders2D::ColliderHandle& objB, TimeStamp& timeStamp)
+{
+	switch (objB.m_type)
+	{
+		// For now we only support LERP Collision Checks in Circular objects
+	case ColliderType::Circle:
+		return Colliders2D::CheckCollision(posA, m_circles[objA.m_handle], posB, m_circles[objB.m_handle], timeStamp);
+	case ColliderType::Rectangle:
+		return Colliders2D::CheckCollision(posA, m_circles[objA.m_handle], posB, m_rectangles[objB.m_handle], timeStamp);
+	default:
+		return false;
+	}
+}
