@@ -90,10 +90,10 @@ void Game::LoadTextures()
 {
 	ID3D11ShaderResourceView* image;
 	// Add if successful
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/poster.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/poster.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/stripes.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/stripes.png", image);
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Wooden.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/Wooden.png", image);
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Wooden.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/Wooden.png", image);
 
 	ID3D11SamplerState* sampler;
 	D3D11_SAMPLER_DESC desc = {};
@@ -127,8 +127,8 @@ void Game::LoadShaders()
 
 	int pHandle = pixelShaderManager.AddResource("P1", pixelShader);
 
-	materialManager.AddResource("DEFAULT", Material(vHandle, pHandle, textureManager.GetHandle("Textures/poster.png"), 0));
-	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/stripes.png"), 0));
+	materialManager.AddResource("DEFAULT", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Wooden.png"), 0));
+	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Wooden.png"), 0));
 }
 
 
@@ -151,11 +151,11 @@ void Game::InitializeCamera()
 void Game::CreateBasicGeometry()
 {
 	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = meshManager.AddResource("OBJ Files/cone.obj", Mesh("OBJ Files/cone.obj", device));
+	int coneHandle = meshManager.AddResource("OBJ Files/barrel.fbx", Mesh("OBJ Files/barrel.fbx", device));
 
-	int cubeHandle = meshManager.AddResource("OBJ Files/cube.obj", Mesh("OBJ Files/cube.obj", device));
+	int cubeHandle = meshManager.AddResource("OBJ Files/barrel.fbx", Mesh("OBJ Files/barrel.fbx", device));
 
-	int cylinderHandle = meshManager.AddResource("OBJ Files/cylinder.obj", Mesh("OBJ Files/cylinder.obj", device));
+	int cylinderHandle = meshManager.AddResource("OBJ Files/barrel.fbx", Mesh("OBJ Files/barrel.fbx", device));
 
 	int matHandle = materialManager.GetHandle("DEFAULT");
 	int matHandle2 = materialManager.GetHandle("STRIPES");
@@ -269,9 +269,9 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		if (!held)
 		{
-			Entity bullet = Entity(meshManager.GetHandle("OBJ Files/cube.obj"), 0, camera.GetPosition());
+			Entity bullet = Entity(meshManager.GetHandle("OBJ Files/barrel.fbx"), 0, camera.GetPosition());
 			bullet.SetRotation(camera.GetRot());
-			bullet.SetScale(DirectX::XMFLOAT3(.5f, .5f, .5f));
+			bullet.SetScale(DirectX::XMFLOAT3(.3f, .3f, .3f));
 			// Add to update list
 			bulletList.push_back(bullet);
 			held = true;
