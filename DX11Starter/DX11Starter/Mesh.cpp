@@ -23,7 +23,7 @@ Mesh::Mesh(Vertex* vertices, int vCount, int* indices, int iCount, ID3D11Device*
 Mesh::Mesh(const char* file, ID3D11Device* device) : Mesh()
 {
 	std::string filePath = FilePathHelper::GetPath(file);
-
+	const char* myfilepath = filePath.c_str();
 
 	// Variables used while reading the file
 	std::vector<XMFLOAT3> positions;     // Positions from the file
@@ -31,19 +31,19 @@ Mesh::Mesh(const char* file, ID3D11Device* device) : Mesh()
 	std::vector<XMFLOAT2> uvs;           // UVs from the file
 	std::vector<Vertex> verts;           // Verts we're assembling
 	std::vector<UINT> indices;           // Indices of these verts
-	unsigned int vertCounter = 0;        // Count of vertices/indices
-	//char chars[100];                     // String for line reading
 
+	// Open Assimp to load the file. Create object.
 	Assimp::Importer importer;
 
-
-
+	//Triangulate- convert corner points to vertices, ConvertToLeftHanded- convert to dx format (default OpenGL format), FlipUVs-for dx format 
 	const aiScene* pScene = importer.ReadFile(filePath,
 		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded |
-		aiProcess_FlipUVs);
+		aiProcess_FlipWindingOrder |
+		aiProcess_FlipUVs |
+		aiProcess_MakeLeftHanded);
+	//1 mesh for now
 	aiMesh* mesh = pScene->mMeshes[0];
-	
+	//store the positions, normals, uvs and push it in struct buffer 'verts'. Track 'vertCounter'.
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
@@ -51,34 +51,22 @@ Mesh::Mesh(const char* file, ID3D11Device* device) : Mesh()
 		vertex.Position.x = mesh->mVertices[i].x;
 		vertex.Position.y = mesh->mVertices[i].y;
 		vertex.Position.z = mesh->mVertices[i].z;
-		
+
 		vertex.Normal.x = mesh->mNormals[i].x;
 		vertex.Normal.y = mesh->mNormals[i].y;
 		vertex.Normal.z = mesh->mNormals[i].z;
 
-	
-
-			vertex.UV.x = mesh->mTextureCoords[0][i].x;
-			vertex.UV.y = mesh->mTextureCoords[0][i].y;
-
-
-		
+		vertex.UV.x = mesh->mTextureCoords[0][i].x;
+		vertex.UV.y = mesh->mTextureCoords[0][i].y;
 
 		verts.push_back(vertex);
-
-		vertCounter += 1;
-		vertCounter += 1;
-		vertCounter += 1;
 	}
-
+	//Calculate the indices
 	for (UINT c = 0; c < mesh->mNumFaces; c++)
 		for (UINT e = 0; e < mesh->mFaces[c].mNumIndices; e++)
+		{
 			indices.push_back(mesh->mFaces[c].mIndices[e]);
-
-
-	
-//	vertCounter = mesh->mNumVertices;
-	//pScene->~aiScene();
+		}
 	// - At this point, "verts" is a vector of Vertex structs, and can be used
 	//    directly to create a vertex buffer:  &verts[0] is the address of the first vert
 	//
@@ -90,7 +78,7 @@ Mesh::Mesh(const char* file, ID3D11Device* device) : Mesh()
 	//    an index buffer in this case?  Sure!  Though, if your mesh class assumes you have
 	//    one, you'll need to write some extra code to handle cases when you don't.
 
-	Init(&verts[0], vertCounter, &indices[0], vertCounter, device);
+	Init(&verts[0], verts.size(), &indices[0], indices.size(), device);
 }
 
 Mesh::Mesh(const Mesh & other)

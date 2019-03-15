@@ -92,8 +92,8 @@ void Game::LoadTextures()
 	// Add if successful
 	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Wooden.png").c_str(), 0, &image) == 0)
 		textureManager.AddResource("Textures/Wooden.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Wooden.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/Wooden.png", image);
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Stripes.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/Stripes.png", image);
 
 	ID3D11SamplerState* sampler;
 	D3D11_SAMPLER_DESC desc = {};
@@ -128,7 +128,7 @@ void Game::LoadShaders()
 	int pHandle = pixelShaderManager.AddResource("P1", pixelShader);
 
 	materialManager.AddResource("DEFAULT", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Wooden.png"), 0));
-	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Wooden.png"), 0));
+	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Stripes.png"), 0));
 }
 
 
@@ -151,23 +151,23 @@ void Game::InitializeCamera()
 void Game::CreateBasicGeometry()
 {
 	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = meshManager.AddResource("OBJ Files/barrel.fbx", Mesh("OBJ Files/barrel.fbx", device));
+	int coneHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
 
-	int cubeHandle = meshManager.AddResource("OBJ Files/barrel.fbx", Mesh("OBJ Files/barrel.fbx", device));
+	int cubeHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
 
-	int cylinderHandle = meshManager.AddResource("OBJ Files/barrel.fbx", Mesh("OBJ Files/barrel.fbx", device));
+	int cylinderHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
 
 	int matHandle = materialManager.GetHandle("DEFAULT");
 	int matHandle2 = materialManager.GetHandle("STRIPES");
 
 
 	// Make a bunch of entities
-	entityList.push_back(Entity(coneHandle, matHandle, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.05f, .05f, .05f), DirectX::XMFLOAT4(0, 0, 0, 1)));
-	entityList.push_back(Entity(cubeHandle, matHandle2, DirectX::XMFLOAT3(-2, 0, 0)));
-	entityList.push_back(Entity(cubeHandle, matHandle, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
-	entityList.push_back(Entity(coneHandle, matHandle2, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.15f, .15f, .15f), DirectX::XMFLOAT4(0, 0, 0, 1)));
-	entityList.push_back(Entity(cylinderHandle, matHandle2, DirectX::XMFLOAT3(1, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 1, 0)));
-	entityList.push_back(Entity(cylinderHandle, matHandle, DirectX::XMFLOAT3(2, 1, 0), DirectX::XMFLOAT3(1, 1, 1), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	entityList.push_back(Entity(coneHandle, matHandle, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.005f, .005f, .005f), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	entityList.push_back(Entity(cubeHandle, matHandle2, DirectX::XMFLOAT3(-2, 0, 0), DirectX::XMFLOAT3(.005f, .005f, .005f), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	entityList.push_back(Entity(cubeHandle, matHandle, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(.005f, .005f, .005f), DirectX::XMFLOAT4(0, 0, 1, 0)));
+	entityList.push_back(Entity(coneHandle, matHandle2, DirectX::XMFLOAT3(3, 0, 0), DirectX::XMFLOAT3(.005f, .005f, .005f), DirectX::XMFLOAT4(0, 0, 0, 1)));
+	entityList.push_back(Entity(cylinderHandle, matHandle2, DirectX::XMFLOAT3(1, 1, 0), DirectX::XMFLOAT3(.005f, .005f, .005f), DirectX::XMFLOAT4(0, 0, 1, 0)));
+	entityList.push_back(Entity(cylinderHandle, matHandle, DirectX::XMFLOAT3(2, 1, 0), DirectX::XMFLOAT3(.005f, .005f, .005f), DirectX::XMFLOAT4(0, 0, 0, 1)));
 
 }
 
@@ -269,7 +269,7 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		if (!held)
 		{
-			Entity bullet = Entity(meshManager.GetHandle("OBJ Files/barrel.fbx"), 0, camera.GetPosition());
+			Entity bullet = Entity(meshManager.GetHandle("OBJ_Files/duck.fbx"), 0, camera.GetPosition());
 			bullet.SetRotation(camera.GetRot());
 			bullet.SetScale(DirectX::XMFLOAT3(.3f, .3f, .3f));
 			// Add to update list
