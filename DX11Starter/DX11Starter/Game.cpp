@@ -175,7 +175,8 @@ void Game::CreateBasicGeometry()
 	HandleObject handle;
 	handle.m_material = matHandle;
 	handle.m_mesh = cubeHandle;
-	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Rectangle, 1, 1);
+	handle.m_scale[2] = 2;
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Rectangle, 1, 2);
 
 
 	for (size_t i = 0; i < div; i++)
@@ -185,6 +186,7 @@ void Game::CreateBasicGeometry()
 	handle.m_material = matHandle2;
 	handle.m_mesh = cylinderHandle;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, 1);
+	handle.m_scale[2] = 1;
 
 	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
 
@@ -192,7 +194,10 @@ void Game::CreateBasicGeometry()
 
 	handle.m_material = matHandle2;
 	handle.m_mesh = coneHandle;
-	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, 0);
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .25f);
+	handle.m_scale[0] = 1; 
+	handle.m_scale[1] = 1; 
+	handle.m_scale[2] = 1;
 	XMFLOAT3 pos = camera.GetPosition();
 	// Add player
 	int id = sceneGraph->AddEntity(2048, 100);
@@ -201,13 +206,11 @@ void Game::CreateBasicGeometry()
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = matHandle;
-	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .5f);
 	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), camera.GetYaw()), time, handle);
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = matHandle3;
-	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .5f);
 	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera.GetYaw()), time, handle);
 }
 
@@ -273,7 +276,8 @@ void Game::RenderEntity(Entity& entity)
 
 void Game::RenderObjectAtPos(HandleObject& handle, Transform trans)
 {
-	XMMATRIX matrix = XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0);
+	XMMATRIX matrix = XMMatrixScaling(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
+	matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0));
 	matrix = XMMatrixMultiply(matrix, XMMatrixTranslation(trans.GetPos().GetX(), 0, trans.GetPos().GetY()));
 	XMFLOAT4X4 transform;
 	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
@@ -484,7 +488,7 @@ void Game::Update(float deltaTime, float totalTime)
 		frame = 0;
 		timeShot = -1;
 	}
-	else 
+	else
 	{
 		frame++;
 	}

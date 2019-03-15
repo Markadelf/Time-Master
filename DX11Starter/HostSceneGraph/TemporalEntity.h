@@ -8,6 +8,9 @@
 // The player object keeps a record of all of the actions a player has taken
 class TemporalEntity
 {
+	// TODO: REFACTOR PHENOMINA SYSTEM
+	// The current system is functional, but I believe it would be better to refactor so that the heavy lifting isn't done by the TemporalEntity class
+	// Should be fine for now though
 	struct PhenominaCreationInfo
 	{
 		// Time stamp of shot as it corresponds to the INDEX OF THE IMAGE

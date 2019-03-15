@@ -71,7 +71,7 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 		// TODO: MAKE DIFFERENT BULLET TYPES POSSIBLE
 		Transform transform = phantom->GetTransform().GetTransform(keyFrame.m_shotTime);
 		const float BULLETRANGE = 10;
-		const TimeStamp BULLETPERIOD = 1;
+		const TimeStamp BULLETPERIOD = 2;
 		Vector2 finalPos = Vector2(0, BULLETRANGE).Rotate(-transform.GetRot());
 		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), keyFrame.m_shotTime, keyFrame.m_shotTime + BULLETPERIOD, false);
 
@@ -90,7 +90,9 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			}
 		}
 		traj.Trim(firstTimeStamp);
-		// Check for collisions with entities
+
+		// TODO: Consider refactoring for more generic logic
+		// Check for collisions between the projectile and other entities
 		for (size_t i = 0; i < m_entityCount; i++)
 		{
 			// Bullets don't collide with shooter
@@ -100,10 +102,13 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			}
 			Phantom* pBuffer = m_entities[i].GetPhantomBuffer();
 			int pCount = m_entities[i].GetImageCount();
+			// For each entity, check each image
 			for (size_t j = 0; j < pCount; j++)
 			{
+				// TODO: DONT USE THE SHOOTER'S COLLIDER
 				if (m_colliderManager->CheckCollision(traj, handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
 				{
+					// We hit, let everyone know we died
 					PhenominaHandle reset;
 					m_entities[i].Kill(j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
 					for (size_t k = 0; k < m_entityCount; k++)
@@ -115,14 +120,13 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 					}
 				}
 			}
-
-
 		}
 
 		// TODO: MAKE DIFFERENT BULLET HANDLES POSSIBLE
 		HandleObject bulletHandle = HandleObject();
 		bulletHandle.m_material = 1;
 		bulletHandle.m_mesh = 1;
+		bulletHandle.SetUniformScale(.25f);
 
 		entity->TrackPhenomina(Phenomina(traj, bulletHandle), keyFrame.m_shotTime);
 	}

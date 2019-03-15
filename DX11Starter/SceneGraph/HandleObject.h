@@ -50,6 +50,9 @@ struct HandleObject
 	// Handle for the relevant material
 	int m_material;
 
+	// X, Y, Z
+	float m_scale[3] = {1, 1, 1};
+
 	HandleObject() 
 	{ 
 		m_mesh = -1; 
@@ -57,5 +60,14 @@ struct HandleObject
 	}
 
 	~HandleObject() {}
+
+	// Convenience method
+	void SetUniformScale(float val) 
+	{
+		m_scale[0] = val;
+		m_scale[1] = val;
+		m_scale[2] = val;
+	}
+
 };
 
