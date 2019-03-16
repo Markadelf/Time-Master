@@ -1,6 +1,9 @@
 #pragma once
 #include <d3d11.h>
 #include "Vertex.h"
+#include"assimp/Importer.hpp"
+#include"assimp/scene.h"
+#include"assimp/postprocess.h"
 
 class Mesh
 {

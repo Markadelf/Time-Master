@@ -5,7 +5,7 @@ Entity::Entity()
 {
 	XMStoreFloat4x4(&transform, XMMatrixIdentity());
 	position = XMFLOAT3(0, 0, 0);
-	scale = XMFLOAT3(1, 1, 1);
+	scale = XMFLOAT3(1.f, 1.f, 1.f);
 	XMStoreFloat4(&rotation, XMQuaternionIdentity());
 	
 	// Intiialize with a known illegal mesh handle
