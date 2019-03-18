@@ -1,2 +1,13 @@
 .vs/
-x64/
+
+#Disclude the x64 folders, but not the dlls we need
+x64/*
+*/x64
+!x64/Debug
+x64/Debug/*
+**.pdb
+!x64/Release
+x64/Release/*
+
+!x64/Debug/assimp-vc140-mt.dll
+!x64/Release/assimp-vc140-mt.dll

@@ -95,10 +95,13 @@ void Game::LoadTextures()
 	// Add if successful
 	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/poster.png").c_str(), 0, &image) == 0)
 		textureManager.AddResource("Textures/poster.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/stripes.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/stripes.png", image);
 	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/player3.png").c_str(), 0, &image) == 0)
 		textureManager.AddResource("Textures/player3.png", image);
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Wooden.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/Wooden.png", image);
+	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Stripes.png").c_str(), 0, &image) == 0)
+		textureManager.AddResource("Textures/Stripes.png", image);
+
 	ID3D11SamplerState* sampler;
 	D3D11_SAMPLER_DESC desc = {};
 	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -132,8 +135,9 @@ void Game::LoadShaders()
 	int pHandle = pixelShaderManager.AddResource("P1", pixelShader);
 
 	materialManager.AddResource("DEFAULT", Material(vHandle, pHandle, textureManager.GetHandle("Textures/poster.png"), 0));
-	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/stripes.png"), 0));
 	materialManager.AddResource("PLAYER3", Material(vHandle, pHandle, textureManager.GetHandle("Textures/player3.png"), 0));
+	materialManager.AddResource("WOODEN", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Wooden.png"), 0));
+	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Stripes.png"), 0));
 }
 
 
@@ -156,15 +160,16 @@ void Game::InitializeCamera()
 void Game::CreateBasicGeometry()
 {
 	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = meshManager.AddResource("OBJ Files/cone.obj", Mesh("OBJ Files/cone.obj", device));
+	int coneHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
 
-	int cubeHandle = meshManager.AddResource("OBJ Files/cube.obj", Mesh("OBJ Files/cube.obj", device));
+	int cubeHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
 
-	int cylinderHandle = meshManager.AddResource("OBJ Files/cylinder.obj", Mesh("OBJ Files/cylinder.obj", device));
+	int cylinderHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
 
 	int matHandle = materialManager.GetHandle("DEFAULT");
 	int matHandle2 = materialManager.GetHandle("STRIPES");
 	int matHandle3 = materialManager.GetHandle("PLAYER3");
+	int matHandle4 = materialManager.GetHandle("WOODEN");
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
 
@@ -178,12 +183,11 @@ void Game::CreateBasicGeometry()
 	handle.m_scale[2] = 2;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Rectangle, 1, 2);
 
-
 	for (size_t i = 0; i < div; i++)
 	{
 		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
 	}
-	handle.m_material = matHandle2;
+	handle.m_material = matHandle4;
 	handle.m_mesh = cylinderHandle;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, 1);
 	handle.m_scale[2] = 1;
