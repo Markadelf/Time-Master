@@ -85,6 +85,32 @@ void Camera::MoveRelative(DirectX::XMFLOAT3 displacement)
 	viewDirty = true;
 }
 
+DirectX::XMFLOAT3 Camera::GetRelative(DirectX::XMFLOAT3 displacement)
+{
+	if (viewDirty)
+	{
+		recalculateViewMatrix();
+	}
+
+	XMVECTOR pos = XMLoadFloat3(&position);
+	// Get forward component
+	XMVECTOR disp = XMLoadFloat3(&direction);
+	// Get up component
+	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+	// Add right component
+	XMVECTOR right = XMVector3Normalize(XMVector3Cross(disp, up)) * displacement.x;
+	// Add up component
+	disp *= displacement.z;
+	disp += right;
+	up *= displacement.y;
+	disp += up;
+
+	pos = XMVectorAdd(pos, disp);
+	XMFLOAT3 position;
+	XMStoreFloat3(&position, pos);
+	return position;
+}
+
 float Camera::GetYaw()
 {
 	return yaw;
@@ -128,6 +154,7 @@ void Camera::recalculateViewMatrix()
 {
 	XMVECTOR dir = XMVector3Rotate(XMVectorSet(0,0,1,0), XMQuaternionRotationRollPitchYaw(pitch, yaw, 0));
 	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(XMMatrixLookToLH(XMLoadFloat3(&position), dir, XMVectorSet(0, 1, 0, 0))));
+	//XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(XMMAtri(XMLoadFloat3(&position), dir, XMVectorSet(0, 1, 0, 0))));
 
 	XMStoreFloat3(&direction, dir);
 

@@ -72,7 +72,7 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 		Transform transform = phantom->GetTransform().GetTransform(keyFrame.m_shotTime);
 		const float BULLETRANGE = 10;
 		const TimeStamp BULLETPERIOD = 2;
-		Vector2 finalPos = Vector2(0, BULLETRANGE).Rotate(-transform.GetRot());
+		Vector2 finalPos = transform.GetPos() + Vector2(0, BULLETRANGE).Rotate(-transform.GetRot());
 		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), keyFrame.m_shotTime, keyFrame.m_shotTime + BULLETPERIOD, false);
 
 		TimeStamp timeStamp;
@@ -125,8 +125,8 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 		// TODO: MAKE DIFFERENT BULLET HANDLES POSSIBLE
 		HandleObject bulletHandle = HandleObject();
 		bulletHandle.m_material = 1;
-		bulletHandle.m_mesh = 1;
-		bulletHandle.SetUniformScale(.25f);
+		bulletHandle.m_mesh = 3;
+		bulletHandle.SetUniformScale(.5f);
 
 		entity->TrackPhenomina(Phenomina(traj, bulletHandle), keyFrame.m_shotTime);
 	}

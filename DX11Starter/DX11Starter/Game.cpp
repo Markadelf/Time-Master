@@ -160,11 +160,14 @@ void Game::InitializeCamera()
 void Game::CreateBasicGeometry()
 {
 	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
+	int coneHandle = meshManager.AddResource("OBJ_Files/cone.obj", Mesh("OBJ_Files/cone.obj", device));
 
-	int cubeHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
+	int cubeHandle = meshManager.AddResource("OBJ_Files/cube.obj", Mesh("OBJ_Files/cube.obj", device));
 
-	int cylinderHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
+	int cylinderHandle = meshManager.AddResource("OBJ_Files/cylinder.obj", Mesh("OBJ_Files/cylinder.obj", device));
+	int sphereHandle = meshManager.AddResource("OBJ_Files/sphere.obj", Mesh("OBJ_Files/sphere.obj", device));
+
+	int duckHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
 
 	int matHandle = materialManager.GetHandle("DEFAULT");
 	int matHandle2 = materialManager.GetHandle("STRIPES");
@@ -188,16 +191,17 @@ void Game::CreateBasicGeometry()
 		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
 	}
 	handle.m_material = matHandle4;
-	handle.m_mesh = cylinderHandle;
-	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, 1);
-	handle.m_scale[2] = 1;
+	handle.m_mesh = duckHandle;
+	handle.SetUniformScale(.01f);
+	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .5f);
+	//handle.m_scale[2] = 1;
 
 	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
 
 	sceneGraph->Init(&objs[0], div + 1);
 
 	handle.m_material = matHandle2;
-	handle.m_mesh = coneHandle;
+	handle.m_mesh = cubeHandle;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .25f);
 	handle.m_scale[0] = 1; 
 	handle.m_scale[1] = 1; 
@@ -535,6 +539,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		RenderPhantoms(*sceneGraph->GetEntity(i), time);
 	}
+	XMFLOAT3 pos = camera.GetRelative(XMFLOAT3(0, 0, 1));
+	RenderEntity(Entity(3, 1, pos, XMFLOAT3(.1f, .1f, .1f), XMFLOAT4(1, 0, 0, 0)));
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
