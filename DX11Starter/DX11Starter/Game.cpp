@@ -488,7 +488,7 @@ void Game::Update(float deltaTime, float totalTime)
 		}
 	}
 	static int frame = 0;
-	if (frame > 30)
+	if (frame > 30 || timeShot != -1)
 	{
 		XMFLOAT3 pos = camera.GetPosition();
 		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, activePlayer, timeShot != -1, timeShot));
@@ -539,8 +539,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		RenderPhantoms(*sceneGraph->GetEntity(i), time);
 	}
-	XMFLOAT3 pos = camera.GetRelative(XMFLOAT3(0, 0, 1));
-	RenderEntity(Entity(3, 1, pos, XMFLOAT3(.1f, .1f, .1f), XMFLOAT4(1, 0, 0, 0)));
+	// XMFLOAT3 pos = camera.GetRelative(XMFLOAT3(0, 0, 1));
+	//RenderEntity(Entity(3, 1, pos, XMFLOAT3(.1f, .1f, .1f), XMFLOAT4(1, 0, 0, 0)));
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
