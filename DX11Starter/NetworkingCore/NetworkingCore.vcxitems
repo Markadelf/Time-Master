@@ -14,7 +14,6 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)AckBuffer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)AckHeader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Address.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)NetworkManager.cpp" />
@@ -22,7 +21,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)SocketWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)AckBuffer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)AckHeader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Address.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)NetworkManager.h" />
