@@ -9,7 +9,7 @@
 namespace Serializer
 {
 	// Endian Swap
-	static __int32 Swap(__int32 input) {
+	static unsigned __int32 SwapL(unsigned __int32 input) {
 		return
 			((input & 0xFF) << 24) |
 			((input & 0xFF00) << 8) |
@@ -17,6 +17,11 @@ namespace Serializer
 			((input & 0xFF000000) >> 24);
 	}
 
+	static unsigned __int16 SwapS(unsigned __int16 input) {
+		return
+			((input & 0xFF) << 8) |
+			((input & 0xFF00) >> 8);
+	}
 
 	static bool SerializeBool(Buffer& buffer, bool value) {
 		return buffer.WriteBits(&value, 1);
@@ -35,7 +40,7 @@ namespace Serializer
 			return false;
 		}
 		const int bits = (min == max) ? 0 : (int)log2(max - min) + 1;
-		unsigned __int32 val = Swap(htonl(value - min));
+		unsigned __int32 val = SwapL(htonl(value - min));
 
 		return buffer.WriteBits(&val, bits);
 	}	
@@ -49,7 +54,44 @@ namespace Serializer
 		unsigned __int32 val = 0;
 		if (buffer.ReadBits(&val, bits))
 		{
-			value = ntohl(Swap(val)) + min;
+			value = ntohl(SwapL(val)) + min;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	// Specific serializers unsigned ints
+	static bool SerializeUINT16(Buffer& buffer, unsigned __int16 value)
+	{
+		unsigned __int16 val = SwapS(htons(value));
+		return buffer.WriteBits(&val, 16);
+	}
+	static bool DeserializeUINT16(Buffer& buffer, unsigned __int16& value)
+	{
+		unsigned __int16 val = 0;
+		if (buffer.ReadBits(&val, 16))
+		{
+			value = ntohs(SwapS(val));
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	static bool SerializeUINT32(Buffer& buffer, unsigned __int32 value)
+	{
+		unsigned __int32 val = SwapL(htonl(value));
+		return buffer.WriteBits(&val, 32);
+	}
+	static bool DeserializeUINT32(Buffer& buffer, unsigned __int32& value)
+	{
+		unsigned __int32 val = 0;
+		if (buffer.ReadBits(&val, 32))
+		{
+			value = ntohl(SwapL(val));
 			return true;
 		}
 		else
@@ -77,7 +119,7 @@ namespace Serializer
 		{
 			return false;
 		}
-		unsigned __int32 val = Swap(htonl((int)floor(((value - min) / range) * values + .5f)));
+		unsigned __int32 val = SwapL(htonl((int)floor(((value - min) / range) * values + .5f)));
 
 		return buffer.WriteBits(&val, bits);
 	}
@@ -100,7 +142,7 @@ namespace Serializer
 		unsigned __int32 val = 0;
 		if (buffer.ReadBits(&val, bits))
 		{
-			value = min + (ntohl(Swap(val)) * range / values);
+			value = min + (ntohl(SwapL(val)) * range / values);
 			return true;
 		}
 		else
