@@ -6,7 +6,7 @@ void testfun(std::string s)
 	std::cout << s << std::endl;
 }
 
-int main()
+int samplemain()
 {
 	ThreadPool pool(5);
 	
