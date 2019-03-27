@@ -3,6 +3,14 @@
 #include "DXCore.h"
 #include "SimpleShader.h"
 #include <DirectXMath.h>
+#include "Entity.h"
+#include "Camera.h"
+
+// Manager includes
+#include "ResourceManager.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "Lights.h"
 
 class Game 
 	: public DXCore
@@ -27,25 +35,35 @@ public:
 private:
 
 	// Initialization helper methods - feel free to customize, combine, etc.
-	void LoadShaders(); 
-	void CreateMatrices();
+	void LoadTextures();
+	void LoadShaders();
+	void InitializeCamera();
 	void CreateBasicGeometry();
 
-	// Buffers to hold actual geometry data
-	ID3D11Buffer* vertexBuffer;
-	ID3D11Buffer* indexBuffer;
-
-	// Wrappers for DirectX shaders to provide simplified functionality
-	SimpleVertexShader* vertexShader;
-	SimplePixelShader* pixelShader;
+	// Render logic
+	void RenderEntity(Entity& entity);
 
 	// The matrices to go from model space to screen space
-	DirectX::XMFLOAT4X4 worldMatrix;
-	DirectX::XMFLOAT4X4 viewMatrix;
-	DirectX::XMFLOAT4X4 projectionMatrix;
+	Camera camera;
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
+
+	// Tracks all entities
+	std::vector<Entity> entityList;
+	std::vector<Entity> bulletList;
+	std::vector<DirectionalLight> lightList;
+
+	// Managers
+	ResourceManager<Mesh> meshManager;
+	ResourceManager<Material> materialManager;
+
+	ResourceManager<SimpleVertexShader*> vertexShaderManager;
+	ResourceManager<SimplePixelShader*> pixelShaderManager;
+
+	ResourceManager<ID3D11ShaderResourceView*> textureManager;
+	ResourceManager<ID3D11SamplerState*> samplerManager;
+
 };
 
