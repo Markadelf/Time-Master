@@ -16,14 +16,14 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)AckHeader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Address.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)NetworkManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)PacketBuffer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SocketWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)AckHeader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Address.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)NetworkManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MessageHeader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ServerManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)PacketBuffer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SocketWrapper.h" />
   </ItemGroup>

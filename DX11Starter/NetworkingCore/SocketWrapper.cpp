@@ -2,6 +2,10 @@
 #include <iostream>
 
 
+SocketWrapper::SocketWrapper() {
+	socketHandle = -1;
+}
+
 SocketWrapper::SocketWrapper(unsigned short port)
 {
 	socketHandle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);

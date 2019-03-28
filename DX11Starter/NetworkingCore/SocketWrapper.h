@@ -6,6 +6,7 @@ class SocketWrapper
 {
 	int socketHandle;
 public:
+	SocketWrapper();
 	SocketWrapper(unsigned short port);
 	~SocketWrapper();
 	

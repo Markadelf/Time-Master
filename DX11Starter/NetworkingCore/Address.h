@@ -8,6 +8,7 @@ class Address
 	sockaddr_in sockAddress;
 
 public:
+	Address();
 	Address(sockaddr_in sockAddress);
 	Address(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned short port);
 
