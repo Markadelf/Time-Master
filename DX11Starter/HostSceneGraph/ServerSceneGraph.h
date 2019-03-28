@@ -39,7 +39,9 @@ public:
 
 	void Init(StaticObject* staticObjs, int staticobjectCount);
 
+	// Use keyframe data to modify an entity by adding actions to the top of its stack
 	void StackKeyFrame(KeyFrameData phantom);
+	// Modifies the transform to avoid collisions
 	bool PreventCollision(int entityId, Transform& position);
 
 	void GetStatics(StaticObject** objs, int& count);
