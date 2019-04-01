@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClientSceneGraph", "ClientS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HostSceneGraph", "HostSceneGraph\HostSceneGraph.vcxitems", "{7D300808-81DC-4452-8628-B1792FAE6110}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JobSystem", "JobSystem\JobSystem.vcxitems", "{62A82E2F-B0E2-493B-96E2-82FBBF021F5B}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		GameMath\GameMath.vcxitems*{10b8c11a-5e4e-4807-a03e-5d0859218832}*SharedItemsImports = 9
@@ -44,6 +46,8 @@ Global
 		SerializerCore\SerializerCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		SharedDataStructures\SharedDataStructures.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		SharedDataStructures\SharedDataStructures.vcxitems*{f3806a24-6266-4272-bee9-9ff1af978286}*SharedItemsImports = 9
+		JobSystem\JobSystem.vcxitems*{62a82e2f-b0e2-493b-96e2-82fbbf021f5b}*SharedItemsImports = 9
+		JobSystem\JobSystem.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
