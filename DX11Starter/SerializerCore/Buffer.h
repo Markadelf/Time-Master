@@ -34,7 +34,14 @@ public:
 	// Read bytes into a buffer
 	bool ReadBytes(void* data, size_t byteCount);
 
+	// Reads in an entire buffer overwriting all of the current data THEN resets the index
+	bool ReadBuffer(Buffer& other);
+	bool MoveBuffer(Buffer& other);
+	bool OverwriteBuffer(void* data, size_t byteCount);
+
 	// Resets the index for READ or WRITE
 	void ResetIndex();
+	void MoveIndex(int bitPos);
+
 };
 

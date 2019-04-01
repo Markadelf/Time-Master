@@ -3,10 +3,10 @@
 
 PacketBuffer::PacketBuffer()
 {
-	for (size_t i = 0; i < BufferSize; i++)
+	/*for (size_t i = 0; i < BufferSize; i++)
 	{
 		m_packets[i] = Buffer(MaxPacketSize);
-	}
+	}*/
 }
 
 
@@ -33,9 +33,9 @@ Buffer* PacketBuffer::GetPacketBuffer(unsigned __int16 sequence)
 		return nullptr;
 }
 
-AckHeader PacketBuffer::GetAckHeader()
+AckHeader* PacketBuffer::GetAckHeader()
 {
-	return m_ack;
+	return &m_ack;
 }
 
 unsigned __int32 PacketBuffer::GetHighestSeq()
@@ -53,5 +53,11 @@ void PacketBuffer::SetPacketData(unsigned __int16 sequence, PacketData& data)
 	const int index = sequence % BufferSize;
 	m_sequence_buffer[index] = sequence;
 	m_packetData[index] = data;
+}
+
+void PacketBuffer::Reset()
+{
+	m_highestSeq = 0;
+	m_ack = AckHeader();
 }
 

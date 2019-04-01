@@ -18,7 +18,7 @@ void AckHeader::Ack(unsigned __int16 id)
 	if (id > m_lastIdRecieved)
 	{
 		m_ackBits = (m_ackBits << (id - m_lastIdRecieved)) | 1;
-		m_lastIdRecieved - id;
+		m_lastIdRecieved = id;
 	}
 	else
 	{
@@ -28,10 +28,11 @@ void AckHeader::Ack(unsigned __int16 id)
 
 void AckHeader::Ack(const AckHeader& inAck)
 {
+	// Add the other ack to this ack
 	if(inAck.m_lastIdRecieved > m_lastIdRecieved)
 	{
 		m_ackBits = (m_ackBits << (inAck.m_lastIdRecieved - m_lastIdRecieved)) | inAck.m_ackBits;
-		m_lastIdRecieved - inAck.m_lastIdRecieved;
+		m_lastIdRecieved = inAck.m_lastIdRecieved;
 	}
 	else
 	{
@@ -42,7 +43,8 @@ void AckHeader::Ack(const AckHeader& inAck)
 
 bool AckHeader::CheckAck(unsigned __int16 id)
 {
-	if (id > m_lastIdRecieved)
+	// If an ack is out of range, throw it out
+	if (id > m_lastIdRecieved || id <= m_lastIdRecieved - 32)
 	{
 		return false;
 	}
@@ -54,6 +56,7 @@ bool AckHeader::CheckAck(unsigned __int16 id)
 
 bool AckHeader::CheckAckLost(unsigned __int16 id)
 {
+	// True if an ack is lost forever
 	return m_lastIdRecieved - id > 31;
 }
 

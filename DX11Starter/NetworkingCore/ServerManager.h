@@ -2,28 +2,42 @@
 #include "PacketBuffer.h"
 #include "Address.h"
 #include "SocketWrapper.h"
-
-template<int maxActiveUsers, int maxClients>
+#include "MessageHeader.h"
+#include <unordered_map>
+#include "Connection.h"
 class ServerManager
 {
-	struct ClientInfo {
-		Address m_address;
-		int m_activeBuffer = -1;
-	};
+	// Prolly a better way to do this, may consider refactoring
+	static ServerManager* manager;
+
+	// Hash of Users
+	// TODO: Consider removal or analysis of std library hash table
+	// TODO: Stop hashing by the port
+	std::unordered_map<int, int> m_clientMap;
 
 	// User data and packet data
-	PacketBuffer m_outBuffer[maxActiveUsers];
-	PacketBuffer m_inBuffer[maxActiveUsers];
-	// Client ID is an index
-	int m_activeUsers[maxActiveUsers];
-	UserInfo m_clients[maxClients];
+	// Users are first class citizens that use acks to send game data
+	Connection* m_activeUserBuffer;
+
+	// Anyone that contacts the server is automatically considered a client
+	// Clients can make server request to the game or the server API, but cannot send game data
+	int* m_activeUsers;
+	ConnectionInfo* m_clients;
+
+	// Client Buffers
+	Buffer* m_clientInBuffer;
+	Buffer* m_clientOutBuffer;
 
 	// Socket
 	SocketWrapper m_socket;
 
 	// Callback functions
-	void (*m_activeCallback)(Buffer& data);
-	void (*m_clientCallback)(Buffer& data);
+	void (*m_activeCallback)(Buffer& data, int playerId);
+	void (*m_clientCallback)(Buffer& data, int clientId);
+
+	// Maximums
+	int m_maxActiveUsers;
+	int m_maxClients;
 
 	// Count connections
 	int m_activeCount;
@@ -34,43 +48,37 @@ class ServerManager
 
 
 public:
-	NetworkManager(int port) {
-		m_activeCount = 0;
-		m_clientCount = 0;
-		m_port = port;
+	ServerManager(int port, int maxClients, int maxActiveUsers);
 
-		SocketWrapper::StartUp();
-		m_socket = SocketWrapper(m_port);
-	}
+	~ServerManager();
 
-	~NetworkManager() {
-		SocketWrapper::CleanUp();
-	}
+	// Allows setting of a delegate used to send data to the game code
+	void SetClientCallBack(void (*callback)(Buffer& data, int clientId));
+	void SetActiveCallBack(void (*callback)(Buffer& data, int playerId));
 
-	bool SendToActiveUser(int userId, Buffer& message){
+	// Prepares the next outward buffer for writing/transmission and returns a pointer to it
+	Buffer* GetNextBufferClient(MessageType messageType, int clientId);
+	Buffer* GetNextBufferActiveUser(MessageType messageType, int userId);
 
-	}
+	// Sends the next packet to a connected user
+	bool SendToActiveUser(int userId);
 
-	bool SendToClient(int clientId, Buffer& message){
-		m_socket.Send(m_clients[clientId], message.GetBuffer(), message.Size())
-	}
+	// Sends the next packet to a client
+	bool SendToClient(int clientId);
 
-	int AddClient(ClientInfo client) {
-		if (maxClients > m_clientCount) {
-			m_clients[m_clientCount] = client;
-			return m_clientCount++;
-		}
-		return -1;
-	}
+	// Code begins to treat the client as a user with the given Id
+	void SetUser(int clientId, int userId);
 
-	void Listen() {
-		m_socket.Recieve(&ListenHelper);
-	}
+	// Checks if any new data is present
+	void Listen();
 
 private:
-	ListenHelper(Address ad, const void* data, const int size) {
-	
-	}
+	// Internal functions for interfacing with SocketWrapper
+	void ListenHelper(Address ad, const void* data, const int size);
+	static void ListenHelperStatic(Address ad, const void* data, const int size);
+
+	// Gets the client id from an address. If the address is new, creates a client id
+	int GetClientId(Address ad);
 
 };
 

@@ -3,6 +3,7 @@
 #include <winsock2.h>
 #pragma comment( lib, "wsock32.lib" )
 
+// Class used to compute and store IP Addresses
 class Address
 {
 	sockaddr_in sockAddress;
