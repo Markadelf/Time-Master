@@ -3,24 +3,75 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DX11Starter", "DX11Starter\DX11Starter.vcxproj", "{EE668F6A-773C-44FD-ACEE-26F997AF51E2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_DX11Starter", "DX11Starter\DX11Starter.vcxproj", "{EE668F6A-773C-44FD-ACEE-26F997AF51E2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_NetworkServer", "NetworkServer\NetworkServer.vcxproj", "{2ED3CD59-E001-455F-9148-CF5205B9D937}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SerializerCore", "SerializerCore\SerializerCore.vcxitems", "{955E7972-CCA6-4857-9C70-B9175BACE62A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameMath", "GameMath\GameMath.vcxitems", "{10B8C11A-5E4E-4807-A03E-5D0859218832}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkingCore", "NetworkingCore\NetworkingCore.vcxitems", "{2506268C-E545-4DC8-8C64-CF6363BDDD89}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneGraph", "SceneGraph\SceneGraph.vcxitems", "{BD8944E3-18B2-42EF-9F4C-57E0997AD5A8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedDataStructures", "SharedDataStructures\SharedDataStructures.vcxitems", "{F3806A24-6266-4272-BEE9-9FF1AF978286}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClientSceneGraph", "ClientSceneGraph\ClientSceneGraph.vcxitems", "{C65DF8B9-EA44-4F1B-9B45-C4EB5A8543A0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HostSceneGraph", "HostSceneGraph\HostSceneGraph.vcxitems", "{7D300808-81DC-4452-8628-B1792FAE6110}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JobSystem", "JobSystem\JobSystem.vcxitems", "{62A82E2F-B0E2-493B-96E2-82FBBF021F5B}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		GameMath\GameMath.vcxitems*{10b8c11a-5e4e-4807-a03e-5d0859218832}*SharedItemsImports = 9
+		NetworkingCore\NetworkingCore.vcxitems*{2506268c-e545-4dc8-8c64-cf6363bddd89}*SharedItemsImports = 9
+		ClientSceneGraph\ClientSceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		GameMath\GameMath.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		HostSceneGraph\HostSceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		NetworkingCore\NetworkingCore.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		SceneGraph\SceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		SerializerCore\SerializerCore.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		SharedDataStructures\SharedDataStructures.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		HostSceneGraph\HostSceneGraph.vcxitems*{7d300808-81dc-4452-8628-b1792fae6110}*SharedItemsImports = 9
+		SerializerCore\SerializerCore.vcxitems*{955e7972-cca6-4857-9c70-b9175bace62a}*SharedItemsImports = 9
+		SceneGraph\SceneGraph.vcxitems*{bd8944e3-18b2-42ef-9f4c-57e0997ad5a8}*SharedItemsImports = 9
+		ClientSceneGraph\ClientSceneGraph.vcxitems*{c65df8b9-ea44-4f1b-9b45-c4eb5a8543a0}*SharedItemsImports = 9
+		ClientSceneGraph\ClientSceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		GameMath\GameMath.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		HostSceneGraph\HostSceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		NetworkingCore\NetworkingCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		SceneGraph\SceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		SerializerCore\SerializerCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		SharedDataStructures\SharedDataStructures.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		SharedDataStructures\SharedDataStructures.vcxitems*{f3806a24-6266-4272-bee9-9ff1af978286}*SharedItemsImports = 9
 		JobSystem\JobSystem.vcxitems*{62a82e2f-b0e2-493b-96e2-82fbbf021f5b}*SharedItemsImports = 9
 		JobSystem\JobSystem.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Debug|x64.ActiveCfg = Debug|x64
 		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Debug|x64.Build.0 = Debug|x64
+		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Debug|x86.ActiveCfg = Debug|Win32
+		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Debug|x86.Build.0 = Debug|Win32
 		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Release|x64.ActiveCfg = Release|x64
 		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Release|x64.Build.0 = Release|x64
+		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Release|x86.ActiveCfg = Release|Win32
+		{EE668F6A-773C-44FD-ACEE-26F997AF51E2}.Release|x86.Build.0 = Release|Win32
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Debug|x64.ActiveCfg = Debug|x64
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Debug|x64.Build.0 = Debug|x64
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Debug|x86.ActiveCfg = Debug|Win32
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Debug|x86.Build.0 = Debug|Win32
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Release|x64.ActiveCfg = Release|x64
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Release|x64.Build.0 = Release|x64
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Release|x86.ActiveCfg = Release|Win32
+		{2ED3CD59-E001-455F-9148-CF5205B9D937}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

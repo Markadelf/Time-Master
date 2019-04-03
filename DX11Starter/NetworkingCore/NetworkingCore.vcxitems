@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{2506268c-e545-4dc8-8c64-cf6363bddd89}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)AckBuffer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)AckHeader.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Address.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)NetworkManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)PacketBuffer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SocketWrapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)AckBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)AckHeader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Address.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)NetworkManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PacketBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SocketWrapper.h" />
+  </ItemGroup>
+</Project>

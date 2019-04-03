@@ -36,6 +36,9 @@ public:
 	void Move(DirectX::XMFLOAT3 displacement);
 	void MoveRelative(DirectX::XMFLOAT3 displacement);
 
+	// Get relative position
+	DirectX::XMFLOAT3 GetRelative(DirectX::XMFLOAT3 displacement);
+
 	// Modify the yaw
 	float GetYaw();
 	void SetYaw(float);

@@ -12,6 +12,12 @@
 #include "Material.h"
 #include "Lights.h"
 
+#include "ServerSceneGraph.h"
+
+//#include "ServerSceneGraph.h"
+//#include "Vector2.h"
+ 
+
 class Game 
 	: public DXCore
 {
@@ -41,7 +47,11 @@ private:
 	void CreateBasicGeometry();
 
 	// Render logic
+	void Render(Material* mat, DirectX::XMFLOAT4X4& transform, int meshHandle);
 	void RenderEntity(Entity& entity);
+	void RenderObjectAtPos(HandleObject& handle, Transform trans);
+	void RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t);
+	void RenderPhantoms(TemporalEntity& phantom, float t);
 
 	// The matrices to go from model space to screen space
 	Camera camera;
@@ -50,9 +60,12 @@ private:
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
 
+	float time = 0;
+	bool reversed = false;
+
+	float timeShot = -1;
+
 	// Tracks all entities
-	std::vector<Entity> entityList;
-	std::vector<Entity> bulletList;
 	std::vector<DirectionalLight> lightList;
 
 	// Managers
@@ -64,6 +77,7 @@ private:
 
 	ResourceManager<ID3D11ShaderResourceView*> textureManager;
 	ResourceManager<ID3D11SamplerState*> samplerManager;
-
+	
+	ServerSceneGraph* sceneGraph;
 };
 

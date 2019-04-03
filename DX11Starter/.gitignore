@@ -11,3 +11,5 @@ x64/Release/*
 
 !x64/Debug/assimp-vc140-mt.dll
 !x64/Release/assimp-vc140-mt.dll
+
+**/Debug

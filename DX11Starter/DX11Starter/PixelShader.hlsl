@@ -55,7 +55,7 @@ float4 lightCalc(float3 normal, DirectionalLight light) {
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	float4 surfaceColor = diffuseTexture.Sample(basicSampler, input.uv);
+	float4 surfaceColor = pow(diffuseTexture.Sample(basicSampler, input.uv), 2.2);
 	// Normalize normal
 	input.normal = normalize(input.normal);
 	
@@ -65,5 +65,5 @@ float4 main(VertexToPixel input) : SV_TARGET
 		netLight += lightCalc(input.normal, light[i]);
 	}
 
-	return surfaceColor * netLight;
+	return pow(surfaceColor * netLight, 1/2.2);
 }

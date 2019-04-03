@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{bd8944e3-18b2-42ef-9f4c-57e0997ad5a8}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)ColliderManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Phantom.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Phenomina.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)StaticObject.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ColliderManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HandleObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Phantom.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Phenomina.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)StaticObject.h" />
+  </ItemGroup>
+</Project>

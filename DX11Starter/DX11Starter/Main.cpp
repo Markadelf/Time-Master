@@ -1,3 +1,6 @@
+// NOT UNNECESSARY
+#include "Winsock2.h"
+// NOT UNNECESSARY
 
 #include <Windows.h>
 #include "Game.h"
