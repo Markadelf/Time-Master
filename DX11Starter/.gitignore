@@ -13,3 +13,5 @@ x64/Release/*
 !x64/Release/assimp-vc140-mt.dll
 
 **/Debug
+
+packages/

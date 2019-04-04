@@ -110,7 +110,7 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 				{
 					// We hit, let everyone know we died
 					PhenominaHandle reset;
-					m_entities[i].Kill(j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
+					m_entities[i].Kill((int)j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
 					for (size_t k = 0; k < m_entityCount; k++)
 					{
 						if (m_entities[k].CheckRevive(reset)) 

@@ -73,13 +73,9 @@ private:
 	float timeShot = -1;
 
 	// Managers
-	ResourceManager<Mesh> meshManager;
-	ResourceManager<Material> materialManager;
-
 	ResourceManager<SimpleVertexShader*> vertexShaderManager;
 	ResourceManager<SimplePixelShader*> pixelShaderManager;
 
-	ResourceManager<ID3D11ShaderResourceView*> textureManager;
 	ResourceManager<ID3D11SamplerState*> samplerManager;
 	
 	ServerSceneGraph* sceneGraph;

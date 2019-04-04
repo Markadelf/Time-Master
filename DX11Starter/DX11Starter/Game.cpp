@@ -1,9 +1,10 @@
 #include "Game.h"
 #include "Vertex.h"
-#include "WICTextureLoader.h"
+//#include "WICTextureLoader.h"
 #include "FilePathHelper.h"
 #include <cmath>
 
+#include "AssetManager.h"
 
 Game* Game::GameInstance;
 
@@ -34,18 +35,11 @@ Game::Game(HINSTANCE hInstance): m_renderer(hInstance)
 Game::~Game()
 {
 	// Release any (and all!) DirectX objects
-	// we've made in the Game class
-	meshManager.Release();
-	materialManager.Release();
-
+	// we've made in the Game class	
+	//AssetManager::get().~AssetManager();
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
-	vertexShaderManager.ReleasePointers();
-	pixelShaderManager.ReleasePointers();
-
-	// Clean up my texture pointers
-	textureManager.ReleaseDXPointers();
-	samplerManager.ReleaseDXPointers();
+	AssetManager::get().ReleaseAllAssetResource();
 
 	delete sceneGraph;
 }
@@ -81,31 +75,13 @@ void Game::Init()
 
 void Game::LoadTextures()
 {
-	ID3D11ShaderResourceView* image;
 	auto device = m_renderer.GetDevice();
 	auto context = m_renderer.GetContext();
-	// Add if successful
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/poster.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/poster.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/player3.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/player3.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Wooden.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/Wooden.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/Stripes.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/Stripes.png", image);
 
-	ID3D11SamplerState* sampler;
-	D3D11_SAMPLER_DESC desc = {};
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// Add if successful
-	if (device->CreateSamplerState(&desc, &sampler) == 0)
-		samplerManager.AddResource("0", sampler);
+	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Stripes.png", device, context);
 }
 
 // --------------------------------------------------------
@@ -118,20 +94,11 @@ void Game::LoadShaders()
 {
 	auto device = m_renderer.GetDevice();
 	auto context = m_renderer.GetContext();
-	SimpleVertexShader* vertexShader = new SimpleVertexShader(device, context);
-	vertexShader->LoadShaderFile(L"VertexShader.cso");
 
-	int vHandle = vertexShaderManager.AddResource("V1", vertexShader);
-
-	SimplePixelShader* pixelShader = new SimplePixelShader(device, context);
-	pixelShader->LoadShaderFile(L"PixelShader.cso");
-
-	int pHandle = pixelShaderManager.AddResource("P1", pixelShader);
-
-	materialManager.AddResource("DEFAULT", Material(vHandle, pHandle, textureManager.GetHandle("Textures/poster.png"), 0));
-	materialManager.AddResource("PLAYER3", Material(vHandle, pHandle, textureManager.GetHandle("Textures/player3.png"), 0));
-	materialManager.AddResource("WOODEN", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Wooden.png"), 0));
-	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Stripes.png"), 0));
+	AssetManager::get().LoadMaterial(0, 0,"DEFAULT","Textures/poster.png");
+	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/player3.png");
+	AssetManager::get().LoadMaterial(0, 0, "WOODEN", "Textures/Wooden.png");
+	AssetManager::get().LoadMaterial(0, 0, "STRIPES", "Textures/Stripes.png");
 }
 
 // --------------------------------------------------------
@@ -142,19 +109,23 @@ void Game::CreateBasicGeometry()
 	auto device = m_renderer.GetDevice();
 	auto context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = meshManager.AddResource("OBJ_Files/cone.obj", Mesh("OBJ_Files/cone.obj", device));
+	int coneHandle = AssetManager::get().LoadMesh("OBJ_Files/cone.obj", device);
 
-	int cubeHandle = meshManager.AddResource("OBJ_Files/cube.obj", Mesh("OBJ_Files/cube.obj", device));
+	int cubeHandle = AssetManager::get().LoadMesh("OBJ_Files/cube.obj", device);
 
-	int cylinderHandle = meshManager.AddResource("OBJ_Files/cylinder.obj", Mesh("OBJ_Files/cylinder.obj", device));
-	int sphereHandle = meshManager.AddResource("OBJ_Files/sphere.obj", Mesh("OBJ_Files/sphere.obj", device));
+	int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj",device);
+	int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj",  device);
 
-	int duckHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
+	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx",  device);
 
-	int matHandle = materialManager.GetHandle("DEFAULT");
-	int matHandle2 = materialManager.GetHandle("STRIPES");
-	int matHandle3 = materialManager.GetHandle("PLAYER3");
-	int matHandle4 = materialManager.GetHandle("WOODEN");
+	int matHandle = AssetManager::get().GetMaterialHandle("DEFAULT");
+	int matHandle2 = AssetManager::get().GetMaterialHandle("STRIPES");
+	int matHandle3 = AssetManager::get().GetMaterialHandle("PLAYER3");
+	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
+	//int matHandle = materialManager.GetHandle("DEFAULT");
+	//int matHandle2 = materialManager.GetHandle("STRIPES");
+	//int matHandle3 = materialManager.GetHandle("PLAYER3");
+	//int matHandle4 = materialManager.GetHandle("WOODEN");
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
 
@@ -203,64 +174,6 @@ void Game::CreateBasicGeometry()
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = matHandle3;
 	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera->GetYaw()), time, handle);
-}
-
-void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
-{
-	m_renderer.Render(*pixelShaderManager.GetResourcePointer(mat->GetPixelShaderHandle()),
-		*vertexShaderManager.GetResourcePointer(mat->GetVertexShaderHandle()), 
-		*textureManager.GetResourcePointer(mat->GetTextureHandle()), 
-		*samplerManager.GetResourcePointer(mat->GetSamplerHandle()), 
-		transform,
-		meshManager.GetResourcePointer(meshHandle));
-}
-
-void Game::RenderEntity(Entity& entity)
-{
-	Render(materialManager.GetResourcePointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
-}
-
-void Game::RenderObjectAtPos(HandleObject& handle, Transform trans)
-{
-	XMMATRIX matrix = XMMatrixScaling(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
-	matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0));
-	matrix = XMMatrixMultiply(matrix, XMMatrixTranslation(trans.GetPos().GetX(), 0, trans.GetPos().GetY()));
-	XMFLOAT4X4 transform;
-	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
-
-	Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
-}
-
-void Game::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
-{
-	RenderObjectAtPos(handle, trans.GetTransform(t));
-}
-
-void Game::RenderPhantoms(TemporalEntity& phantom, float t)
-{
-	int phantoms = phantom.GetImageCount();
-	Phantom* phantomBuffer = phantom.GetPhantomBuffer();
-	HandleObject handle = phantom.GetHandle();
-	for (size_t i = 0; i < phantoms; i++)
-	{
-		TimeInstableTransform trans = phantomBuffer[i].GetTransform();
-		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
-		{
-			RenderLerpObject(handle, trans, t);
-		}
-	}
-
-	int phenomina = phantom.GetPhenominaCount();
-	Phenomina* phenominaBuffer = phantom.GetPhenominaBuffer();
-	for (size_t i = 0; i < phenomina; i++)
-	{
-		TimeInstableTransform trans = phenominaBuffer[i].GetTransform();
-		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
-		{
-			handle = phenominaBuffer[i].GetHandle();
-			RenderLerpObject(handle, trans, t);
-		}
-	}
 }
 
 
@@ -441,18 +354,7 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	m_renderer.Begin();
 	
-	StaticObject* objs;
-	int sCount;
-	sceneGraph->GetStatics(&objs, sCount);
-	for (size_t i = 0; i < sCount; i++)
-	{
-		RenderObjectAtPos(objs[i].GetHandles(), objs[i].GetTransform());
-	}
-	int eCount = sceneGraph->GetEntityCount();
-	for (size_t i = 0; i < eCount; i++)
-	{
-		RenderPhantoms(*sceneGraph->GetEntity(i), time);
-	}
+	m_renderer.Draw(sceneGraph, time);
 
 	m_renderer.End();
 }
