@@ -354,7 +354,7 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	m_renderer.Begin();
 	
-	m_renderer.Draw(sceneGraph, time);
+	m_renderer.DrawScene(sceneGraph, time);
 
 	m_renderer.End();
 }

@@ -53,14 +53,6 @@ private:
 	void LoadShaders();
 	void CreateBasicGeometry();
 
-	// Render logic
-	// TODO: Move to renderer when resource manager gets in
-	void Render(Material* mat, DirectX::XMFLOAT4X4& transform, int meshHandle);
-	void RenderEntity(Entity& entity);
-	void RenderObjectAtPos(HandleObject& handle, Transform trans);
-	void RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t);
-	void RenderPhantoms(TemporalEntity& phantom, float t);
-
 	Renderer m_renderer;
 
 	// Keeps track of the old mouse position.  Useful for 
@@ -72,12 +64,6 @@ private:
 
 	float timeShot = -1;
 
-	// Managers
-	ResourceManager<SimpleVertexShader*> vertexShaderManager;
-	ResourceManager<SimplePixelShader*> pixelShaderManager;
-
-	ResourceManager<ID3D11SamplerState*> samplerManager;
-	
 	ServerSceneGraph* sceneGraph;
 };
 
