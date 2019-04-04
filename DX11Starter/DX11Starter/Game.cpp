@@ -4,6 +4,9 @@
 #include "FilePathHelper.h"
 #include <cmath>
 
+
+Game* Game::GameInstance;
+
 // For the DirectX Math library
 using namespace DirectX;
 
@@ -15,21 +18,12 @@ using namespace DirectX;
 //
 // hInstance - the application's OS-level handle (unique ID)
 // --------------------------------------------------------
-Game::Game(HINSTANCE hInstance)
-	: DXCore(
-		hInstance,		// The application's handle
-		"DirectX Game",	   	// Text for the window's title bar
-		1280,			// Width of the window's client area
-		720,			// Height of the window's client area
-		true)			// Show extra stats (fps) in title bar?
+Game::Game(HINSTANCE hInstance): m_renderer(hInstance)
 {
-
-#if defined(DEBUG) || defined(_DEBUG)
-	// Do we want a console window?  Probably only in debug mode
-	CreateConsoleWindow(500, 120, 32, 120);
-	printf("Console window created successfully.  Feel free to printf() here.\n");
-#endif
-
+	GameInstance = this;
+	m_renderer.SetDraw(SDraw);
+	m_renderer.SetUpdate(SUpdate);
+	m_renderer.SetControls(SOnMouseDown, SOnMouseUp, SOnMouseMove, SOnMouseWheel);
 }
 
 // --------------------------------------------------------
@@ -67,13 +61,9 @@ void Game::Init()
 	//  - You'll be expanding and/or replacing these later
 	LoadTextures();
 	LoadShaders();
-	InitializeCamera();
 	CreateBasicGeometry();
 
-	// Tell the input assembler stage of the pipeline what kind of
-	// geometric primitives (points, lines or triangles) we want to draw.  
-	// Essentially: "What kind of shape should the GPU draw with our data?"
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	std::vector<DirectionalLight>* lightList = m_renderer.GetLights();
 
 	DirectionalLight light1;
 	light1.AmbientColor = DirectX::XMFLOAT4(.3f, .3f, .3f, 1);
@@ -85,13 +75,15 @@ void Game::Init()
 	light2.DiffuseColor = DirectX::XMFLOAT4(1, 1, 0, 1);
 	light2.Direction = DirectX::XMFLOAT3(-1, -10, -20);
 
-	lightList.push_back(light1);
-	lightList.push_back(light2);
+	lightList->push_back(light1);
+	lightList->push_back(light2);
 }
 
 void Game::LoadTextures()
 {
 	ID3D11ShaderResourceView* image;
+	auto device = m_renderer.GetDevice();
+	auto context = m_renderer.GetContext();
 	// Add if successful
 	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/poster.png").c_str(), 0, &image) == 0)
 		textureManager.AddResource("Textures/poster.png", image);
@@ -124,6 +116,8 @@ void Game::LoadTextures()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
+	auto device = m_renderer.GetDevice();
+	auto context = m_renderer.GetContext();
 	SimpleVertexShader* vertexShader = new SimpleVertexShader(device, context);
 	vertexShader->LoadShaderFile(L"VertexShader.cso");
 
@@ -140,25 +134,13 @@ void Game::LoadShaders()
 	materialManager.AddResource("STRIPES", Material(vHandle, pHandle, textureManager.GetHandle("Textures/Stripes.png"), 0));
 }
 
-
-
-// --------------------------------------------------------
-// Initializes the matrices necessary to represent our geometry's 
-// transformations and our 3D camera
-// --------------------------------------------------------
-void Game::InitializeCamera()
-{
-	camera.SetPosition(XMFLOAT3(0, 0, -3));
-	camera.SetYaw(0);
-	camera.SetAspectRatio((float)width / height);
-}
-
-
 // --------------------------------------------------------
 // Creates the geometry we're going to draw - a single triangle for now
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	auto device = m_renderer.GetDevice();
+	auto context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager
 	int coneHandle = meshManager.AddResource("OBJ_Files/cone.obj", Mesh("OBJ_Files/cone.obj", device));
 
@@ -206,75 +188,31 @@ void Game::CreateBasicGeometry()
 	handle.m_scale[0] = 1; 
 	handle.m_scale[1] = 1; 
 	handle.m_scale[2] = 1;
-	XMFLOAT3 pos = camera.GetPosition();
+	Camera* camera = m_renderer.GetCamera();
+	XMFLOAT3 pos = camera->GetPosition();
 	// Add player
 	int id = sceneGraph->AddEntity(2048, 100);
-	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, handle);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z), camera->GetYaw()), time, handle);
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = matHandle;
-	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), camera.GetYaw()), time, handle);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), camera->GetYaw()), time, handle);
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = matHandle3;
-	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera.GetYaw()), time, handle);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera->GetYaw()), time, handle);
 }
 
 void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 {
-	SimplePixelShader* pixelShader = *pixelShaderManager.GetResourcePointer(mat->GetPixelShaderHandle());
-	SimpleVertexShader* vertexShader = *vertexShaderManager.GetResourcePointer(mat->GetVertexShaderHandle());
-
-	// Send data to shader variables
-	//  - Do this ONCE PER OBJECT you're drawing
-	//  - This is actually a complex process of copying data to a local buffer
-	//    and then copying that entire buffer to the GPU.  
-	//  - The "SimpleShader" class handles all of that for you.
-	vertexShader->SetMatrix4x4("world", transform);
-	vertexShader->SetMatrix4x4("view", camera.GetView());
-	vertexShader->SetMatrix4x4("projection", camera.GetProjection());
-
-	// Once you've set all of the data you care to change for
-	// the next draw call, you need to actually send it to the GPU
-	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
-	vertexShader->CopyAllBufferData();
-	pixelShader->SetInt("lightAmount", lightList.size());
-	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
-	pixelShader->SetData("light", (&lightList[0]), sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
-	pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
-	pixelShader->SetSamplerState("basicSampler", *samplerManager.GetResourcePointer(mat->GetSamplerHandle()));
-	pixelShader->CopyAllBufferData();
-
-	// Set the vertex and pixel shaders to use for the next Draw() command
-	//  - These don't technically need to be set every frame...YET
-	//  - Once you start applying different shaders to different objects,
-	//    you'll need to swap the current shaders before each draw
-	vertexShader->SetShader();
-	pixelShader->SetShader();
-
-	// Set buffers in the input assembler
-	//  - Do this ONCE PER OBJECT you're drawing, since each object might
-	//    have different geometry.
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-
-	Mesh* mesh = meshManager.GetResourcePointer(meshHandle);
-
-	ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
-	context->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-	context->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-	// Finally do the actual drawing
-	//  - Do this ONCE PER OBJECT you intend to draw
-	//  - This will use all of the currently set DirectX "stuff" (shaders, buffers, etc)
-	//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
-	//     vertices in the currently set VERTEX BUFFER
-	context->DrawIndexed(
-		mesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-		0,     // Offset to the first index we want to use
-		0);    // Offset to add to each index when looking up vertices
+	m_renderer.Render(*pixelShaderManager.GetResourcePointer(mat->GetPixelShaderHandle()),
+		*vertexShaderManager.GetResourcePointer(mat->GetVertexShaderHandle()), 
+		*textureManager.GetResourcePointer(mat->GetTextureHandle()), 
+		*samplerManager.GetResourcePointer(mat->GetSamplerHandle()), 
+		transform,
+		meshManager.GetResourcePointer(meshHandle));
 }
 
 void Game::RenderEntity(Entity& entity)
@@ -327,51 +265,40 @@ void Game::RenderPhantoms(TemporalEntity& phantom, float t)
 
 
 // --------------------------------------------------------
-// Handle resizing DirectX "stuff" to match the new window size.
-// For instance, updating our projection matrix's aspect ratio.
-// --------------------------------------------------------
-void Game::OnResize()
-{
-	// Handle base-level DX resize stuff
-	DXCore::OnResize();
-
-	camera.SetAspectRatio((float)width / height);
-}
-
-// --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	Camera* cam = m_renderer.GetCamera();
 	time += deltaTime * (reversed ? -1 : 1);
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
-		Quit();
+		m_renderer.Quit();
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
-		camera.MoveRelative(XMFLOAT3(0, 0, 1 * deltaTime));
+		cam->MoveRelative(XMFLOAT3(0, 0, 1 * deltaTime));
 	}
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
-		camera.MoveRelative(XMFLOAT3(1 * deltaTime, 0, 0));
+		cam->MoveRelative(XMFLOAT3(1 * deltaTime, 0, 0));
 	}
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
-		camera.MoveRelative(XMFLOAT3(0, 0, -1 * deltaTime));
+		cam->MoveRelative(XMFLOAT3(0, 0, -1 * deltaTime));
 	}
 	if (GetAsyncKeyState('D') & 0x8000)
 	{
-		camera.MoveRelative(XMFLOAT3(-1 * deltaTime, 0, 0));
+		cam->MoveRelative(XMFLOAT3(-1 * deltaTime, 0, 0));
 	}
 	//Keep camera from moving into walls
-	XMFLOAT3 pos = camera.GetPosition();
+	XMFLOAT3 pos = cam->GetPosition();
 	Transform trans = Transform(Vector2(pos.x, pos.z), 0);
 	if (sceneGraph->PreventCollision(0, trans))
 	{
 		Vector2 nPos = trans.GetPos();
 		pos.x = nPos.GetX();
 		pos.z = nPos.GetY();
-		camera.SetPosition(pos);
+		cam->SetPosition(pos);
 	}
 
 	static bool rHeld = false;
@@ -423,13 +350,13 @@ void Game::Update(float deltaTime, float totalTime)
 		time = e->GetTimeStamp();
 		reversed = e->GetReversed();
 
-		XMFLOAT3 pos = camera.GetPosition();
+		XMFLOAT3 pos = cam->GetPosition();
 		Transform trans = e->GetTransform();
 		Vector2 nPos = trans.GetPos();
 		pos.x = nPos.GetX();
 		pos.z = nPos.GetY();
-		camera.SetPosition(pos);
-		camera.SetYaw(trans.GetRot());
+		cam->SetPosition(pos);
+		cam->SetYaw(trans.GetRot());
 	}
 
 	static int activePlayer = 0;
@@ -441,13 +368,13 @@ void Game::Update(float deltaTime, float totalTime)
 			time = e->GetTimeStamp();
 			reversed = e->GetReversed();
 
-			XMFLOAT3 pos = camera.GetPosition();
+			XMFLOAT3 pos = cam->GetPosition();
 			Transform trans = e->GetTransform();
 			Vector2 nPos = trans.GetPos();
 			pos.x = nPos.GetX();
 			pos.z = nPos.GetY();
-			camera.SetPosition(pos);
-			camera.SetYaw(trans.GetRot());
+			cam->SetPosition(pos);
+			cam->SetYaw(trans.GetRot());
 			activePlayer = 0;
 		}
 	}
@@ -459,13 +386,13 @@ void Game::Update(float deltaTime, float totalTime)
 			time = e->GetTimeStamp();
 			reversed = e->GetReversed();
 
-			XMFLOAT3 pos = camera.GetPosition();
+			XMFLOAT3 pos = cam->GetPosition();
 			Transform trans = e->GetTransform();
 			Vector2 nPos = trans.GetPos();
 			pos.x = nPos.GetX();
 			pos.z = nPos.GetY();
-			camera.SetPosition(pos);
-			camera.SetYaw(trans.GetRot());
+			cam->SetPosition(pos);
+			cam->SetYaw(trans.GetRot());
 			activePlayer = 1;
 		}
 	}
@@ -477,21 +404,21 @@ void Game::Update(float deltaTime, float totalTime)
 			time = e->GetTimeStamp();
 			reversed = e->GetReversed();
 
-			XMFLOAT3 pos = camera.GetPosition();
+			XMFLOAT3 pos = cam->GetPosition();
 			Transform trans = e->GetTransform();
 			Vector2 nPos = trans.GetPos();
 			pos.x = nPos.GetX();
 			pos.z = nPos.GetY();
-			camera.SetPosition(pos);
-			camera.SetYaw(trans.GetRot());
+			cam->SetPosition(pos);
+			cam->SetYaw(trans.GetRot());
 			activePlayer = 2;
 		}
 	}
 	static int frame = 0;
 	if (frame > 30 || timeShot != -1)
 	{
-		XMFLOAT3 pos = camera.GetPosition();
-		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, activePlayer, timeShot != -1, timeShot));
+		XMFLOAT3 pos = cam->GetPosition();
+		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), cam->GetYaw()), time, activePlayer, timeShot != -1, timeShot));
 		//sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z).Rotate(3.14f), camera.GetYaw()), time, 1, false, timeShot));
 		frame = 0;
 		timeShot = -1;
@@ -502,31 +429,18 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 }
 
+void Game::SUpdate(float deltaTime, float totalTime)
+{
+	GameInstance->Update(deltaTime, totalTime);
+}
+
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
-
-	// Clear the render target and depth buffer (erases what's on the screen)
-	//  - Do this ONCE PER FRAME
-	//  - At the beginning of Draw (before drawing *anything*)
-	context->ClearRenderTargetView(backBufferRTV, color);
-	context->ClearDepthStencilView(
-		depthStencilView,
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
-		1.0f,
-		0);
-
-
-	/*for (int i = 0; i < entityList.size(); i++) {
-		RenderEntity(entityList[i]);
-	}
-	for (int i = 0; i < bulletList.size(); i++) {
-		RenderEntity(bulletList[i]);
-	}*/
+	m_renderer.Begin();
+	
 	StaticObject* objs;
 	int sCount;
 	sceneGraph->GetStatics(&objs, sCount);
@@ -539,15 +453,33 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		RenderPhantoms(*sceneGraph->GetEntity(i), time);
 	}
-	// XMFLOAT3 pos = camera.GetRelative(XMFLOAT3(0, 0, 1));
-	//RenderEntity(Entity(3, 1, pos, XMFLOAT3(.1f, .1f, .1f), XMFLOAT4(1, 0, 0, 0)));
 
-	// Present the back buffer to the user
-	//  - Puts the final frame we're drawing into the window so the user can see it
-	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
-	swapChain->Present(0, 0);
+	m_renderer.End();
+}
 
-	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+void Game::SDraw(float deltaTime, float totalTime)
+{
+	GameInstance->Draw(deltaTime, totalTime);
+}
+
+void Game::SOnMouseDown(WPARAM buttonState, int x, int y)
+{
+	GameInstance->OnMouseDown(buttonState, x, y);
+}
+
+void Game::SOnMouseUp(WPARAM buttonState, int x, int y)
+{
+	GameInstance->OnMouseUp(buttonState, x, y);
+}
+
+void Game::SOnMouseMove(WPARAM buttonState, int x, int y)
+{
+	GameInstance->OnMouseMove(buttonState, x, y);
+}
+
+void Game::SOnMouseWheel(float wheelDelta, int x, int y)
+{
+	GameInstance->OnMouseWheel(wheelDelta, x, y);
 }
 
 
@@ -569,7 +501,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	// Caputure the mouse so we keep getting mouse move
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
-	SetCapture(hWnd);
+	SetCapture(*m_renderer.GethWnd());
 }
 
 // --------------------------------------------------------
@@ -596,8 +528,8 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 
 	dX = dX % 10;
 	dY = dY % 10;
-
-	camera.SetYaw(camera.GetYaw() + dX / 180.f);
+	auto cam = m_renderer.GetCamera();
+	cam->SetYaw(cam->GetYaw() + dX / 180.f);
 	//camera.SetPitch(camera.GetPitch() + dY / 180.f);
 
 	// Save the previous mouse position, so we have it for the future
@@ -613,5 +545,9 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 void Game::OnMouseWheel(float wheelDelta, int x, int y)
 {
 	// Add any custom code here...
+}
+Renderer* Game::GetRenderer()
+{
+	return &m_renderer;
 }
 #pragma endregion
