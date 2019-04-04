@@ -4,7 +4,7 @@
 
 SocketWrapper::SocketWrapper(unsigned short port)
 {
-	socketHandle = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	socketHandle = (int)socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 	sockaddr_in address;
 	address.sin_family = AF_INET;

@@ -240,7 +240,7 @@ void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 	// the next draw call, you need to actually send it to the GPU
 	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
 	vertexShader->CopyAllBufferData();
-	pixelShader->SetInt("lightAmount", lightList.size());
+	pixelShader->SetInt("lightAmount", (int)lightList.size());
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
 	pixelShader->SetData("light", (&lightList[0]), sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
 	pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
@@ -537,7 +537,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	int eCount = sceneGraph->GetEntityCount();
 	for (size_t i = 0; i < eCount; i++)
 	{
-		RenderPhantoms(*sceneGraph->GetEntity(i), time);
+		RenderPhantoms(*sceneGraph->GetEntity((int)i), time);
 	}
 	// XMFLOAT3 pos = camera.GetRelative(XMFLOAT3(0, 0, 1));
 	//RenderEntity(Entity(3, 1, pos, XMFLOAT3(.1f, .1f, .1f), XMFLOAT4(1, 0, 0, 0)));

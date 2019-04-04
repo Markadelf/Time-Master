@@ -78,7 +78,7 @@ Mesh::Mesh(const char* file, ID3D11Device* device) : Mesh()
 	//    an index buffer in this case?  Sure!  Though, if your mesh class assumes you have
 	//    one, you'll need to write some extra code to handle cases when you don't.
 
-	Init(&verts[0], verts.size(), &indices[0], indices.size(), device);
+	Init(&verts[0], (int)verts.size(), &indices[0], indices.size(), device);
 }
 
 Mesh::Mesh(const Mesh & other)
