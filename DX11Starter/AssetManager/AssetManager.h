@@ -16,7 +16,6 @@ public:
 	//singleton for AssetManger and use by returning it in other classes. Static variable is constructed on first invocation of it's call rather than before "main"
 	static AssetManager& get()
 	{
-		
 		static AssetManager sSingleton;
 		return sSingleton;
 	}
@@ -36,9 +35,11 @@ public:
 	int GetTextureHandle(const char* file);
 
 	//Load Mesh. Calls Mesh class and sets vertex and index GPU buffers. Draw calls are called later. 
-	int LoadMesh(const char * file,ID3D11Device* &DevicePointer);
+	int LoadMesh(const char* file,ID3D11Device* &DevicePointer);
 	//Pass string "handle name" as argument. Return int for that handle. 
 	int GetMeshHandle(const char* file);
+
+	void ReleaseAllAssetResource();
 
 	~AssetManager();
 
@@ -50,7 +51,7 @@ public:
 	ID3D11ShaderResourceView** GetTexturePointer(T t);
 	// Inlined template functions for taking string and int data types. Avoid duplicacy from other classes and linker problems. Refer ResourceManager.h
 	template <typename T>
-	Material * GetMaterialPointer(T t);
+	Material* GetMaterialPointer(T t);
 
 private:
 		// Managers
@@ -60,19 +61,19 @@ private:
 };
 
 template<typename T>
-inline Mesh * AssetManager::GetMeshPointer(T t)
+inline Mesh* AssetManager::GetMeshPointer(T t)
 {
 	return meshManager.GetResourcePointer(t);
 }
 
 template<typename T>
-inline ID3D11ShaderResourceView ** AssetManager::GetTexturePointer(T t)
+inline ID3D11ShaderResourceView** AssetManager::GetTexturePointer(T t)
 {
 	return textureManager.GetResourcePointer(t);
 }
 
 template<typename T>
-inline Material * AssetManager::GetMaterialPointer(T t)
+inline Material* AssetManager::GetMaterialPointer(T t)
 {
 	return materialManager.GetResourcePointer(t);
 }

@@ -44,6 +44,8 @@ Game::~Game()
 	//AssetManager::get().~AssetManager();
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
+	AssetManager::get().ReleaseAllAssetResource();
+
 	vertexShaderManager.ReleasePointers();
 	pixelShaderManager.ReleasePointers();
 

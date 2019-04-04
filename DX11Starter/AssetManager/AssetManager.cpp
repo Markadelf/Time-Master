@@ -15,7 +15,7 @@ void AssetManager::LoadMaterial(int vHandle, int pHandle,const char* filpathname
 }
 
 //Pass string "handle name" as argument. Return int for that handle. 
-int AssetManager::GetMaterialHandle(const char * file)
+int AssetManager::GetMaterialHandle(const char* file)
 {
 	return materialManager.GetHandle(file);
 }
@@ -50,11 +50,15 @@ int AssetManager::GetMeshHandle(const char * file)
 	return meshManager.GetHandle(file);
 }
 
-AssetManager::~AssetManager()
+void AssetManager::ReleaseAllAssetResource()
 {
 	meshManager.Release();
 	materialManager.Release();
 	textureManager.ReleaseDXPointers();
+}
+AssetManager::~AssetManager()
+{
+
 }
 
 
