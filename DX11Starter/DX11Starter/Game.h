@@ -66,7 +66,8 @@ private:
 	float timeShot = -1;
 
 	// Tracks all entities
-	std::vector<DirectionalLight> lightList;
+	std::vector<Light> lightList;
+
 
 	// Managers
 	ResourceManager<Mesh> meshManager;

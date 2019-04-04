@@ -4,16 +4,18 @@ Material::Material()
 {
 	pixelShaderHandle = -1;
 	vertexShaderHandle = -1;
-	textureHandle = -1;
+	diffuseTextureHandle = -1;
 	samplerHandle = -1;
 }
 
-Material::Material(int vertexHandle, int pixelHandle, int textureHandle, int samplerHandle)
+Material::Material(int vertexHandle, int pixelHandle, int diffuseTextureHandle, int roughnessTextureHandle, int samplerHandle, float shinniness)
 {
 	this->vertexShaderHandle = vertexHandle;
 	this->pixelShaderHandle = pixelHandle;
-	this->textureHandle = textureHandle;
+	this->diffuseTextureHandle = diffuseTextureHandle;
 	this->samplerHandle = samplerHandle;
+	this->roughnessTextureHandle = roughnessTextureHandle;
+	this->shinniness = shinniness;
 }
 
 Material::~Material()
@@ -30,12 +32,22 @@ int Material::GetVertexShaderHandle()
 	return pixelShaderHandle;
 }
 
-int Material::GetTextureHandle()
+int Material::GetDiffuseTextureHandle()
 {
-	return textureHandle;
+	return diffuseTextureHandle;
+}
+
+int Material::GetRoughnessTextureHandle()
+{
+	return roughnessTextureHandle;
 }
 
 int Material::GetSamplerHandle()
 {
 	return samplerHandle;
+}
+
+float Material::GetShinniness()
+{
+	return shinniness;
 }
