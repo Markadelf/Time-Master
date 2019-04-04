@@ -50,7 +50,22 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float roughness = roughnessTexture.Sample(basicSampler, input.uv).r;
 	roughness = lerp(0, roughness, 1);// x*(1-s) + y*s lerp(x,y,s)
 	
-	float3 finalColor = BasicDirectLight(input.normal, lights[0], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
+	float3 finalColor;
+	for (int i = 0; i < lightCount; i++)
+	{
+		switch (lights[i].Type)
+		{
+		case LIGHT_TYPE_DIRECTIONAL:
+			finalColor+= BasicDirectLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
+			break;
+		case LIGHT_TYPE_POINT:
+			finalColor += BasicPointLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
+			break;
+		case LIGHT_TYPE_SPOT:
+			finalColor += BasicSpotLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
+			break;
+		}
+	}
 	return float4(finalColor, 0);
 
 }

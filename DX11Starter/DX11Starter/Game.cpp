@@ -92,17 +92,18 @@ void Game::Init()
 	pointLight.AmbientIntensity = 0.0f;
 
 	spotLight.Type = LIGHT_TYPE_SPOT;
-	spotLight.Position = camera.GetPosition();
-	spotLight.Direction = XMFLOAT3(0, 0, 1);
+	spotLight.Position = XMFLOAT3(0, 5, 0);
+	spotLight.Direction = XMFLOAT3(0, -1, 0);
 
-	spotLight.Range = 10.0f;
+	spotLight.Range = 20.0f;
 	spotLight.Color = XMFLOAT3(1, 0, 1);
-	spotLight.SpotFalloff = 5.0f;
+	spotLight.SpotFalloff = 25.0f;
 	spotLight.DiffuseIntensity = 1.0f;
 	spotLight.AmbientIntensity = 0.1f;
 
 	lightList.push_back(directLight);
-	//lightList.push_back();
+	lightList.push_back(spotLight);
+	lightList.push_back(pointLight);
 }
 
 void Game::LoadTextures()
