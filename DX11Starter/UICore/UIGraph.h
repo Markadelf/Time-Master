@@ -1,4 +1,7 @@
 #pragma once
+// NOT UNNECESSARY
+#include "Winsock2.h"
+// NOT UNNECESSARY
 
 #include <SpriteBatch.h>
 #include "UIStructs.h"

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "UIGraph.h"
-#include <SpriteBatch.h>
 
 // The UIManager class is the main interface through which the engine accesses the Menu System
 // The UIManager Handles all of the UIGraphs and communicates any input across them
