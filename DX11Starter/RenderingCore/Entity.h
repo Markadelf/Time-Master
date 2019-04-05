@@ -1,6 +1,8 @@
 #pragma once
 #include <DirectXMath.h>
 
+// Currently unused
+// Will be useful for rendering objects that don't need to be updated from the scene graph
 class Entity
 {
 	// Net transformation matrix

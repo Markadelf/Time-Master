@@ -45,6 +45,8 @@ public:
 	
 	// Pure virtual methods for setup and game functionality
 	virtual void Init()										= 0;
+	
+	// Functions to set function pointers
 	void SetUpdate(void(*callback)(float deltaTime, float totalTime));
 	void SetDraw(void (*callback)(float deltaTime, float totalTime));
 	void SetControls(

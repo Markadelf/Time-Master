@@ -5,6 +5,7 @@
 #include"assimp/scene.h"
 #include"assimp/postprocess.h"
 
+// Acts as a smart pointer for the DirectX Pointers
 class Mesh
 {
 private:

@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "DXCore.h"
 
+// This class defines a camera with a view and a projection that can be used to facilitate rendering
 class Camera
 {
 private:
