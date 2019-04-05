@@ -19,7 +19,7 @@ using namespace DirectX;
 //
 // hInstance - the application's OS-level handle (unique ID)
 // --------------------------------------------------------
-Game::Game(HINSTANCE hInstance): m_renderer(hInstance)
+Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 {
 	GameInstance = this;
 	m_renderer.SetDraw(SDraw);
@@ -75,8 +75,8 @@ void Game::Init()
 
 void Game::LoadTextures()
 {
-	auto device = m_renderer.GetDevice();
-	auto context = m_renderer.GetContext();
+	ID3D11Device* device = m_renderer.GetDevice();
+	ID3D11DeviceContext* context = m_renderer.GetContext();
 
 	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
@@ -92,10 +92,10 @@ void Game::LoadTextures()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	auto device = m_renderer.GetDevice();
-	auto context = m_renderer.GetContext();
+	ID3D11Device* device = m_renderer.GetDevice();
+	ID3D11DeviceContext* context = m_renderer.GetContext();
 
-	AssetManager::get().LoadMaterial(0, 0,"DEFAULT","Textures/poster.png");
+	AssetManager::get().LoadMaterial(0, 0, "DEFAULT", "Textures/poster.png");
 	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/player3.png");
 	AssetManager::get().LoadMaterial(0, 0, "WOODEN", "Textures/Wooden.png");
 	AssetManager::get().LoadMaterial(0, 0, "STRIPES", "Textures/Stripes.png");
@@ -106,17 +106,17 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	auto device = m_renderer.GetDevice();
-	auto context = m_renderer.GetContext();
+	ID3D11Device* device = m_renderer.GetDevice();
+	ID3D11DeviceContext* context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager
 	int coneHandle = AssetManager::get().LoadMesh("OBJ_Files/cone.obj", device);
 
 	int cubeHandle = AssetManager::get().LoadMesh("OBJ_Files/cube.obj", device);
 
-	int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj",device);
-	int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj",  device);
+	int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj", device);
+	int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj", device);
 
-	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx",  device);
+	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
 
 	int matHandle = AssetManager::get().GetMaterialHandle("DEFAULT");
 	int matHandle2 = AssetManager::get().GetMaterialHandle("STRIPES");
@@ -156,8 +156,8 @@ void Game::CreateBasicGeometry()
 	handle.m_material = matHandle2;
 	handle.m_mesh = cubeHandle;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .25f);
-	handle.m_scale[0] = 1; 
-	handle.m_scale[1] = 1; 
+	handle.m_scale[0] = 1;
+	handle.m_scale[1] = 1;
 	handle.m_scale[2] = 1;
 	Camera* camera = m_renderer.GetCamera();
 	XMFLOAT3 pos = camera->GetPosition();
@@ -353,7 +353,7 @@ void Game::SUpdate(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	m_renderer.Begin();
-	
+
 	m_renderer.DrawScene(sceneGraph, time);
 
 	m_renderer.End();
@@ -430,7 +430,7 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 
 	dX = dX % 10;
 	dY = dY % 10;
-	auto cam = m_renderer.GetCamera();
+	Camera* cam = m_renderer.GetCamera();
 	cam->SetYaw(cam->GetYaw() + dX / 180.f);
 	//camera.SetPitch(camera.GetPitch() + dY / 180.f);
 
