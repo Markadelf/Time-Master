@@ -1,20 +1,10 @@
 #pragma once
 
 #include "Renderer.h"
-
-// Manager includes
-#include "ResourceManager.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "Lights.h"
-#include "Entity.h"
-
 #include "ServerSceneGraph.h"
 
-//#include "ServerSceneGraph.h"
-//#include "Vector2.h"
- 
-
+// Handles the game engine level a the highest level of abstraction
+// Manages most of the other core components
 class Game 
 {
 	static Game* GameInstance;
@@ -35,7 +25,7 @@ public:
 	void OnMouseMove (WPARAM buttonState, int x, int y);
 	void OnMouseWheel(float wheelDelta,   int x, int y);
 
-	// static callbacks
+	// static callbacks for the Function Pointers
 	static void SUpdate(float deltaTime, float totalTime);
 	static void SDraw(float deltaTime, float totalTime);
 	static void SOnMouseDown(WPARAM buttonState, int x, int y);
