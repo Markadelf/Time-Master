@@ -28,8 +28,8 @@ size_t Buffer::RemainingBits() {
 	return bitCapacity - Size();
 }
 
-bool Buffer::WriteBits(unsigned __int8 data, size_t bitCount) {
-	int next = bitIndex + bitCount;
+bool Buffer::WriteBits(unsigned __int8 data, unsigned int bitCount) {
+	unsigned int next = bitIndex + bitCount;
 	if (next > bitCapacity)
 	{
 		return false;
@@ -40,7 +40,7 @@ bool Buffer::WriteBits(unsigned __int8 data, size_t bitCount) {
 	unsigned __int8 currentMask = ~(0xFF << bitOffSet);
 	bytes[byteIndex] = (bytes[byteIndex] & currentMask) | (data << bitOffSet);
 
-	int extra = 8 - bitOffSet;
+	unsigned int extra = 8 - bitOffSet;
 
 	if (extra < bitCount)
 	{
@@ -51,7 +51,7 @@ bool Buffer::WriteBits(unsigned __int8 data, size_t bitCount) {
 	return true;
 }
 
-bool Buffer::WriteBits(const void* data, size_t bitCount) {
+bool Buffer::WriteBits(const void* data, unsigned int bitCount) {
 	const unsigned __int8* srcByte = static_cast<const unsigned __int8*>(data);
 
 	bool valid = true;
@@ -68,12 +68,12 @@ bool Buffer::WriteBits(const void* data, size_t bitCount) {
 	return valid;
 }
 
-bool Buffer::WriteBytes(const void* data, size_t byteCount) {
+bool Buffer::WriteBytes(const void* data, unsigned int byteCount) {
 	return WriteBits(data, byteCount << 3);
 }
 
-bool Buffer::ReadBits(unsigned __int8& data, size_t bitCount) {
-	int end = bitIndex + bitCount;
+bool Buffer::ReadBits(unsigned __int8& data, unsigned int bitCount) {
+	unsigned int end = bitIndex + bitCount;
 	if (end > bitCapacity)
 	{
 		return false;
@@ -96,7 +96,7 @@ bool Buffer::ReadBits(unsigned __int8& data, size_t bitCount) {
 	return true;
 }
 
-bool Buffer::ReadBits(void* data, size_t bitCount) {
+bool Buffer::ReadBits(void* data, unsigned int bitCount) {
 	unsigned __int8* srcByte = static_cast<unsigned __int8*>(data);
 
 	size_t i;
@@ -112,7 +112,7 @@ bool Buffer::ReadBits(void* data, size_t bitCount) {
 	return valid;
 }
 
-bool Buffer::ReadBytes(void* data, size_t byteCount) {
+bool Buffer::ReadBytes(void* data, unsigned int byteCount) {
 	return ReadBits(data, byteCount << 3);
 }
 
