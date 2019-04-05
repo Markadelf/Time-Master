@@ -1,4 +1,6 @@
 #pragma once
+#include "Serializer.h"
+
 namespace Colliders2D {
 	// Collider type is used to define collider handles
 	enum ColliderType
@@ -37,6 +39,21 @@ namespace Colliders2D {
 			m_type = type;
 			m_handle = handle;
 		}
+
+		bool Serialize(Buffer& buffer) const {
+			return Serializer::SerializeInteger<-1, 100>(buffer, m_layer) &&
+				Serializer::SerializeInteger<ColliderType::None, ColliderType::Rectangle>(buffer, m_type) &&
+				Serializer::SerializeInteger<-1, 100>(buffer, m_handle);
+
+		}
+		bool Deserialize(Buffer& buffer) {
+			int colType;
+			bool ret = Serializer::DeserializeInteger<-1, 100>(buffer, m_layer) &&
+				Serializer::DeserializeInteger<ColliderType::None, ColliderType::Rectangle>(buffer, colType) &&
+				Serializer::DeserializeInteger<-1, 100>(buffer, m_handle);
+			m_type = (ColliderType) colType;
+			return ret;
+		}
 	};
 }
 
@@ -67,6 +84,18 @@ struct HandleObject
 		m_scale[0] = val;
 		m_scale[1] = val;
 		m_scale[2] = val;
+	}
+
+	bool Serialize(Buffer& buffer) const {
+		return m_collider.Serialize(buffer) &&
+			Serializer::SerializeInteger<-1, 100>(buffer, m_mesh) &&
+			Serializer::SerializeInteger<-1, 100>(buffer, m_material);
+	}
+
+	bool Deserialize(Buffer& buffer) {
+		return m_collider.Deserialize(buffer) &&
+			Serializer::DeserializeInteger<-1, 100>(buffer, m_mesh) &&
+			Serializer::DeserializeInteger<-1, 100>(buffer, m_material);
 	}
 
 };

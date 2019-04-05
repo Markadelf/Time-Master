@@ -23,3 +23,13 @@ HandleObject Phenomina::GetHandle() const
 {
 	return m_handles;
 }
+
+bool Phenomina::Serialize(Buffer& buffer) const
+{
+	return m_transform.Serialize(buffer) && m_handles.Serialize(buffer);
+}
+
+bool Phenomina::Deserialize(Buffer& buffer)
+{
+	return m_transform.Deserialize(buffer) && m_handles.Deserialize(buffer);
+}

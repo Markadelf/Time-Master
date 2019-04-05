@@ -17,6 +17,15 @@ struct PhenominaHandle
 		m_entity = entity;
 		m_phenomina = phenomina;
 	}
+
+	bool Serialize(Buffer& buffer) const {
+		return Serializer::SerializeInteger<-1, 100>(buffer, m_entity) &&
+			Serializer::SerializeInteger<-1, 100>(buffer, m_phenomina);
+	}
+	bool Deserialize(Buffer& buffer) {
+		return Serializer::DeserializeInteger<-1, 100>(buffer, m_entity) &&
+			Serializer::DeserializeInteger<-1, 100>(buffer, m_phenomina);
+	}
 };
 
 // This class is for storing data about a projectile, its attributes and 
@@ -33,4 +42,7 @@ public:
 	// Accessors
 	TimeInstableTransform GetTransform() const;
 	HandleObject GetHandle() const;
+
+	bool Serialize(Buffer& buffer) const;
+	bool Deserialize(Buffer& buffer);
 };
