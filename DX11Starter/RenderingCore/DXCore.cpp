@@ -352,19 +352,19 @@ void DXCore::SetControls(void(*msDown)(WPARAM buttonState, int x, int y), void(*
 	onMouseWheel = msWheel;
 }
 
-ID3D11Device* DXCore::GetDevice()
+ID3D11Device* &DXCore::GetDevice()
 {
 	return device;
 }
 
-ID3D11DeviceContext* DXCore::GetContext()
+ID3D11DeviceContext* &DXCore::GetContext()
 {
 	return context;
 }
 
-HWND* DXCore::GethWnd()
+HWND &DXCore::GethWnd()
 {
-	return &hWnd;
+	return hWnd;
 }
 
 

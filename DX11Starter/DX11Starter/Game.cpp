@@ -403,7 +403,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	// Caputure the mouse so we keep getting mouse move
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
-	SetCapture(*m_renderer.GethWnd());
+	SetCapture(m_renderer.GethWnd());
 }
 
 // --------------------------------------------------------

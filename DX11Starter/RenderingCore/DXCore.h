@@ -55,9 +55,9 @@ public:
 		void(*msMove)(WPARAM buttonState, int x, int y),
 		void(*msWheel)(float wheelDelta, int x, int y));
 	
-	ID3D11Device* GetDevice();
-	ID3D11DeviceContext* GetContext();
-	HWND* GethWnd();
+	ID3D11Device* &GetDevice();
+	ID3D11DeviceContext* &GetContext();
+	HWND &GethWnd();
 
 protected:
 	HINSTANCE	hInstance;		// The handle to the application
