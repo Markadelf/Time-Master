@@ -83,7 +83,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="shaders\lighting.hlsli" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -1,10 +1,10 @@
+#include <cmath>
+
+
+#include "AssetManager.h"
+#include "FilePathHelper.h"
 #include "Game.h"
 #include "Vertex.h"
-//#include "WICTextureLoader.h"
-#include "FilePathHelper.h"
-#include <cmath>
-#include <iostream>
-#include "AssetManager.h"
 // For the DirectX Math library
 using namespace DirectX;
 // --------------------------------------------------------
@@ -110,25 +110,13 @@ void Game::Init()
 void Game::LoadTextures()
 {
 	ID3D11ShaderResourceView* image;
-	// Add if successful
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/paint_albedo.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/paint_albedo.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/paint_roughness.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/paint_roughness.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/wood_albedo.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/wood_albedo.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/wood_roughness.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/wood_roughness.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/floor_albedo.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/floor_albedo.png", image);
-	if (CreateWICTextureFromFile(device, context, FilePathHelper::GetPath(L"Textures/floor_roughness.png").c_str(), 0, &image) == 0)
-		textureManager.AddResource("Textures/floor_roughness.png", image);
-
-
-	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Stripes.png", device, context);
+	
+	AssetManager::get().LoadTexture(L"Textures/paint_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/paint_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/wood_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
 
 	ID3D11SamplerState* sampler;
 	D3D11_SAMPLER_DESC desc = {};
@@ -161,20 +149,11 @@ void Game::LoadShaders()
 	pixelShader->LoadShaderFile(L"PixelShader.cso");
 
 	int pHandle = pixelShaderManager.AddResource("P1", pixelShader);
-
-	materialManager.AddResource("PLAYER", Material(vHandle, pHandle, textureManager.GetHandle("Textures/paint_albedo.png"),
-							  textureManager.GetHandle("Textures/paint_roughness.png"), 0,64.0f));
-
-	materialManager.AddResource("WOOD", Material(vHandle, pHandle, textureManager.GetHandle("Textures/wood_albedo.png"),
-								textureManager.GetHandle("Textures/wood_roughness.png"), 0, 64.0f));
 	
-	materialManager.AddResource("FLOOR", Material(vHandle, pHandle, textureManager.GetHandle("Textures/floor_albedo.png"),
-								textureManager.GetHandle("Textures/floor_roughness.png"),0,64));
-
-	AssetManager::get().LoadMaterial(vHandle, pHandle,"DEFAULT","Textures/poster.png");
-	AssetManager::get().LoadMaterial(vHandle, pHandle, "PLAYER3", "Textures/player3.png");
-	AssetManager::get().LoadMaterial(vHandle, pHandle, "WOODEN", "Textures/Wooden.png");
-	AssetManager::get().LoadMaterial(vHandle, pHandle, "STRIPES", "Textures/Stripes.png");
+	AssetManager::get().LoadMaterial(vHandle, pHandle, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
+	AssetManager::get().LoadMaterial(vHandle, pHandle, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
+	AssetManager::get().LoadMaterial(vHandle, pHandle, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
+	
 }
 
 
@@ -206,18 +185,10 @@ void Game::CreateBasicGeometry()
 
 	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx",  device);
 
-	int playermat = materialManager.GetHandle("PLAYER");
-	int woodmat = materialManager.GetHandle("WOOD");
-	int floorMaterial = materialManager.GetHandle("FLOOR");
 
-	int matHandle = AssetManager::get().GetMaterialHandle("DEFAULT");
-	int matHandle2 = AssetManager::get().GetMaterialHandle("STRIPES");
-	int matHandle3 = AssetManager::get().GetMaterialHandle("PLAYER3");
-	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
-	//int matHandle = materialManager.GetHandle("DEFAULT");
-	//int matHandle2 = materialManager.GetHandle("STRIPES");
-	//int matHandle3 = materialManager.GetHandle("PLAYER3");
-	//int matHandle4 = materialManager.GetHandle("WOODEN");
+	int floorMaterial = AssetManager::get().GetMaterialHandle("FLOOR");
+	int woodMaterial  = AssetManager::get().GetMaterialHandle("WOOD");
+	int playerMaterial = AssetManager::get().GetMaterialHandle("PLAYER3");
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
 
@@ -226,7 +197,7 @@ void Game::CreateBasicGeometry()
 	StaticObject objs[div + 1];
 	Vector2 right = Vector2(5, 0);
 	HandleObject handle;
-	handle.m_material = woodmat;
+	handle.m_material = woodMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.m_scale[2] = 2;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Rectangle, 1, 2);
@@ -235,7 +206,7 @@ void Game::CreateBasicGeometry()
 	{
 		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
 	}
-	handle.m_material = playermat;
+	handle.m_material = playerMaterial;
 	handle.m_mesh = duckHandle;
 	handle.SetUniformScale(.01f);
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .5f);
@@ -258,12 +229,12 @@ void Game::CreateBasicGeometry()
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
-	handle.m_material = playermat;
+	handle.m_material = playerMaterial;
 	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), camera.GetYaw()), time, handle);
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
-	handle.m_material = playermat;
+	handle.m_material = playerMaterial;
 	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera.GetYaw()), time, handle);
 }
 
@@ -281,23 +252,12 @@ void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 	vertexShader->SetMatrix4x4("view", camera.GetView());
 	vertexShader->SetMatrix4x4("projection", camera.GetProjection());
 
-	// Once you've set all of the data you care to change for
-	// the next draw call, you need to actually send it to the GPU
-	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
-	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
-
-	std::cout << pixelShader->SetData("lights", (void*)(&lightList[0]), sizeof(Light) * MAX_LIGHTS) << std::endl;
+	pixelShader->SetData("lights", (void*)(&lightList[0]), sizeof(Light) * MAX_LIGHTS);
 	pixelShader->SetInt("lightCount", lightList.size());
 	pixelShader->SetFloat3("cameraPos", camera.GetPosition());
 	pixelShader->SetFloat("shinniness", mat->GetShinniness());
-	pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetDiffuseTextureHandle()));
-	pixelShader->SetShaderResourceView("roughnessTexture", *textureManager.GetResourcePointer(mat->GetRoughnessTextureHandle()));
-	vertexShader->CopyAllBufferData();
-	pixelShader->SetInt("lightAmount", (int)lightList.size());
-	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
-	pixelShader->SetData("light", (&lightList[0]), sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
-	pixelShader->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetTextureHandle()));
-	//pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
+	pixelShader->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()));
+	pixelShader->SetShaderResourceView("roughnessTexture", *AssetManager::get().GetTexturePointer(mat->GetRoughnessTextureHandle()));
 	pixelShader->SetSamplerState("basicSampler", *samplerManager.GetResourcePointer(mat->GetSamplerHandle()));
 	
 	vertexShader->CopyAllBufferData();
