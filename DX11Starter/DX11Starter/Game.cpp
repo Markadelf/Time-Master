@@ -1,9 +1,10 @@
 #include "Game.h"
 #include "Vertex.h"
-#include "WICTextureLoader.h"
+//#include "WICTextureLoader.h"
 #include "FilePathHelper.h"
 #include <cmath>
 #include <iostream>
+#include "AssetManager.h"
 // For the DirectX Math library
 using namespace DirectX;
 // --------------------------------------------------------
@@ -39,17 +40,17 @@ Game::Game(HINSTANCE hInstance)
 Game::~Game()
 {
 	// Release any (and all!) DirectX objects
-	// we've made in the Game class
-	meshManager.Release();
-	materialManager.Release();
-
+	// we've made in the Game class	
+	//AssetManager::get().~AssetManager();
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
+	AssetManager::get().ReleaseAllAssetResource();
+
 	vertexShaderManager.ReleasePointers();
 	pixelShaderManager.ReleasePointers();
 
 	// Clean up my texture pointers
-	textureManager.ReleaseDXPointers();
+	//textureManager.ReleaseDXPointers();
 	samplerManager.ReleaseDXPointers();
 
 	delete sceneGraph;
@@ -124,6 +125,11 @@ void Game::LoadTextures()
 		textureManager.AddResource("Textures/floor_roughness.png", image);
 
 
+	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Stripes.png", device, context);
+
 	ID3D11SamplerState* sampler;
 	D3D11_SAMPLER_DESC desc = {};
 	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -165,6 +171,10 @@ void Game::LoadShaders()
 	materialManager.AddResource("FLOOR", Material(vHandle, pHandle, textureManager.GetHandle("Textures/floor_albedo.png"),
 								textureManager.GetHandle("Textures/floor_roughness.png"),0,64));
 
+	AssetManager::get().LoadMaterial(vHandle, pHandle,"DEFAULT","Textures/poster.png");
+	AssetManager::get().LoadMaterial(vHandle, pHandle, "PLAYER3", "Textures/player3.png");
+	AssetManager::get().LoadMaterial(vHandle, pHandle, "WOODEN", "Textures/Wooden.png");
+	AssetManager::get().LoadMaterial(vHandle, pHandle, "STRIPES", "Textures/Stripes.png");
 }
 
 
@@ -187,19 +197,27 @@ void Game::InitializeCamera()
 void Game::CreateBasicGeometry()
 {
 	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = meshManager.AddResource("OBJ_Files/cone.obj", Mesh("OBJ_Files/cone.obj", device));
+	int coneHandle = AssetManager::get().LoadMesh("OBJ_Files/cone.obj", device);
 
-	int cubeHandle = meshManager.AddResource("OBJ_Files/cube.obj", Mesh("OBJ_Files/cube.obj", device));
+	int cubeHandle = AssetManager::get().LoadMesh("OBJ_Files/cube.obj", device);
 
-	int cylinderHandle = meshManager.AddResource("OBJ_Files/cylinder.obj", Mesh("OBJ_Files/cylinder.obj", device));
-	int sphereHandle = meshManager.AddResource("OBJ_Files/sphere.obj", Mesh("OBJ_Files/sphere.obj", device));
+	int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj",device);
+	int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj",  device);
 
-	int duckHandle = meshManager.AddResource("OBJ_Files/duck.fbx", Mesh("OBJ_Files/duck.fbx", device));
+	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx",  device);
 
 	int playermat = materialManager.GetHandle("PLAYER");
 	int woodmat = materialManager.GetHandle("WOOD");
 	int floorMaterial = materialManager.GetHandle("FLOOR");
 
+	int matHandle = AssetManager::get().GetMaterialHandle("DEFAULT");
+	int matHandle2 = AssetManager::get().GetMaterialHandle("STRIPES");
+	int matHandle3 = AssetManager::get().GetMaterialHandle("PLAYER3");
+	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
+	//int matHandle = materialManager.GetHandle("DEFAULT");
+	//int matHandle2 = materialManager.GetHandle("STRIPES");
+	//int matHandle3 = materialManager.GetHandle("PLAYER3");
+	//int matHandle4 = materialManager.GetHandle("WOODEN");
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
 
@@ -274,6 +292,12 @@ void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 	pixelShader->SetFloat("shinniness", mat->GetShinniness());
 	pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetDiffuseTextureHandle()));
 	pixelShader->SetShaderResourceView("roughnessTexture", *textureManager.GetResourcePointer(mat->GetRoughnessTextureHandle()));
+	vertexShader->CopyAllBufferData();
+	pixelShader->SetInt("lightAmount", (int)lightList.size());
+	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
+	pixelShader->SetData("light", (&lightList[0]), sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
+	pixelShader->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetTextureHandle()));
+	//pixelShader->SetShaderResourceView("diffuseTexture", *textureManager.GetResourcePointer(mat->GetTextureHandle()));
 	pixelShader->SetSamplerState("basicSampler", *samplerManager.GetResourcePointer(mat->GetSamplerHandle()));
 	
 	vertexShader->CopyAllBufferData();
@@ -292,11 +316,10 @@ void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
-	Mesh* mesh = meshManager.GetResourcePointer(meshHandle);
-
-	ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
+	ID3D11Buffer* vBuffer = AssetManager::get().GetMeshPointer(meshHandle)->GetVertexBuffer();
+	//ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
 	context->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-	context->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetIndexBuffer(AssetManager::get().GetMeshPointer(meshHandle)->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 
 	// Finally do the actual drawing
 	//  - Do this ONCE PER OBJECT you intend to draw
@@ -304,14 +327,15 @@ void Game::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 	//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
 	//     vertices in the currently set VERTEX BUFFER
 	context->DrawIndexed(
-		mesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+		AssetManager::get().GetMeshPointer(meshHandle)->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
 		0,     // Offset to the first index we want to use
 		0);    // Offset to add to each index when looking up vertices
 }
 
 void Game::RenderEntity(Entity& entity)
 {
-	Render(materialManager.GetResourcePointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
+	Render(AssetManager::get().GetMaterialPointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
+	//Render(materialManager.GetResourcePointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
 }
 
 void Game::RenderObjectAtPos(HandleObject& handle, Transform trans)
@@ -322,7 +346,8 @@ void Game::RenderObjectAtPos(HandleObject& handle, Transform trans)
 	XMFLOAT4X4 transform;
 	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
 
-	Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
+	Render(AssetManager::get().GetMaterialPointer(handle.m_material), transform, handle.m_mesh);
+	//Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
 }
 
 void Game::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
@@ -569,7 +594,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	int eCount = sceneGraph->GetEntityCount();
 	for (size_t i = 0; i < eCount; i++)
 	{
-		RenderPhantoms(*sceneGraph->GetEntity(i), time);
+		RenderPhantoms(*sceneGraph->GetEntity((int)i), time);
 	}
 	// XMFLOAT3 pos = camera.GetRelative(XMFLOAT3(0, 0, 1));
 	//RenderEntity(Entity(3, 1, pos, XMFLOAT3(.1f, .1f, .1f), XMFLOAT4(1, 0, 0, 0)));

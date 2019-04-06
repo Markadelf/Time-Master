@@ -155,7 +155,7 @@ namespace Serializer
 	template<int maxLength>
 	static bool SerializeString(Buffer& buffer, const char* data)
 	{
-		int length = strlen(data);
+		int length = (int) strlen(data);
 		if (length > maxLength) {
 			return false;
 		}

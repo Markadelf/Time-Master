@@ -4,7 +4,7 @@
 class Buffer
 {
 	// Keep track of data structure at the bit level
-	int bitCapacity;
+	unsigned int bitCapacity;
 	unsigned int bitIndex;
 	unsigned __int8* bytes;
 
@@ -21,18 +21,18 @@ public:
 	size_t RemainingBits();
 
 	// Write bits out of a byte
-	bool WriteBits(unsigned __int8 data, size_t bitCount);
+	bool WriteBits(unsigned __int8 data, unsigned int bitCount);
 	// Write bits out of an buffer
-	bool WriteBits(const void* data, size_t bitCount);
+	bool WriteBits(const void* data, unsigned int bitCount);
 	// Writes bytes out of a buffer
-	bool WriteBytes(const void* data, size_t byteCount);
+	bool WriteBytes(const void* data, unsigned int byteCount);
 
 	// Read bits into a byte
-	bool ReadBits(unsigned __int8& data, size_t bitCount);
+	bool ReadBits(unsigned __int8& data, unsigned int bitCount);
 	// Read bits into an array
-	bool ReadBits(void* data, size_t bitCount);
+	bool ReadBits(void* data, unsigned int bitCount);
 	// Read bytes into a buffer
-	bool ReadBytes(void* data, size_t byteCount);
+	bool ReadBytes(void* data, unsigned int byteCount);
 
 	// Resets the index for READ or WRITE
 	void ResetIndex();

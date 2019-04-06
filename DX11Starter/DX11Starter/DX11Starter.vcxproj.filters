@@ -67,9 +67,6 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FilePathHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
