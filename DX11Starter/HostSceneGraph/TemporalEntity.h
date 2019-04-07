@@ -2,7 +2,7 @@
 #include "TimeInstableTransform.h"
 #include "HandleObject.h"
 #include "Phantom.h"
-#include "PlayerKeyFrameData.h"
+#include "KeyFrameData.h"
 #include "ColliderManager.h"
 
 // The player object keeps a record of all of the actions a player has taken
@@ -85,6 +85,7 @@ public:
 	// Upkeep/Update functions
 	Phantom* StackKeyFrame(KeyFrameData keyFrame);
 	void TrackPhenomina(Phenomina phenomina, TimeStamp time);
+	void TrackPhantom(Phantom key);
 
 	// Kill a player at a given time
 	void Kill(int imageIndex, TimeStamp time, const PhenominaHandle& murderHandle, PhenominaHandle& phenominaResetHandle);

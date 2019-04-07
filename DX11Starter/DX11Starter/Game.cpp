@@ -7,6 +7,8 @@
 // For the DirectX Math library
 using namespace DirectX;
 
+Game* Game::game;
+
 // --------------------------------------------------------
 // Constructor
 //
@@ -22,6 +24,7 @@ Game::Game(HINSTANCE hInstance)
 		1280,			// Width of the window's client area
 		720,			// Height of the window's client area
 		true)			// Show extra stats (fps) in title bar?
+	, connection(30001, Address(127, 0, 0, 1, 30000))
 {
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -29,7 +32,7 @@ Game::Game(HINSTANCE hInstance)
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
-
+	game = this;
 }
 
 // --------------------------------------------------------
@@ -159,6 +162,14 @@ void Game::InitializeCamera()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	// Make a user request
+	connection.SetActiveCallBack(NetworkData);
+	connection.GetNextBuffer(MessageType::GameRequest);
+	// Send it
+	connection.SendToServer();
+
+	connection.Listen();
+
 	// Load in the files and get the handles for each from the meshManager
 	int coneHandle = meshManager.AddResource("OBJ_Files/cone.obj", Mesh("OBJ_Files/cone.obj", device));
 
@@ -325,6 +336,15 @@ void Game::RenderPhantoms(TemporalEntity& phantom, float t)
 	}
 }
 
+void Game::NetworkRequest(Buffer& buffer)
+{
+}
+
+void Game::NetworkData(Buffer& buffer)
+{
+	game->sceneGraph->ClientRecieve(buffer);
+}
+
 
 // --------------------------------------------------------
 // Handle resizing DirectX "stuff" to match the new window size.
@@ -343,6 +363,8 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	connection.Listen();
+
 	time += deltaTime * (reversed ? -1 : 1);
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
@@ -491,8 +513,12 @@ void Game::Update(float deltaTime, float totalTime)
 	if (frame > 30 || timeShot != -1)
 	{
 		XMFLOAT3 pos = camera.GetPosition();
-		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, activePlayer, timeShot != -1, timeShot));
-		//sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z).Rotate(3.14f), camera.GetYaw()), time, 1, false, timeShot));
+		KeyFrameData key = KeyFrameData(Transform(Vector2(pos.x, pos.z), camera.GetYaw()), time, activePlayer, timeShot != -1, timeShot);
+		key.Serialize(*connection.GetNextBuffer(MessageType::GameData));
+		connection.SendToServer();
+		//sceneGraph->StackKeyFrame(key);
+		
+		
 		frame = 0;
 		timeShot = -1;
 	}

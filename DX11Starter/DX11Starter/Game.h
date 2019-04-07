@@ -13,6 +13,7 @@
 #include "Lights.h"
  
 #include "ServerSceneGraph.h"
+#include "ClientHelper.h"
 
 //#include "ServerSceneGraph.h"
 //#include "Vector2.h"
@@ -53,6 +54,11 @@ private:
 	void RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t);
 	void RenderPhantoms(TemporalEntity& phantom, float t);
 
+	// Networking
+	static Game* game;
+	static void NetworkRequest(Buffer& buffer);
+	static void NetworkData(Buffer& buffer);
+
 	// The matrices to go from model space to screen space
 	Camera camera;
 
@@ -79,5 +85,6 @@ private:
 	ResourceManager<ID3D11SamplerState*> samplerManager;
 	
 	ServerSceneGraph* sceneGraph;
+	ClientHelper connection;
 };
 

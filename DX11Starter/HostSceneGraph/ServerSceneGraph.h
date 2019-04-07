@@ -3,7 +3,8 @@
 #include "StaticObject.h"
 #include "TemporalEntity.h"
 #include "ColliderManager.h"
-#include "PlayerKeyFrameData.h"
+#include "KeyFrameData.h"
+#include "ServerManager.h"
 
 class ServerSceneGraph
 {
@@ -50,6 +51,11 @@ public:
 	int AddEntity(int maxImages, int maxPhenomina);
 
 	Colliders2D::ColliderHandle GetColliderHandle(Colliders2D::ColliderType cType, float a = 0, float b = 0);
+
+	// Networking
+	void ClientRecieve(Buffer& data);
+	void HostRecieve(Buffer& data, int playerId, ServerManager* server);
+
 
 };
 

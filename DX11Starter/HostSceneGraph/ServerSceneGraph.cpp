@@ -1,10 +1,9 @@
 #include "ServerSceneGraph.h"
 
 
-ServerSceneGraph::ServerSceneGraph()
+ServerSceneGraph::ServerSceneGraph(): ServerSceneGraph(10, 100, 10)
 {
-	m_entities = nullptr;
-	m_statics = nullptr;
+
 }
 
 ServerSceneGraph::ServerSceneGraph(int maxEntities, int causalityPerEntity, int maxColliders)
@@ -39,7 +38,7 @@ ServerSceneGraph::~ServerSceneGraph()
 	}
 }
 
-void ServerSceneGraph::Init(StaticObject * staticObjs, int staticobjectCount)
+void ServerSceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
 {
 	// Static Object Buffer
 	m_statics = new StaticObject[staticobjectCount];
@@ -110,7 +109,7 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 				{
 					// We hit, let everyone know we died
 					PhenominaHandle reset;
-					m_entities[i].Kill(j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
+					m_entities[i].Kill((int)j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
 					for (size_t k = 0; k < m_entityCount; k++)
 					{
 						if (m_entities[k].CheckRevive(reset)) 
@@ -185,5 +184,46 @@ Colliders2D::ColliderHandle ServerSceneGraph::GetColliderHandle(Colliders2D::Col
 	default:
 		return Colliders2D::ColliderHandle();
 	}
+}
+
+void ServerSceneGraph::ClientRecieve(Buffer& data)
+{
+	KeyFrameData key;
+	key.Deserialize(data);
+
+	TemporalEntity* entity = &m_entities[key.m_entityId];
+
+	Phantom phan;
+	phan.Deserialize(data);
+
+	entity->TrackPhantom(phan);
+
+	if (key.m_shot) {
+		Phenomina bull;
+		bull.Deserialize(data);
+		entity->TrackPhenomina(bull, key.m_shotTime);
+	}
+}
+
+void ServerSceneGraph::HostRecieve(Buffer& data, int playerId, ServerManager* server)
+{
+	KeyFrameData key;
+	key.Deserialize(data);
+
+	StackKeyFrame(key);
+	TemporalEntity* entity = &m_entities[key.m_entityId];
+
+	Phantom phan = entity->Head();
+
+	Buffer* outData = server->GetNextBufferActiveUser(MessageType::GameData, playerId);
+	key.Serialize(*outData);
+	phan.Serialize(*outData);
+
+	if (key.m_shot) {
+		Phenomina bull = entity->GetPhenominaBuffer()[entity->GetPhenominaCount() - 1];
+		bull.Serialize(*outData);
+	}
+
+	server->SendToActiveUser(playerId);
 }
 

@@ -12,7 +12,7 @@ class ServerManager
 
 	// Hash of Users
 	// TODO: Consider removal or analysis of std library hash table
-	// TODO: Stop hashing by the port
+	// TODO: Stop hashing by the port (Not difficult, but for testing could be more thorough)
 	std::unordered_map<int, int> m_clientMap;
 
 	// User data and packet data

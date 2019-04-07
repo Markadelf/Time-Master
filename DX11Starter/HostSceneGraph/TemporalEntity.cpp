@@ -193,6 +193,22 @@ void TemporalEntity::TrackPhenomina(Phenomina phenomina, TimeStamp time)
 	m_phenominaCount++;
 }
 
+void TemporalEntity::TrackPhantom(Phantom key)
+{
+	m_images[m_imageCount] = key;
+	if (key.GetTransform().GetReversed())
+	{
+		m_lastTimeStamp = key.GetTransform().GetStartTime();
+	}
+	else
+	{
+		m_lastTimeStamp = key.GetTransform().GetEndTime();
+	}
+
+	m_currentTransform = key.GetTransform().GetTransform(m_lastTimeStamp);
+	m_imageCount++;
+}
+
 
 void TemporalEntity::Kill(int imageIndex, TimeStamp time, const PhenominaHandle& murderHandle, PhenominaHandle& phenominaResetHandle)
 {

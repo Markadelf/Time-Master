@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ColliderManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)HostDataHeader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phantom.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phenomina.cpp" />
@@ -23,8 +24,9 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ColliderManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)HandleObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HostDataHeader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Phantom.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)KeyFrameData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Phenomina.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StaticObject.h" />
   </ItemGroup>
