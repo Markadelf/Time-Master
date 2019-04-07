@@ -36,7 +36,7 @@ namespace Colliders2D {
 	// Returns precise collision data with overlap
 	float CheckCircleCollisionPrecise(const Vector2& posA, const Vector2& posB, float combineRad);
 	// Returns true if collision occurs
-	bool CheckCircleCollisionFast(const Vector2& posA, const Vector2& posB, float combineRad);
+	bool CheckCollision(const Vector2& posA, const Vector2& posB, float combineRad);
 	// Returns true if collision occurs andd gives overlap vector
 	bool CheckCollision(const Transform& posA, const CircleCollider& circleA, const Transform& posB, const CircleCollider& circleB, const Vector2& deltaPos, Vector2& overlap);
 	// Returns true if collision occurs

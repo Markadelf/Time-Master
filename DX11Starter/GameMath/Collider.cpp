@@ -4,9 +4,8 @@
 using namespace Colliders2D;
 
 // CIRCLE
-CircleCollider::CircleCollider(float radius)
+CircleCollider::CircleCollider(float radius): m_radius(radius)
 {
-	m_radius = radius;
 }
 
 CircleCollider::~CircleCollider()
@@ -19,10 +18,8 @@ float CircleCollider::GetRadius() const
 }
 
 // RECTANGLE
-RectangleCollider::RectangleCollider(float width, float height)
+RectangleCollider::RectangleCollider(float width, float height): m_width(width), m_height(height)
 {
-	m_width = width;
-	m_height = height;
 }
 
 Colliders2D::RectangleCollider::~RectangleCollider()
@@ -45,7 +42,7 @@ float Colliders2D::CheckCircleCollisionPrecise(const Vector2 & posA, const Vecto
 	return combineRad - sqrtf((posB - posA).SquareMagnitude());
 }
 
-bool Colliders2D::CheckCircleCollisionFast(const Vector2& posA, const Vector2& posB, float combineRad)
+bool Colliders2D::CheckCollision(const Vector2& posA, const Vector2& posB, float combineRad)
 {
 	return combineRad * combineRad > (posB - posA).SquareMagnitude();
 }
@@ -67,7 +64,7 @@ bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& ci
 
 bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& circleA, const Transform& posB, const CircleCollider& circleB)
 {
-	return CheckCircleCollisionFast(posA.GetPos(), posB.GetPos(), circleA.GetRadius() + circleB.GetRadius());
+	return CheckCollision(posA.GetPos(), posB.GetPos(), circleA.GetRadius() + circleB.GetRadius());
 }
 
 bool Colliders2D::CheckCollision(const Transform& posA, const CircleCollider& circleA, const Transform& posB, const RectangleCollider& rectB, const Vector2& deltaPos, Vector2& overlap)
@@ -120,7 +117,7 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 	TimeStamp t = tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / relVel.SquareMagnitude();
 	if (t < tI)
 	{
-		if (CheckCircleCollisionFast(posA.GetPos(tI), posB.GetPos(tI), circleA.GetRadius() + circleB.GetRadius()))
+		if (CheckCollision(posA.GetPos(tI), posB.GetPos(tI), circleA.GetRadius() + circleB.GetRadius()))
 		{
 			timeStamp = tI;
 			return true;
@@ -128,13 +125,13 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 	}
 	else if (t > tF)
 	{
-		if (CheckCircleCollisionFast(posA.GetPos(tF), posB.GetPos(tF), circleA.GetRadius() + circleB.GetRadius())) 
+		if (CheckCollision(posA.GetPos(tF), posB.GetPos(tF), circleA.GetRadius() + circleB.GetRadius())) 
 		{
 			timeStamp = tF;
 			return true;
 		}
 	}
-	else if (CheckCircleCollisionFast(posA.GetPos(t), posB.GetPos(t), circleA.GetRadius() + circleB.GetRadius())) {
+	else if (CheckCollision(posA.GetPos(t), posB.GetPos(t), circleA.GetRadius() + circleB.GetRadius())) {
 		timeStamp = t;
 		return true;
 	}
@@ -156,7 +153,7 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 	float sqrMag = relVel.SquareMagnitude();
 	if (sqrMag == 0)
 	{
-		if (CheckCircleCollisionFast(posA.GetPos(tI), bPos, circleA.GetRadius() + circleB.GetRadius()))
+		if (CheckCollision(posA.GetPos(tI), bPos, circleA.GetRadius() + circleB.GetRadius()))
 		{
 			timeStamp = posA.GetReversed() ? tF : tI;
 			return true;
@@ -167,7 +164,7 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 	TimeStamp t = tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / sqrMag;
 	if (t < tI)
 	{
-		if (CheckCircleCollisionFast(posA.GetPos(tI), bPos, circleA.GetRadius() + circleB.GetRadius()))
+		if (CheckCollision(posA.GetPos(tI), bPos, circleA.GetRadius() + circleB.GetRadius()))
 		{
 			timeStamp = tI;
 			return true;
@@ -175,13 +172,13 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 	}
 	else if (t > tF)
 	{
-		if (CheckCircleCollisionFast(posA.GetPos(tF), bPos, circleA.GetRadius() + circleB.GetRadius()))
+		if (CheckCollision(posA.GetPos(tF), bPos, circleA.GetRadius() + circleB.GetRadius()))
 		{
 			timeStamp = tF;
 			return true;
 		}
 	}
-	else if (CheckCircleCollisionFast(posA.GetPos(t), bPos, circleA.GetRadius() + circleB.GetRadius())) {
+	else if (CheckCollision(posA.GetPos(t), bPos, circleA.GetRadius() + circleB.GetRadius())) {
 		timeStamp = t;
 		return true;
 	}

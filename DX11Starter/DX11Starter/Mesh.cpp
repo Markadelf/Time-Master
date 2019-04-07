@@ -70,7 +70,7 @@ Mesh::Mesh(const char* file, ID3D11Device* device) : Mesh()
 	// - At this point, "verts" is a vector of Vertex structs, and can be used
 	//    directly to create a vertex buffer:  &verts[0] is the address of the first vert
 	//
-	// - The vector "indices" is similar. It's a vector of unsigned ints and
+	// - The vector "indices" is similar. It's a vector of unsigned ints ands
 	//    can be used directly for the index buffer: &indices[0] is the address of the first int
 	//
 	// - "vertCounter" is BOTH the number of vertices and the number of indices
@@ -78,7 +78,7 @@ Mesh::Mesh(const char* file, ID3D11Device* device) : Mesh()
 	//    an index buffer in this case?  Sure!  Though, if your mesh class assumes you have
 	//    one, you'll need to write some extra code to handle cases when you don't.
 
-	Init(&verts[0], verts.size(), &indices[0], indices.size(), device);
+	Init(&verts[0], (int)verts.size(), &indices[0], (int)indices.size(), device);
 }
 
 Mesh::Mesh(const Mesh & other)

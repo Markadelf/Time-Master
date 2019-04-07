@@ -83,6 +83,8 @@ public:
 	void SetHandle(HandleObject& obj);
 
 	// Upkeep/Update functions
+	
+	// Creates a phantom on the player's phantom stack and returns info for that phantom
 	Phantom* StackKeyFrame(KeyFrameData keyFrame);
 	void TrackPhenomina(Phenomina phenomina, TimeStamp time);
 	void TrackPhantom(Phantom key);

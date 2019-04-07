@@ -14,30 +14,15 @@ TemporalEntity::TemporalEntity()
 
 	m_imageCount = 0;
 	m_phenominaCount = 0;
-}
-
-TemporalEntity::TemporalEntity(int maxImages, int maxPhenomina, const Transform& startingPos, float initialTime, HandleObject handles, int entityId)
-{
-	m_maxImages = maxImages;
-	m_maxPhenomina = maxPhenomina;
-	m_currentTransform = startingPos;
-	m_entityId = entityId;
-	m_lastTimeStamp = initialTime;
-
-	// Initialize Buffers
-	m_images = new Phantom[maxImages];
-	m_phenominaHandles = new PhenominaCreationInfo[maxPhenomina];
-	m_phenominaBuffer = new Phenomina[maxPhenomina];
-
-	// Intialize indices
-	m_imageCount = 0;
-	m_phenominaCount = 0;
-
-	m_handle = handles;
 
 	// Initialize variables
-	m_killedBy = PhenominaHandle();
 	m_reversed = false;
+}
+
+TemporalEntity::TemporalEntity(int maxImages, int maxPhenomina, const Transform& startingPos, float initialTime, HandleObject handles, int entityId): TemporalEntity()
+{
+	Initialize(maxImages, maxPhenomina, entityId);
+	Initialize(startingPos, initialTime, handles);
 }
 
 
