@@ -2,6 +2,7 @@
 
 #include "Renderer.h"
 #include "ServerSceneGraph.h"
+#include "UIManager.h"
 
 // Handles the game engine level a the highest level of abstraction
 // Manages most of the other core components
@@ -42,6 +43,7 @@ private:
 	void LoadTextures();
 	void LoadShaders();
 	void CreateBasicGeometry();
+	void LoadUI();
 
 	Renderer m_renderer;
 

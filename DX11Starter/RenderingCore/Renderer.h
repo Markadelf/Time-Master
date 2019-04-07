@@ -10,6 +10,7 @@
 #include "Entity.h"
 #include "ServerSceneGraph.h"
 #include "Material.h"
+#include "UIManager.h"
 
 // Contains the core rendering logic
 class Renderer

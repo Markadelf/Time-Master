@@ -33,7 +33,6 @@ Renderer::Renderer(HINSTANCE hInstance)
 	m_ps = nullptr;
 	m_vs = nullptr;
 	m_sampler = nullptr;
-
 }
 
 // --------------------------------------------------------
@@ -72,7 +71,7 @@ void Renderer::OnResize()
 {
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
-
+	UIManager::get().SetScreenDimensions(width, height);
 	m_currentView.SetAspectRatio((float)width / height);
 }
 
@@ -85,6 +84,7 @@ void Renderer::InitializeCamera()
 	m_currentView.SetPosition(XMFLOAT3(0, 0, -3));
 	m_currentView.SetYaw(0);
 	m_currentView.SetAspectRatio((float)width / height);
+	UIManager::get().SetScreenDimensions(width, height);
 }
 
 void Renderer::InitializeShaders()
@@ -133,6 +133,9 @@ void Renderer::Begin()
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
+
+	// Reset depth stencil state
+	context->OMSetDepthStencilState(0, 0);
 }
 
 void Renderer::End()

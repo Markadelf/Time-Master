@@ -56,6 +56,7 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
+	LoadUI();
 
 	std::vector<DirectionalLight>* lightList = m_renderer.GetLights();
 
@@ -174,6 +175,26 @@ void Game::CreateBasicGeometry()
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = matHandle3;
 	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera->GetYaw()), time, handle);
+}
+
+void Game::LoadUI()
+{
+	UIManager::get().SetContext(m_renderer.GetContext());
+	UIManager::get().SetContext(m_renderer.GetContext());
+	int graphID = UIManager::get().MakeGraph();
+	UIGraph& graph = UIManager::get().GetGraph(graphID);
+	UIManager::get().SetGraphActiveInFront(graphID);
+	
+	UIElement element;
+	element.m_transform.m_size = Vector2(.5f, .5f);
+	element.m_transform.m_anchor = Vector2(.5f, .5f);
+	element.m_transform.m_pivot = Vector2(.5f, .5f);
+	element.m_color = DirectX::XMFLOAT4(1, 0, 0, .5f);
+	element.m_transform.m_parent = graph.AddItem(element);
+	element.m_transform.m_parent = graph.AddItem(element);
+	element.m_transform.m_parent = graph.AddItem(element);
+	element.m_textureHandle = 0;
+	element.m_transform.m_parent = graph.AddItem(element);
 }
 
 
@@ -355,6 +376,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	m_renderer.Begin();
 	
 	m_renderer.DrawScene(sceneGraph, time);
+	UIManager::get().Render();
 
 	m_renderer.End();
 }

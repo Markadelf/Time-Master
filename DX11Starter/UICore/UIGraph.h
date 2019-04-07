@@ -6,31 +6,39 @@
 #include <SpriteBatch.h>
 #include "UIStructs.h"
 
+// UI Graph is a class that holds the UI data for one menu or HUD
+// Currently does not support removing items at runtime
+// To get around this, consider making the texture handle -1.
 class UIGraph {
-	// Transform hierarchy
-	UITransform* m_transforms;
-	int m_maxTransformCount;
-	int m_transformCount;
+	// UI elements
+	UIElement* m_elements;
 
-	// Objects
-	UIText* m_texts;
-	UIImage* m_images;
-	UIButton* m_buttons;
+	int m_maxElements;
+	int m_elementCount;
 
-	int m_maxObjectsPerType;
-	int m_textCount;
-	int m_imageCount;
-	int m_buttonCount;
+	// Tracks if we need to 
+	bool m_isDirty;
 
 public:
 
 	UIGraph();
+	UIGraph(int max);
 	~UIGraph();
 
-	int AddItem(int parent, Vector2 anchor, UIText text);
-	int AddItem(int parent, Vector2 anchor, Vector2 size, UIImage image);
-	int AddItem(int parent, Vector2 anchor, Vector2 size, UIButton button);
+	// Adds an element to the UI
+	int AddItem(UIElement& element);
 
-	void Draw(DirectX::SpriteBatch sb, float baseDepth, float depthPortion);
+	// Draws the graph via the spritebatch
+	void Draw(DirectX::SpriteBatch& sb);
 
+	// Returns a reference to the requested item
+	UIElement& GetElement(int handle);
+
+private:
+	// Used to rebake the positions of elements
+	void Recalculate(int width, int height);
+
+	// This allows UIManager to access m_isDirty
+#include "UIManager.h"
+	friend class UIManager;
 };
