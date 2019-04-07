@@ -97,7 +97,7 @@ void UIManager::SetScreenDimensions(int width, int height)
 {
 	for (size_t i = 0; i < m_graphCount; i++)
 	{
-		m_graphs[i].m_isDirty = true;
+		m_graphs[i].m_firstDirty = 0;
 	}
 	m_width = width;
 	m_height = height;
@@ -110,7 +110,7 @@ void UIManager::Render()
 	{
 		UIGraph& graph = m_graphs[m_activeGraphs[i]];
 		// Check if graphs need to be recalculated
-		if (graph.m_isDirty)
+		if (graph.m_firstDirty != -1)
 		{
 			graph.Recalculate(m_width, m_height);
 		}

@@ -16,8 +16,9 @@ class UIGraph {
 	int m_maxElements;
 	int m_elementCount;
 
-	// Tracks if we need to 
-	bool m_isDirty;
+	// Tracks if we need to recalculate the transforms
+	// Value is the index of the first dirty element.
+	int m_firstDirty;
 
 public:
 

@@ -9,7 +9,7 @@ UIGraph::UIGraph(int max)
 	m_elements = new UIElement[max];
 	m_maxElements = max;
 	m_elementCount = 0;
-	m_isDirty = true;
+	m_firstDirty = 0;
 }
 
 UIGraph::~UIGraph()
@@ -20,7 +20,7 @@ UIGraph::~UIGraph()
 int UIGraph::AddItem(UIElement& element)
 {
 	// Mark us as dirty because we changed the graph
-	m_isDirty = true;
+	m_firstDirty = m_firstDirty < m_elementCount && m_firstDirty != -1 ? m_firstDirty : m_elementCount;
 	m_elements[m_elementCount] = element;
 	return m_elementCount++;
 }
@@ -41,16 +41,16 @@ void UIGraph::Draw(DirectX::SpriteBatch& sb)
 UIElement& UIGraph::GetElement(int handle)
 {
 	// Assume the element will be modified
-	m_isDirty = true;
+	m_firstDirty = m_firstDirty < handle && m_firstDirty != -1 ? m_firstDirty : handle;
 	return m_elements[handle];
 }
 
 void UIGraph::Recalculate(int width, int height)
 {
-	for (size_t i = 0; i < m_elementCount; i++)
+	for (; m_firstDirty < m_elementCount; m_firstDirty++)
 	{
-		UIElement &element = m_elements[i];
-		if (element.m_transform.m_parent == -1 || element.m_transform.m_parent > i)
+		UIElement &element = m_elements[m_firstDirty];
+		if (element.m_transform.m_parent == -1 || element.m_transform.m_parent > m_firstDirty)
 		{
 			// There isn't a parent, just calculate the rectangle
 			element.m_rect.left = (long)((element.m_transform.m_anchor.GetX() - element.m_transform.m_pivot.GetX() / 2) * width);
@@ -70,6 +70,6 @@ void UIGraph::Recalculate(int width, int height)
 			element.m_rect.bottom = element.m_rect.top + (long)(element.m_transform.m_size.GetY() * pHeight);
 		}
 	}
-	m_isDirty = false;
+	m_firstDirty = -1;
 }
 
