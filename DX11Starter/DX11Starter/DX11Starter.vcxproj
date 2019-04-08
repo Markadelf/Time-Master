@@ -64,6 +64,7 @@
     <Import Project="..\SceneGraph\SceneGraph.vcxitems" Label="Shared" />
     <Import Project="..\SharedDataStructures\SharedDataStructures.vcxitems" Label="Shared" />
     <Import Project="..\JobSystem\JobSystem.vcxitems" Label="Shared" />
+    <Import Project="..\RenderingCore\RenderingCore.vcxitems" Label="Shared" />
     <Import Project="..\AssetManager\AssetManager.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -104,7 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\libs\</AdditionalLibraryDirectories>
@@ -138,7 +139,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -152,49 +153,13 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="DXCore.cpp" />
-    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FilePathHelper.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="SimpleShader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="DXCore.h" />
-    <ClInclude Include="Entity.h" />
     <ClInclude Include="FilePathHelper.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Lights.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="SimpleShader.h" />
-    <ClInclude Include="Vertex.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="PixelShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="VertexShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

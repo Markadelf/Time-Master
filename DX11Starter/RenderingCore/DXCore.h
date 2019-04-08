@@ -45,16 +45,20 @@ public:
 	
 	// Pure virtual methods for setup and game functionality
 	virtual void Init()										= 0;
-	virtual void Update(float deltaTime, float totalTime)	= 0;
-	virtual void Draw(float deltaTime, float totalTime)		= 0;
-
-	// Convenience methods for handling mouse input, since we
-	// can easily grab mouse input from OS-level messages
-	virtual void OnMouseDown (WPARAM buttonState, int x, int y) { }
-	virtual void OnMouseUp	 (WPARAM buttonState, int x, int y) { }
-	virtual void OnMouseMove (WPARAM buttonState, int x, int y) { }
-	virtual void OnMouseWheel(float wheelDelta,   int x, int y) { }
 	
+	// Functions to set function pointers
+	void SetUpdate(void(*callback)(float deltaTime, float totalTime));
+	void SetDraw(void (*callback)(float deltaTime, float totalTime));
+	void SetControls(
+		void(*msDown)(WPARAM buttonState, int x, int y), 
+		void(*msUp)(WPARAM buttonState, int x, int y), 
+		void(*msMove)(WPARAM buttonState, int x, int y),
+		void(*msWheel)(float wheelDelta, int x, int y));
+	
+	ID3D11Device* &GetDevice();
+	ID3D11DeviceContext* &GetContext();
+	HWND &GethWnd();
+
 protected:
 	HINSTANCE	hInstance;		// The handle to the application
 	HWND		hWnd;			// The handle to the window itself
@@ -73,6 +77,17 @@ protected:
 
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
+
+	// Update function pointers
+	void (*update)(float deltaTime, float totalTime);
+	void (*draw)(float deltaTime, float totalTime);
+	
+	// Convenience methods for handling mouse input, since we
+	// can easily grab mouse input from OS-level messages
+	void (*onMouseDown)(WPARAM buttonState, int x, int y);
+	void (*onMouseUp)(WPARAM buttonState, int x, int y);
+	void (*onMouseMove)(WPARAM buttonState, int x, int y);
+	void (*onMouseWheel)(float wheelDelta, int x, int y);
 
 	// Helper function for allocating a console window
 	void CreateConsoleWindow(int bufferLines, int bufferColumns, int windowLines, int windowColumns);
