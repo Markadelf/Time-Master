@@ -122,10 +122,6 @@ void Game::CreateBasicGeometry()
 	int matHandle2 = AssetManager::get().GetMaterialHandle("STRIPES");
 	int matHandle3 = AssetManager::get().GetMaterialHandle("PLAYER3");
 	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
-	//int matHandle = materialManager.GetHandle("DEFAULT");
-	//int matHandle2 = materialManager.GetHandle("STRIPES");
-	//int matHandle3 = materialManager.GetHandle("PLAYER3");
-	//int matHandle4 = materialManager.GetHandle("WOODEN");
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
 
@@ -182,6 +178,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	// TODO: Migrate update game logic somewhere else
 	Camera* cam = m_renderer.GetCamera();
 	time += deltaTime * (reversed ? -1 : 1);
 	// Quit if the escape key is pressed
@@ -233,43 +230,12 @@ void Game::Update(float deltaTime, float totalTime)
 		if (!held)
 		{
 			timeShot = time;
-			// Add to update list
-			//bulletList.push_back(bullet);
 			held = true;
 		}
 	}
 	else
 	{
 		held = false;
-	}
-
-	static float tBack = 0;
-	static int fBack = 0;
-	if (GetAsyncKeyState('T') & 0x8000)
-	{
-		tBack = time;
-		fBack = sceneGraph->GetEntity(0)->GetImageCount();
-	}
-
-	if (GetAsyncKeyState('Q') & 0x8000)
-	{
-		TemporalEntity* e = sceneGraph->GetEntity(0);
-		PhenominaHandle reset;
-		e->Kill(fBack, tBack, PhenominaHandle(), reset);
-		if (e->CheckRevive(PhenominaHandle(0, 0)))
-		{
-			e->Revive();
-		}
-		time = e->GetTimeStamp();
-		reversed = e->GetReversed();
-
-		XMFLOAT3 pos = cam->GetPosition();
-		Transform trans = e->GetTransform();
-		Vector2 nPos = trans.GetPos();
-		pos.x = nPos.GetX();
-		pos.z = nPos.GetY();
-		cam->SetPosition(pos);
-		cam->SetYaw(trans.GetRot());
 	}
 
 	static int activePlayer = 0;
@@ -332,7 +298,6 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		XMFLOAT3 pos = cam->GetPosition();
 		sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z), cam->GetYaw()), time, activePlayer, timeShot != -1, timeShot));
-		//sceneGraph->StackKeyFrame(KeyFrameData(Transform(Vector2(pos.x, pos.z).Rotate(3.14f), camera.GetYaw()), time, 1, false, timeShot));
 		frame = 0;
 		timeShot = -1;
 	}
