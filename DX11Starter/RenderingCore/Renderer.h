@@ -22,7 +22,7 @@ class Renderer
 	ID3D11SamplerState* m_sampler;
 	
 	// Tracks all entities
-	std::vector<DirectionalLight> m_lightList;
+	std::vector<Light> m_lightList;
 
 public:
 	Renderer(HINSTANCE hInstance);
@@ -37,7 +37,7 @@ public:
 
 	// Accessors
 	Camera* GetCamera();
-	std::vector<DirectionalLight>* GetLights();
+	std::vector<Light>* GetLights();
 
 	// Render Controls
 	void Begin();

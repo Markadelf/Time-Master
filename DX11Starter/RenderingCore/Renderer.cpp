@@ -114,7 +114,7 @@ Camera* Renderer::GetCamera()
 	return &m_currentView;
 }
 
-std::vector<DirectionalLight>* Renderer::GetLights()
+std::vector<Light>* Renderer::GetLights()
 {
 	return &m_lightList;
 }
@@ -214,7 +214,7 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11Shade
 
 void Renderer::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
 {
-	Render(m_ps, m_vs, *AssetManager::get().GetTexturePointer(mat->GetTextureHandle()), m_sampler, transform, AssetManager::get().GetMeshPointer(meshHandle));
+	Render(m_ps, m_vs, *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()), m_sampler, transform, AssetManager::get().GetMeshPointer(meshHandle));
 }
 
 void Renderer::RenderEntity(Entity& entity)
@@ -226,7 +226,7 @@ void Renderer::RenderEntity(Entity& entity)
 void Renderer::RenderObjectAtPos(HandleObject& handle, Transform trans)
 {
 	XMMATRIX matrix = XMMatrixScaling(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
-	matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0));
+	matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, trans.GetRot (), 0));
 	matrix = XMMatrixMultiply(matrix, XMMatrixTranslation(trans.GetPos().GetX(), 0, trans.GetPos().GetY()));
 	XMFLOAT4X4 transform;
 	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));

@@ -54,7 +54,7 @@ void Game::Init()
 	LoadShaders();
 	CreateBasicGeometry();
 
-	std::vector<DirectionalLight>* lightList = m_renderer.GetLights();
+	std::vector<Light>* lightList = m_renderer.GetLights();
 
 	//Initiating lighting
 	Light directLight, spotLight, pointLight;
@@ -83,9 +83,9 @@ void Game::Init()
 	spotLight.DiffuseIntensity = 1.0f;
 	spotLight.AmbientIntensity = 0.1f;
 
-	lightList.push_back(directLight);
-	lightList.push_back(spotLight);
-	lightList.push_back(pointLight);
+	(*lightList).push_back(directLight);
+	(*lightList).push_back(spotLight);
+	(*lightList).push_back(pointLight);
 
 }
 
@@ -105,16 +105,6 @@ void Game::LoadTextures()
 	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
 
-	ID3D11SamplerState* sampler;
-	D3D11_SAMPLER_DESC desc = {};
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.MaxLOD = D3D11_FLOAT32_MAX;
-	if (device->CreateSamplerState(&desc, &sampler) == 0)
-		samplerManager.AddResource("0", sampler);
 
 }
 
@@ -129,11 +119,11 @@ void Game::LoadShaders()
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 
-	int pHandle = pixelShaderManager.AddResource("P1", pixelShader);
 	
-	AssetManager::get().LoadMaterial(vHandle, pHandle, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
-	AssetManager::get().LoadMaterial(vHandle, pHandle, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
-	AssetManager::get().LoadMaterial(vHandle, pHandle, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
+	//For now shinniness is being handled in Assetmanager.Will move it to the material once we have everythin up and running with latest renderer.
+	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
 	
 }
 
@@ -200,12 +190,12 @@ void Game::CreateBasicGeometry()
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = playerMaterial;
-	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), camera.GetYaw()), time, handle);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), (*camera).GetYaw()), time, handle);
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
 	handle.m_material = playerMaterial;
-	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera.GetYaw()), time, handle);
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), (*camera).GetYaw()), time, handle);
 }
 
 

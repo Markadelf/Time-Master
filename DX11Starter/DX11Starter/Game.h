@@ -59,10 +59,6 @@ private:
 
 
 	// Managers
-	ResourceManager<SimpleVertexShader*> vertexShaderManager;
-	ResourceManager<SimplePixelShader*> pixelShaderManager;
-
-	ResourceManager<ID3D11SamplerState*> samplerManager;
 	ServerSceneGraph* sceneGraph;
 };
 
