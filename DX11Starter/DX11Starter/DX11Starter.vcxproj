@@ -160,11 +160,6 @@
   <ItemGroup>
     <ClInclude Include="FilePathHelper.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Lights.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="SimpleShader.h" />
-    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\PixelShader.hlsl">

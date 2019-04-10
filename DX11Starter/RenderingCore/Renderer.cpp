@@ -178,8 +178,8 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11Shade
 	vs->CopyAllBufferData();
 
 	ps->SetInt("lightAmount", (int)m_lightList.size());
+	ps->SetData("lights", (void*)(&m_lightList[0]), sizeof(Light) * MAX_LIGHTS);
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
-	ps->SetData("light", (&m_lightList[0]), sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
 	ps->SetShaderResourceView("diffuseTexture", texture);
 	ps->SetSamplerState("basicSampler", sampler);
 	ps->CopyAllBufferData();
