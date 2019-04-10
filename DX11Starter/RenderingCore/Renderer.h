@@ -46,7 +46,7 @@ public:
 
 	// Render logic
 private:
-	void Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11ShaderResourceView* texture, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh);
+	void Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material*mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh);
 	void Render(Material* mat, DirectX::XMFLOAT4X4& transform, int meshHandle);
 	void RenderEntity(Entity& entity);
 	void RenderObjectAtPos(HandleObject& handle, Transform trans);

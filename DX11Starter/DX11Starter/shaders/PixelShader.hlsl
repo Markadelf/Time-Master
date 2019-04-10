@@ -52,25 +52,22 @@ float4 main(VertexToPixel input) : SV_TARGET
 	roughness = lerp(0, roughness, 1);// x*(1-s) + y*s lerp(x,y,s)
 	
 	float3 finalColor = float3(0,0,0);
-	//for (int i = 0; i < lightCount; i++)
-	//{
-	//	switch (lights[i].Type)
-	//	{
-	//	case LIGHT_TYPE_DIRECTIONAL:
-	//		finalColor+= BasicDirectLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
-	//		//return float4(finalColor, 0);
-	//		break;
-	//	case LIGHT_TYPE_POINT:
-	//		finalColor += BasicPointLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
-	//		break;
-	//	case LIGHT_TYPE_SPOT:
-	//		finalColor += BasicSpotLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
-	//		break;
-	//	}
-	//}
-	finalColor += BasicDirectLight(input.normal, lights[0], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
-	//finalColor += BasicPointLight(input.normal, lights[1], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
-	finalColor += BasicSpotLight(input.normal, lights[2], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
-	return float4(finalColor , 0);
+	for (int i = 0; i < lightCount; i++)
+	{
+		switch (lights[i].Type)
+		{
+		case LIGHT_TYPE_DIRECTIONAL:
+			finalColor+= BasicDirectLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
+			break;
+		case LIGHT_TYPE_POINT:
+			finalColor += BasicPointLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
+			break;
+		case LIGHT_TYPE_SPOT:
+			finalColor += BasicSpotLight(input.normal, lights[i], cameraPos, input.worldPos, surfaceColor, shinniness, roughness);
+			break;
+		}
+	}
+	
+	return float4(finalColor, 0);
 
 }

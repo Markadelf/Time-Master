@@ -84,8 +84,9 @@ void Game::Init()
 	spotLight.AmbientIntensity = 0.1f;
 
 	(*lightList).push_back(directLight);
-	(*lightList).push_back(spotLight);
 	(*lightList).push_back(pointLight);
+	(*lightList).push_back(spotLight);
+	
 
 }
 
