@@ -40,7 +40,7 @@ Game::~Game()
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
 	AssetManager::get().ReleaseAllAssetResource();
-
+	delete emitter;
 	delete sceneGraph;
 }
 
@@ -71,6 +71,24 @@ void Game::Init()
 
 	lightList->push_back(light1);
 	lightList->push_back(light2);
+
+	// Set up particles
+	emitter = new ParticleSystemThatNWork(
+		110,							// Max particles
+		20,								// Particles per second
+		5,								// Particle lifetime
+		0.1f,							// Start size
+		2.0f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(-2, 2, 0),				// Start velocity
+		XMFLOAT3(0.2f, 0.2f, 0.2f),		// Velocity randomness range
+		XMFLOAT3(2, 0, 0),				// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),				// Constant acceleration
+		m_renderer.GetDevice(),
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
 }
 
 void Game::LoadTextures()
@@ -82,6 +100,7 @@ void Game::LoadTextures()
 	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Stripes.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
 }
 
 // --------------------------------------------------------
@@ -178,6 +197,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	emitter->Update(deltaTime);
 	// TODO: Migrate update game logic somewhere else
 	Camera* cam = m_renderer.GetCamera();
 	time += deltaTime * (reversed ? -1 : 1);
@@ -321,7 +341,11 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	m_renderer.DrawScene(sceneGraph, time);
 
+	m_renderer.RenderEmitterSystem(emitter);
+
 	m_renderer.End();
+
+
 }
 
 void Game::SDraw(float deltaTime, float totalTime)

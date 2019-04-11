@@ -10,6 +10,7 @@
 #include "Entity.h"
 #include "ServerSceneGraph.h"
 #include "Material.h"
+#include "Emitter.h"
 
 // Contains the core rendering logic
 class Renderer
@@ -23,6 +24,12 @@ class Renderer
 	
 	// Tracks all entities
 	std::vector<DirectionalLight> m_lightList;
+
+	SimpleVertexShader* particleVS;
+	SimplePixelShader* particlePS;
+	ID3D11DepthStencilState* particleDepthState;
+	ID3D11BlendState* particleBlendState;
+	ID3D11RasterizerState* particleDebugRasterState;
 
 public:
 	Renderer(HINSTANCE hInstance);
@@ -43,6 +50,8 @@ public:
 	void Begin();
 	void End();
 	void DrawScene(ServerSceneGraph* scenegraph, float time);
+	void RenderEmitterSystem(ParticleSystemThatNWork* emitter);
+
 
 	// Render logic
 private:
@@ -52,6 +61,10 @@ private:
 	void RenderObjectAtPos(HandleObject& handle, Transform trans);
 	void RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t);
 	void RenderPhantoms(TemporalEntity& phantom, float t);
+
+	
+
+
 
 };
 

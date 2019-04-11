@@ -45,8 +45,15 @@ Renderer::~Renderer()
 {
 	delete m_ps;
 	delete m_vs;
+	delete particleVS;
+	delete particlePS;
+
+	particleBlendState->Release();
+	particleDepthState->Release();
+	particleDebugRasterState->Release();
 
 	m_sampler->Release();
+
 }
 
 // --------------------------------------------------------
@@ -61,6 +68,34 @@ void Renderer::Init()
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	InitializeCamera();
 	InitializeShaders();
+	// A depth state for the particles
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // Turns off depth writing
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	device->CreateDepthStencilState(&dsDesc, &particleDepthState);
+
+
+	// Blend for particles (additive)
+	D3D11_BLEND_DESC blend = {};
+	blend.AlphaToCoverageEnable = false;
+	blend.IndependentBlendEnable = false;
+	blend.RenderTarget[0].BlendEnable = true;
+	blend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; // Still respect pixel shader output alpha
+	blend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	device->CreateBlendState(&blend, &particleBlendState);
+
+	// Debug rasterizer state for particles
+	D3D11_RASTERIZER_DESC rd = {};
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.DepthClipEnable = true;
+	rd.FillMode = D3D11_FILL_WIREFRAME;
+	device->CreateRasterizerState(&rd, &particleDebugRasterState);
 }
 
 
@@ -107,6 +142,12 @@ void Renderer::InitializeShaders()
 
 	m_ps = new SimplePixelShader(device, context);
 	m_ps->LoadShaderFile(L"PixelShader.cso");
+
+	particleVS = new SimpleVertexShader(device, context);
+	particleVS->LoadShaderFile(L"ParticleVS.cso");
+
+	particlePS = new SimplePixelShader(device, context);
+	particlePS->LoadShaderFile(L"ParticlePS.cso");
 }
 
 Camera* Renderer::GetCamera()
@@ -123,7 +164,12 @@ void Renderer::Begin()
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
-
+	// Particle states
+	float blend[4] = { 1,1,1,1 };
+	// Reset to default states for next frame
+	context->OMSetBlendState(0, blend, 0xffffffff);
+	context->OMSetDepthStencilState(0, 0);
+	context->RSSetState(0);
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
@@ -265,4 +311,63 @@ void Renderer::RenderPhantoms(TemporalEntity& phantom, float t)
 			RenderLerpObject(handle, trans, t);
 		}
 	}
+}
+
+void Renderer::RenderEmitterSystem(ParticleSystemThatNWork * emitter)
+{
+
+	// Particle states
+	float blend[4] = { 1,1,1,1 };
+	context->OMSetBlendState(particleBlendState, blend, 0xffffffff);	// Additive blending
+	context->OMSetDepthStencilState(particleDepthState, 0);				// No depth WRITING
+
+	// No wireframe debug
+	particlePS->SetInt("debugWireframe", 0);
+	particlePS->CopyAllBufferData();
+
+	// Draw the emitters
+	//emitter->Draw(context, camera);
+
+
+	// Copy to dynamic buffer
+	emitter->CopyParticlesToGPU(context, &m_currentView);
+
+	// Set up buffers
+	UINT stride = sizeof(ParticleVertex);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, &emitter->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(emitter->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	particleVS->SetMatrix4x4("view", m_currentView.GetView());
+	particleVS->SetMatrix4x4("projection", m_currentView.GetProjection());
+	particleVS->SetShader();
+	particleVS->CopyAllBufferData();
+
+	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/particle.jpg"));
+	particlePS->SetShader();
+
+	// Draw the correct parts of the buffer
+	if (emitter->firstAliveIndex < emitter->firstDeadIndex)
+	{
+		context->DrawIndexed(emitter->livingParticleCount * 6, emitter->firstAliveIndex * 6, 0);
+	}
+	else
+	{
+		// Draw first half (0 -> dead)
+		context->DrawIndexed(max(emitter->firstDeadIndex - 1, 0) * 6, 0, 0);
+
+		// Draw second half (alive -> max)
+		context->DrawIndexed((emitter->maxParticles - emitter->firstAliveIndex) * 6, emitter->firstAliveIndex * 6, 0);
+	}
+
+	//if (GetAsyncKeyState('C'))
+	//{
+	//	context->RSSetState(particleDebugRasterState);
+	//	particlePS->SetInt("debugWireframe", 1);
+	//	particlePS->CopyAllBufferData();
+
+	//	//emitter->Draw(context, camera);
+	//	//	emitter2->Draw(context, camera);
+	//		//emitter3->Draw(context, camera);
+	//}
 }

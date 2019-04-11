@@ -43,6 +43,8 @@ private:
 	void LoadShaders();
 	void CreateBasicGeometry();
 
+	ParticleSystemThatNWork* emitter;
+
 	Renderer m_renderer;
 
 	// Keeps track of the old mouse position.  Useful for 
