@@ -26,11 +26,15 @@ struct UIElement
 	int m_textureHandle = -1;
 	// TODO: CREATE UI EVENT SYSTEM
 	int m_eventBinding = -1;
+	// Color tinting the ui element
+	DirectX::XMFLOAT4 m_color = DirectX::XMFLOAT4(1, 1, 1, 1);
 
+private:
 	// Baked into element by the graph based on screen size
 	// Usage outside of ui system not recommended
 	RECT m_rect;
-	// Color tinting the ui element
-	DirectX::XMFLOAT4 m_color = DirectX::XMFLOAT4(1, 1, 1, 1);
+
+#include "UIGraph.h"
+	friend class UIGraph;
 };
 
