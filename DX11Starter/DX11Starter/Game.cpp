@@ -3,7 +3,7 @@
 //#include "WICTextureLoader.h"
 #include "FilePathHelper.h"
 #include <cmath>
-
+#include <Debug.h>
 #include "AssetManager.h"
 
 Game* Game::GameInstance;
@@ -94,7 +94,7 @@ void Game::LoadShaders()
 {
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-
+	Debug::Log("Textures are getting loded");
 	AssetManager::get().LoadMaterial(0, 0, "DEFAULT", "Textures/poster.png");
 	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/player3.png");
 	AssetManager::get().LoadMaterial(0, 0, "WOODEN", "Textures/Wooden.png");
@@ -106,6 +106,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	Debug::Log("Creating basic geometry");
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager

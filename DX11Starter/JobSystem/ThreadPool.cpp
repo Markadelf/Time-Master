@@ -16,19 +16,19 @@ inline void ThreadPool::Threadfunc(ThreadPool* const & poolref)
 							 How to prioritize the tasks?
 			*/
 			//Scope for locking mechanics
-			
-			std::unique_lock<std::mutex> lock(m_queueMutex);
+			{
+				std::unique_lock<std::mutex> lock(m_queueMutex);
 
-			/*
-				https://en.cppreference.com/w/cpp/thread/condition_variable/wait
-			*/
-			this->m_waitCondition.wait(lock,
-				[this] { return this->m_isStop || !this->m_taskQueue.empty(); });
-			if (this->m_isStop && this->m_taskQueue.empty())
-				return;
-			task = std::move(this->m_taskQueue.front());//Just an elaborated version to pass && instead of copy construtor
-			this->m_taskQueue.pop();
-			
+				/*
+					https://en.cppreference.com/w/cpp/thread/condition_variable/wait
+				*/
+				this->m_waitCondition.wait(lock,
+					[this] { return this->m_isStop || !this->m_taskQueue.empty(); });
+				if (this->m_isStop && this->m_taskQueue.empty())
+					return;
+				task = std::move(this->m_taskQueue.front());//Just an elaborated version to pass && instead of copy construtor
+				this->m_taskQueue.pop();
+			}
 			task();
 		}
 	}
@@ -55,11 +55,12 @@ ThreadPool::ThreadPool(unsigned int numberOfThreads)
 
 ThreadPool::~ThreadPool()
 {
+	//RAII
 	//Take lock on queue so that no one can add anything in queue
-	
-	std::unique_lock<std::mutex> lock(m_queueMutex);
-	m_isStop = true;
-	
+	{
+		std::unique_lock<std::mutex> lock(m_queueMutex);
+		m_isStop = true;
+	}
 	m_waitCondition.notify_all();
 	//Wait for everyone to finish whatever they are doing
 	for (std::thread &worker : m_workers)

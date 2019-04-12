@@ -14,9 +14,9 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)LogMain.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Debug.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)LogMain.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Debug.cpp" />
   </ItemGroup>
 </Project>
