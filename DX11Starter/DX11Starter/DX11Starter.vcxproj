@@ -94,10 +94,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\x64\Debug\%(AdditionalLibraryDirectories);..\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\x64\Debug\%(AdditionalLibraryDirectories);$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x86;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x86;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x86</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);fmodL_vc.lib;fmodstudioL_vc.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -106,15 +106,16 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\libs\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\libs\;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc140-mt.lib;%(AdditionalDependencies);fmodL_vc.lib;fmodstudioL_vc.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\X64\*.dll" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\X64\*.dll" "$(OutDir)"
+xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\X64\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,12 +125,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\AudioCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\x64\Debug\%(AdditionalLibraryDirectories);..\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\x64\Debug\%(AdditionalLibraryDirectories);$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x86;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x86;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x86</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);fmod_vc.lib;fmodstudio_vc.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -143,12 +144,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)\libs\;..\x64\Debug\%(AdditionalLibraryDirectories);..\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\libs\;..\x64\Debug\%(AdditionalLibraryDirectories);$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc140-mt.lib;%(AdditionalDependencies);fmod_vc.lib;fmodstudio_vc.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>

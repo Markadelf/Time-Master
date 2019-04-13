@@ -42,6 +42,8 @@ Game::~Game()
 	AssetManager::get().ReleaseAllAssetResource();
 
 	delete sceneGraph;
+	Sound.UnLoadSound("D:/RIT/Game Engine Architecture/Project/IGME750/DX11Starter/AudioCore/Sounds/Bullet.wav");
+	Sound.Shutdown;
 }
 
 // --------------------------------------------------------
@@ -71,6 +73,11 @@ void Game::Init()
 
 	lightList->push_back(light1);
 	lightList->push_back(light2);
+
+	//Initialize the Audio Engine
+	Sound.Init();
+	Sound.LoadSound("D:/RIT/Game Engine Architecture/Project/IGME750/DX11Starter/AudioCore/Sounds/Bullet.wav", false, false,false);
+
 }
 
 void Game::LoadTextures()
@@ -178,6 +185,9 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	//To Do : Audio Update
+	Sound.Update();
+
 	// TODO: Migrate update game logic somewhere else
 	Camera* cam = m_renderer.GetCamera();
 	time += deltaTime * (reversed ? -1 : 1);
@@ -231,6 +241,7 @@ void Game::Update(float deltaTime, float totalTime)
 		{
 			timeShot = time;
 			held = true;
+			Sound.PlaySounds("D:/RIT/Game Engine Architecture/Project/IGME750/DX11Starter/AudioCore/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
 		}
 	}
 	else
