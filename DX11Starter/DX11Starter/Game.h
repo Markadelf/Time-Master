@@ -43,7 +43,7 @@ private:
 	void LoadShaders();
 	void CreateBasicGeometry();
 
-	ParticleSystemThatNWork* emitter;
+	Emitter* emitter;
 
 	Renderer m_renderer;
 

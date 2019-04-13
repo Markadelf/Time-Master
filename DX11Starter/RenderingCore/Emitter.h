@@ -7,13 +7,15 @@
 
 #include "Camera.h"
 //#include "SimpleShader.h"
+// For the DirectX Math library
+using namespace DirectX;
 
 struct Particle
 {
-	DirectX::XMFLOAT4 Color;
-	DirectX::XMFLOAT3 StartPosition;
-	DirectX::XMFLOAT3 Position;
-	DirectX::XMFLOAT3 StartVelocity;
+	XMFLOAT4 Color;
+	XMFLOAT3 StartPosition;
+	XMFLOAT3 Position;
+	XMFLOAT3 StartVelocity;
 	float Size;
 	float Age;
 	float RotationStart;
@@ -28,10 +30,10 @@ struct ParticleVertex
 	DirectX::XMFLOAT4 Color;
 };
 
-class ParticleSystemThatNWork
+class Emitter
 {
 public:
-	ParticleSystemThatNWork(
+	Emitter(
 		int maxParticles,
 		int particlesPerSecond,
 		float lifetime,
@@ -48,7 +50,7 @@ public:
 		ID3D11Device* device,
 		int texHandle
 		);
-	~ParticleSystemThatNWork();
+	~Emitter();
 
 	void Update(float dt);
 //	void Draw(ID3D11DeviceContext* context, Camera* camera);

@@ -50,7 +50,7 @@ public:
 	void Begin();
 	void End();
 	void DrawScene(ServerSceneGraph* scenegraph, float time);
-	void RenderEmitterSystem(ParticleSystemThatNWork* emitter);
+	void RenderEmitterSystem(Emitter* emitter);
 
 
 	// Render logic

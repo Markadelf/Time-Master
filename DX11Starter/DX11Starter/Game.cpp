@@ -73,7 +73,7 @@ void Game::Init()
 	lightList->push_back(light2);
 
 	// Set up particles
-	emitter = new ParticleSystemThatNWork(
+	emitter = new Emitter(
 		110,							// Max particles
 		20,								// Particles per second
 		5,								// Particle lifetime

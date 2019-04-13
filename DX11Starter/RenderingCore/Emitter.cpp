@@ -2,7 +2,7 @@
 
 using namespace DirectX;
 
-ParticleSystemThatNWork::ParticleSystemThatNWork(
+Emitter::Emitter(
 	int maxParticles,
 	int particlesPerSecond,
 	float lifetime,
@@ -101,7 +101,7 @@ ParticleSystemThatNWork::ParticleSystemThatNWork(
 }
 
 
-ParticleSystemThatNWork::~ParticleSystemThatNWork()
+Emitter::~Emitter()
 {
 	delete[] particles;
 	delete[] localParticleVertices;
@@ -109,7 +109,7 @@ ParticleSystemThatNWork::~ParticleSystemThatNWork()
 	indexBuffer->Release();
 }
 
-void ParticleSystemThatNWork::Update(float dt)
+void Emitter::Update(float dt)
 {
 	// Update all particles - Check cyclic buffer first
 	if (firstAliveIndex < firstDeadIndex)
@@ -150,7 +150,7 @@ void ParticleSystemThatNWork::Update(float dt)
 	}
 }
 
-void ParticleSystemThatNWork::UpdateSingleParticle(float dt, int index)
+void Emitter::UpdateSingleParticle(float dt, int index)
 {
 	// Check for valid particle age before doing anything
 	if (particles[index].Age >= lifetime)
@@ -198,7 +198,7 @@ void ParticleSystemThatNWork::UpdateSingleParticle(float dt, int index)
 		accel * t * t / 2.0f + startVel * t + startPos);
 }
 
-void ParticleSystemThatNWork::SpawnParticle()
+void Emitter::SpawnParticle()
 {
 	// Any left to spawn?
 	if (livingParticleCount == maxParticles)
@@ -236,7 +236,7 @@ void ParticleSystemThatNWork::SpawnParticle()
 	livingParticleCount++;
 }
 
-void ParticleSystemThatNWork::CopyParticlesToGPU(ID3D11DeviceContext* context, Camera* camera)
+void Emitter::CopyParticlesToGPU(ID3D11DeviceContext* context, Camera* camera)
 {
 	// Update local buffer (living particles only as a speed up)
 
@@ -266,7 +266,7 @@ void ParticleSystemThatNWork::CopyParticlesToGPU(ID3D11DeviceContext* context, C
 	context->Unmap(vertexBuffer, 0);
 }
 
-void ParticleSystemThatNWork::CopyOneParticle(int index, Camera* camera)
+void Emitter::CopyOneParticle(int index, Camera* camera)
 {
 	int i = index * 4;
 
@@ -282,7 +282,7 @@ void ParticleSystemThatNWork::CopyOneParticle(int index, Camera* camera)
 }
 
 
-XMFLOAT3 ParticleSystemThatNWork::CalcParticleVertexPosition(int particleIndex, int quadCornerIndex, Camera* camera)
+XMFLOAT3 Emitter::CalcParticleVertexPosition(int particleIndex, int quadCornerIndex, Camera* camera)
 {
 	// Get the right and up vectors out of the view matrix
 	// (Remember that it is probably already transposed)

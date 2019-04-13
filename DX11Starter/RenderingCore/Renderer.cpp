@@ -313,7 +313,7 @@ void Renderer::RenderPhantoms(TemporalEntity& phantom, float t)
 	}
 }
 
-void Renderer::RenderEmitterSystem(ParticleSystemThatNWork * emitter)
+void Renderer::RenderEmitterSystem(Emitter * emitter)
 {
 
 	// Particle states
