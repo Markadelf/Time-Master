@@ -197,7 +197,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-	emitter->Update(deltaTime);
+	emitter->Update(deltaTime,totalTime);
 	// TODO: Migrate update game logic somewhere else
 	Camera* cam = m_renderer.GetCamera();
 	time += deltaTime * (reversed ? -1 : 1);
@@ -341,7 +341,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	m_renderer.DrawScene(sceneGraph, time);
 
-	m_renderer.RenderEmitterSystem(emitter);
+	m_renderer.RenderEmitterSystem(emitter,totalTime);
 
 	m_renderer.End();
 

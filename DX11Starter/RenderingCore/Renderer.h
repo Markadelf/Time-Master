@@ -50,7 +50,7 @@ public:
 	void Begin();
 	void End();
 	void DrawScene(ServerSceneGraph* scenegraph, float time);
-	void RenderEmitterSystem(Emitter* emitter);
+	void RenderEmitterSystem(Emitter* emitter, float currentTime);
 
 
 	// Render logic

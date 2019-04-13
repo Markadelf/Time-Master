@@ -12,23 +12,25 @@ using namespace DirectX;
 
 struct Particle
 {
-	XMFLOAT4 Color;
-	XMFLOAT3 StartPosition;
-	XMFLOAT3 Position;
-	XMFLOAT3 StartVelocity;
-	float Size;
-	float Age;
+	// 4 floats:
+	float SpawnTime;
+	DirectX::XMFLOAT3 StartPosition;
+
+	// 4 floats:
+	DirectX::XMFLOAT3 StartVelocity;
 	float RotationStart;
+
+	// 4 floats:
 	float RotationEnd;
-	float Rotation;
+	DirectX::XMFLOAT3 padding;
 };
 
-struct ParticleVertex
-{
-	DirectX::XMFLOAT3 Position;
-	DirectX::XMFLOAT2 UV;
-	DirectX::XMFLOAT4 Color;
-};
+//struct ParticleVertex
+//{
+//	DirectX::XMFLOAT3 Position;
+//	DirectX::XMFLOAT2 UV;
+//	DirectX::XMFLOAT4 Color;
+//};
 
 class Emitter
 {
@@ -52,7 +54,7 @@ public:
 		);
 	~Emitter();
 
-	void Update(float dt);
+	void Update(float dt,float currentTime);
 //	void Draw(ID3D11DeviceContext* context, Camera* camera);
 
 //private:
@@ -85,10 +87,11 @@ public:
 	int firstAliveIndex;
 
 	// Rendering
-	ParticleVertex* localParticleVertices;
-	ID3D11Buffer* vertexBuffer;
-	ID3D11Buffer* indexBuffer;
+	ID3D11Buffer* particleDataBuffer;
 
+//	ID3D11Buffer* vertexBuffer;
+	ID3D11Buffer* indexBuffer;
+	ID3D11ShaderResourceView* particleDataSRV;
 	int texture;
 	//ID3D11ShaderResourceView* texture;
 	//SimpleVertexShader* vs;
@@ -96,7 +99,7 @@ public:
 
 	// Update Methods
 	void UpdateSingleParticle(float dt, int index);
-	void SpawnParticle();
+	void SpawnParticle(float currentTime);
 
 	// Copy methods
 	void CopyParticlesToGPU(ID3D11DeviceContext* context, Camera* camera);

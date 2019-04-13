@@ -2,6 +2,8 @@
 
 using namespace DirectX;
 
+float globalDeltaTime = 0.0f;
+
 Emitter::Emitter(
 	int maxParticles,
 	int particlesPerSecond,
@@ -24,6 +26,8 @@ Emitter::Emitter(
 //	this->vs = vs;
 	//this->ps = ps;
 	this->texture = texHandle;
+
+	
 
 	this->maxParticles = maxParticles;
 	this->lifetime = lifetime;
@@ -53,26 +57,26 @@ Emitter::Emitter(
 
 	// Create local particle vertices
 
-	// Create UV's here, as those will never change
-	localParticleVertices = new ParticleVertex[4 * maxParticles];
-	for (int i = 0; i < maxParticles * 4; i += 4)
-	{
-		localParticleVertices[i + 0].UV = XMFLOAT2(0, 0);
-		localParticleVertices[i + 1].UV = XMFLOAT2(1, 0);
-		localParticleVertices[i + 2].UV = XMFLOAT2(1, 1);
-		localParticleVertices[i + 3].UV = XMFLOAT2(0, 1);
-	}
+	//// Create UV's here, as those will never change
+	//localParticleVertices = new ParticleVertex[4 * maxParticles];
+	//for (int i = 0; i < maxParticles * 4; i += 4)
+	//{
+	//	localParticleVertices[i + 0].UV = XMFLOAT2(0, 0);
+	//	localParticleVertices[i + 1].UV = XMFLOAT2(1, 0);
+	//	localParticleVertices[i + 2].UV = XMFLOAT2(1, 1);
+	//	localParticleVertices[i + 3].UV = XMFLOAT2(0, 1);
+	//}
 
 
 	// Create buffers for drawing particles
 
-	// DYNAMIC vertex buffer (no initial data necessary)
-	D3D11_BUFFER_DESC vbDesc = {};
-	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vbDesc.Usage = D3D11_USAGE_DYNAMIC;
-	vbDesc.ByteWidth = sizeof(ParticleVertex) * 4 * maxParticles;
-	device->CreateBuffer(&vbDesc, 0, &vertexBuffer);
+	//// DYNAMIC vertex buffer (no initial data necessary)
+	//D3D11_BUFFER_DESC vbDesc = {};
+	//vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	//vbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	//vbDesc.Usage = D3D11_USAGE_DYNAMIC;
+	//vbDesc.ByteWidth = sizeof(ParticleVertex) * 4 * maxParticles;
+	//device->CreateBuffer(&vbDesc, 0, &vertexBuffer);
 
 	// Index buffer data
 	unsigned int* indices = new unsigned int[maxParticles * 6];
@@ -97,6 +101,23 @@ Emitter::Emitter(
 	ibDesc.ByteWidth = sizeof(unsigned int) * maxParticles * 6;
 	device->CreateBuffer(&ibDesc, &indexData, &indexBuffer);
 
+	// Just make a single buffer to hold copy of all particle data
+	D3D11_BUFFER_DESC allParticleBufferDesc = {};
+	allParticleBufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	allParticleBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	allParticleBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	allParticleBufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	allParticleBufferDesc.StructureByteStride = sizeof(Particle);
+	allParticleBufferDesc.ByteWidth = sizeof(Particle) * maxParticles;
+	device->CreateBuffer(&allParticleBufferDesc, 0, &particleDataBuffer);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.Buffer.FirstElement = 0;
+	srvDesc.Buffer.NumElements = maxParticles;
+	device->CreateShaderResourceView(particleDataBuffer, &srvDesc, &particleDataSRV);
+
 	delete[] indices;
 }
 
@@ -104,12 +125,15 @@ Emitter::Emitter(
 Emitter::~Emitter()
 {
 	delete[] particles;
-	delete[] localParticleVertices;
-	vertexBuffer->Release();
+	//delete[] localParticleVertices;
+	//vertexBuffer->Release();
 	indexBuffer->Release();
+
+	particleDataBuffer->Release();
+	particleDataSRV->Release();
 }
 
-void Emitter::Update(float dt)
+void Emitter::Update(float dt,float currentTime)
 {
 	// Update all particles - Check cyclic buffer first
 	if (firstAliveIndex < firstDeadIndex)
@@ -121,7 +145,7 @@ void Emitter::Update(float dt)
 
 		// First alive is before first dead, so no wrapping
 		for (int i = firstAliveIndex; i < firstDeadIndex; i++)
-			UpdateSingleParticle(dt, i);
+			UpdateSingleParticle(currentTime, i);
 	}
 	else
 	{
@@ -132,11 +156,11 @@ void Emitter::Update(float dt)
 
 		// Update first half (from firstAlive to max particles)
 		for (int i = firstAliveIndex; i < maxParticles; i++)
-			UpdateSingleParticle(dt, i);
+			UpdateSingleParticle(currentTime, i);
 
 		// Update second half (from 0 to first dead)
 		for (int i = 0; i < firstDeadIndex; i++)
-			UpdateSingleParticle(dt, i);
+			UpdateSingleParticle(currentTime, i);
 	}
 
 	// Add to the time
@@ -145,20 +169,17 @@ void Emitter::Update(float dt)
 	// Enough time to emit?
 	while (timeSinceEmit > secondsPerParticle)
 	{
-		SpawnParticle();
+		SpawnParticle(currentTime);
 		timeSinceEmit -= secondsPerParticle;
 	}
 }
 
 void Emitter::UpdateSingleParticle(float dt, int index)
 {
-	// Check for valid particle age before doing anything
-	if (particles[index].Age >= lifetime)
-		return;
+	float age = dt - particles[index].SpawnTime;
 
 	// Update and check for death
-	particles[index].Age += dt;
-	if (particles[index].Age >= lifetime)
+	if (age >= lifetime)
 	{
 		// Recent death, so retire by moving alive count
 		firstAliveIndex++;
@@ -166,55 +187,23 @@ void Emitter::UpdateSingleParticle(float dt, int index)
 		livingParticleCount--;
 		return;
 	}
-
-	// Calculate age percentage for lerp
-	float agePercent = particles[index].Age / lifetime;
-
-	// Interpolate the color
-	XMStoreFloat4(
-		&particles[index].Color,
-		XMVectorLerp(
-			XMLoadFloat4(&startColor),
-			XMLoadFloat4(&endColor),
-			agePercent));
-
-	// Interpolate the rotation
-	float rotStart = particles[index].RotationStart;
-	float rotEnd = particles[index].RotationEnd;
-	particles[index].Rotation = rotStart + agePercent * (rotEnd - rotStart);
-
-	// Interpolate the size
-	particles[index].Size = startSize + agePercent * (endSize - startSize);
-
-	// Adjust the position
-	XMVECTOR startPos = XMLoadFloat3(&particles[index].StartPosition);
-	XMVECTOR startVel = XMLoadFloat3(&particles[index].StartVelocity);
-	XMVECTOR accel = XMLoadFloat3(&emitterAcceleration);
-	float t = particles[index].Age;
-
-	// Use constant acceleration function
-	XMStoreFloat3(
-		&particles[index].Position,
-		accel * t * t / 2.0f + startVel * t + startPos);
 }
 
-void Emitter::SpawnParticle()
+void Emitter::SpawnParticle(float currentTime)
 {
 	// Any left to spawn?
 	if (livingParticleCount == maxParticles)
 		return;
 
 	// Reset the first dead particle
-	particles[firstDeadIndex].Age = 0;
-	particles[firstDeadIndex].Size = startSize;
-	particles[firstDeadIndex].Color = startColor;
+	particles[firstDeadIndex].SpawnTime = currentTime;
 
 	particles[firstDeadIndex].StartPosition = emitterPosition;
 	particles[firstDeadIndex].StartPosition.x += (((float)rand() / RAND_MAX) * 2 - 1) * positionRandomRange.x;
 	particles[firstDeadIndex].StartPosition.y += (((float)rand() / RAND_MAX) * 2 - 1) * positionRandomRange.y;
 	particles[firstDeadIndex].StartPosition.z += (((float)rand() / RAND_MAX) * 2 - 1) * positionRandomRange.z;
 
-	particles[firstDeadIndex].Position = particles[firstDeadIndex].StartPosition;
+	
 
 	particles[firstDeadIndex].StartVelocity = startVelocity;
 	particles[firstDeadIndex].StartVelocity.x += (((float)rand() / RAND_MAX) * 2 - 1) * velocityRandomRange.x;
@@ -236,83 +225,83 @@ void Emitter::SpawnParticle()
 	livingParticleCount++;
 }
 
-void Emitter::CopyParticlesToGPU(ID3D11DeviceContext* context, Camera* camera)
-{
-	// Update local buffer (living particles only as a speed up)
+//void Emitter::CopyParticlesToGPU(ID3D11DeviceContext* context, Camera* camera)
+//{
+//	// Update local buffer (living particles only as a speed up)
+//
+//	// Check cyclic buffer status
+//	if (firstAliveIndex < firstDeadIndex)
+//	{
+//		for (int i = firstAliveIndex; i < firstDeadIndex; i++)
+//			CopyOneParticle(i, camera);
+//	}
+//	else
+//	{
+//		// Update first half (from firstAlive to max particles)
+//		for (int i = firstAliveIndex; i < maxParticles; i++)
+//			CopyOneParticle(i, camera);
+//
+//		// Update second half (from 0 to first dead)
+//		for (int i = 0; i < firstDeadIndex; i++)
+//			CopyOneParticle(i, camera);
+//	}
+//
+//	// All particles copied locally - send whole buffer to GPU
+//	D3D11_MAPPED_SUBRESOURCE mapped = {};
+//	context->Map(vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+//
+//	memcpy(mapped.pData, localParticleVertices, sizeof(ParticleVertex) * 4 * maxParticles);
+//
+//	context->Unmap(vertexBuffer, 0);
+//}
 
-	// Check cyclic buffer status
-	if (firstAliveIndex < firstDeadIndex)
-	{
-		for (int i = firstAliveIndex; i < firstDeadIndex; i++)
-			CopyOneParticle(i, camera);
-	}
-	else
-	{
-		// Update first half (from firstAlive to max particles)
-		for (int i = firstAliveIndex; i < maxParticles; i++)
-			CopyOneParticle(i, camera);
-
-		// Update second half (from 0 to first dead)
-		for (int i = 0; i < firstDeadIndex; i++)
-			CopyOneParticle(i, camera);
-	}
-
-	// All particles copied locally - send whole buffer to GPU
-	D3D11_MAPPED_SUBRESOURCE mapped = {};
-	context->Map(vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-
-	memcpy(mapped.pData, localParticleVertices, sizeof(ParticleVertex) * 4 * maxParticles);
-
-	context->Unmap(vertexBuffer, 0);
-}
-
-void Emitter::CopyOneParticle(int index, Camera* camera)
-{
-	int i = index * 4;
-
-	localParticleVertices[i + 0].Position = CalcParticleVertexPosition(index, 0, camera);
-	localParticleVertices[i + 1].Position = CalcParticleVertexPosition(index, 1, camera);
-	localParticleVertices[i + 2].Position = CalcParticleVertexPosition(index, 2, camera);
-	localParticleVertices[i + 3].Position = CalcParticleVertexPosition(index, 3, camera);
-
-	localParticleVertices[i + 0].Color = particles[index].Color;
-	localParticleVertices[i + 1].Color = particles[index].Color;
-	localParticleVertices[i + 2].Color = particles[index].Color;
-	localParticleVertices[i + 3].Color = particles[index].Color;
-}
+//void Emitter::CopyOneParticle(int index, Camera* camera)
+//{
+//	int i = index * 4;
+//
+//	localParticleVertices[i + 0].Position = CalcParticleVertexPosition(index, 0, camera);
+//	localParticleVertices[i + 1].Position = CalcParticleVertexPosition(index, 1, camera);
+//	localParticleVertices[i + 2].Position = CalcParticleVertexPosition(index, 2, camera);
+//	localParticleVertices[i + 3].Position = CalcParticleVertexPosition(index, 3, camera);
+//
+//	localParticleVertices[i + 0].Color = particles[index].Color;
+//	localParticleVertices[i + 1].Color = particles[index].Color;
+//	localParticleVertices[i + 2].Color = particles[index].Color;
+//	localParticleVertices[i + 3].Color = particles[index].Color;
+//}
 
 
-XMFLOAT3 Emitter::CalcParticleVertexPosition(int particleIndex, int quadCornerIndex, Camera* camera)
-{
-	// Get the right and up vectors out of the view matrix
-	// (Remember that it is probably already transposed)
-	XMFLOAT4X4 view = camera->GetView();
-	XMVECTOR camRight = XMVectorSet(view._11, view._12, view._13, 0);
-	XMVECTOR camUp = XMVectorSet(view._21, view._22, view._23, 0);
-
-	// Determine the offset of this corner of the quad
-	// Since the UV's are already set when the emitter is created, 
-	// we can alter that data to determine the general offset of this corner
-	XMFLOAT2 offset = localParticleVertices[particleIndex * 4 + quadCornerIndex].UV;
-	offset.x = offset.x * 2 - 1;	// Convert from [0,1] to [-1,1]
-	offset.y = (offset.y * -2 + 1);	// Same, but flip the Y
-
-	// Load into a vector, which we'll assume is float3 with a Z of 0
-	// Create a Z rotation matrix and apply it to the offset
-	XMVECTOR offsetVec = XMLoadFloat2(&offset);
-	XMMATRIX rotMatrix = XMMatrixRotationZ(particles[particleIndex].Rotation);
-	offsetVec = XMVector3Transform(offsetVec, rotMatrix);
-
-	// Add and scale the camera up/right vectors to the position as necessary
-	XMVECTOR posVec = XMLoadFloat3(&particles[particleIndex].Position);
-	posVec += camRight * XMVectorGetX(offsetVec) * particles[particleIndex].Size;
-	posVec += camUp * XMVectorGetY(offsetVec) * particles[particleIndex].Size;
-
-	// This position is all set
-	XMFLOAT3 pos;
-	XMStoreFloat3(&pos, posVec);
-	return pos;
-}
+//XMFLOAT3 Emitter::CalcParticleVertexPosition(int particleIndex, int quadCornerIndex, Camera* camera)
+//{
+//	// Get the right and up vectors out of the view matrix
+//	// (Remember that it is probably already transposed)
+//	XMFLOAT4X4 view = camera->GetView();
+//	XMVECTOR camRight = XMVectorSet(view._11, view._12, view._13, 0);
+//	XMVECTOR camUp = XMVectorSet(view._21, view._22, view._23, 0);
+//
+//	// Determine the offset of this corner of the quad
+//	// Since the UV's are already set when the emitter is created, 
+//	// we can alter that data to determine the general offset of this corner
+//	XMFLOAT2 offset = localParticleVertices[particleIndex * 4 + quadCornerIndex].UV;
+//	offset.x = offset.x * 2 - 1;	// Convert from [0,1] to [-1,1]
+//	offset.y = (offset.y * -2 + 1);	// Same, but flip the Y
+//
+//	// Load into a vector, which we'll assume is float3 with a Z of 0
+//	// Create a Z rotation matrix and apply it to the offset
+//	XMVECTOR offsetVec = XMLoadFloat2(&offset);
+//	XMMATRIX rotMatrix = XMMatrixRotationZ(particles[particleIndex].Rotation);
+//	offsetVec = XMVector3Transform(offsetVec, rotMatrix);
+//
+//	// Add and scale the camera up/right vectors to the position as necessary
+//	XMVECTOR posVec = XMLoadFloat3(&particles[particleIndex].Position);
+//	posVec += camRight * XMVectorGetX(offsetVec) * particles[particleIndex].Size;
+//	posVec += camUp * XMVectorGetY(offsetVec) * particles[particleIndex].Size;
+//
+//	// This position is all set
+//	XMFLOAT3 pos;
+//	XMStoreFloat3(&pos, posVec);
+//	return pos;
+//}
 
 
 //

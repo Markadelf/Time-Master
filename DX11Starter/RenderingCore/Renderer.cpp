@@ -313,10 +313,76 @@ void Renderer::RenderPhantoms(TemporalEntity& phantom, float t)
 	}
 }
 
-void Renderer::RenderEmitterSystem(Emitter * emitter)
+void Renderer::RenderEmitterSystem(Emitter * emitter, float currentTime)
 {
 
-	// Particle states
+	//// Particle states
+	//float blend[4] = { 1,1,1,1 };
+	//context->OMSetBlendState(particleBlendState, blend, 0xffffffff);	// Additive blending
+	//context->OMSetDepthStencilState(particleDepthState, 0);				// No depth WRITING
+
+	//// No wireframe debug
+	//particlePS->SetInt("debugWireframe", 0);
+	//particlePS->CopyAllBufferData();
+
+	//// Draw the emitters
+	////emitter->Draw(context, camera);
+
+
+	//// Copy to dynamic buffer
+	//emitter->CopyParticlesToGPU(context, &m_currentView);
+
+
+	//// Do a raw copy of the particle data to the dynamic structured buffer
+	//D3D11_MAPPED_SUBRESOURCE mapped = {};
+	//context->Map(emitter->particleDataBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	//memcpy(mapped.pData, emitter->particles, sizeof(Particle) * emitter->maxParticles);
+	//context->Unmap(emitter->particleDataBuffer, 0);
+	//// Set up buffers
+	//UINT stride = 0;
+	//UINT offset = 0;
+	//ID3D11Buffer* nullBuffer = 0;
+	//context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
+	//context->IASetIndexBuffer(emitter->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	//particleVS->SetMatrix4x4("view", m_currentView.GetView());
+	//particleVS->SetMatrix4x4("projection", m_currentView.GetProjection());
+
+	//particleVS->SetFloat3("acceleration", emitter->emitterAcceleration);
+	//particleVS->SetFloat4("startColor", emitter->startColor);
+	//particleVS->SetFloat4("endColor", emitter->endColor);
+	//particleVS->SetFloat("startSize", emitter->startSize);
+	//particleVS->SetFloat("endSize", emitter->endSize);
+	//particleVS->SetFloat("lifetime", emitter->lifetime);
+	//particleVS->SetFloat("currentTime", currentTime);
+
+	//particleVS->SetShader();
+	//context->VSSetShaderResources(0, 1, &emitter->particleDataSRV);
+
+	//particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/particle.jpg"));
+	//particlePS->SetShader();
+
+	//// Draw the correct parts of the buffer
+	//if (emitter->firstAliveIndex < emitter->firstDeadIndex)
+	//{
+	//	// Draw from (firstAliveIndex -> firstDeadIndex)
+	//	particleVS->SetInt("startIndex", emitter->firstAliveIndex);
+	//	particleVS->CopyAllBufferData();
+	//	context->DrawIndexed(emitter->livingParticleCount * 6, 0, 0);
+	//}
+	//else
+	//{
+	//	// Draw first half (0 -> dead)
+	//	particleVS->SetInt("startIndex", 0);
+	//	particleVS->CopyAllBufferData();
+	//	context->DrawIndexed(emitter->firstDeadIndex * 6, 0, 0);
+
+	//	// Draw second half (alive -> max)
+	//	particleVS->SetInt("startIndex", emitter->firstAliveIndex);
+	//	particleVS->CopyAllBufferData();
+	//	context->DrawIndexed((emitter->maxParticles - emitter->firstAliveIndex) * 6, 0, 0);
+	//}
+		// Particle states
 	float blend[4] = { 1,1,1,1 };
 	context->OMSetBlendState(particleBlendState, blend, 0xffffffff);	// Additive blending
 	context->OMSetDepthStencilState(particleDepthState, 0);				// No depth WRITING
@@ -325,41 +391,62 @@ void Renderer::RenderEmitterSystem(Emitter * emitter)
 	particlePS->SetInt("debugWireframe", 0);
 	particlePS->CopyAllBufferData();
 
-	// Draw the emitters
-	//emitter->Draw(context, camera);
-
-
-	// Copy to dynamic buffer
-	emitter->CopyParticlesToGPU(context, &m_currentView);
+	// Draw the emitter
+	//emitter->Draw(context, camera, totalTime);
+	// Do a raw copy of the particle data to the dynamic structured buffer
+	D3D11_MAPPED_SUBRESOURCE mapped = {};
+	context->Map(emitter->particleDataBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	memcpy(mapped.pData, emitter->particles, sizeof(Particle) * emitter->maxParticles);
+	context->Unmap(emitter->particleDataBuffer, 0);
 
 	// Set up buffers
-	UINT stride = sizeof(ParticleVertex);
+	UINT stride = 0;
 	UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, &emitter->vertexBuffer, &stride, &offset);
+	ID3D11Buffer* nullBuffer = 0;
+	context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
 	context->IASetIndexBuffer(emitter->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
 
 	particleVS->SetMatrix4x4("view", m_currentView.GetView());
 	particleVS->SetMatrix4x4("projection", m_currentView.GetProjection());
+
+	particleVS->SetFloat3("acceleration", emitter->emitterAcceleration);
+	particleVS->SetFloat4("startColor", emitter->startColor);
+	particleVS->SetFloat4("endColor", emitter->endColor);
+	particleVS->SetFloat("startSize", emitter->startSize);
+	particleVS->SetFloat("endSize", emitter->endSize);
+	particleVS->SetFloat("lifetime", emitter->lifetime);
+	particleVS->SetFloat("currentTime", currentTime);
+
 	particleVS->SetShader();
-	particleVS->CopyAllBufferData();
+
+	// Do it manually, as simple shader doesn't currently handle
+	// setting structured buffers for a vertex shader
+	context->VSSetShaderResources(0, 1, &emitter->particleDataSRV);
 
 	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/particle.jpg"));
 	particlePS->SetShader();
 
-	// Draw the correct parts of the buffer
+
 	if (emitter->firstAliveIndex < emitter->firstDeadIndex)
 	{
-		context->DrawIndexed(emitter->livingParticleCount * 6, emitter->firstAliveIndex * 6, 0);
+		// Draw from (firstAliveIndex -> firstDeadIndex)
+		particleVS->SetInt("startIndex", emitter->firstAliveIndex);
+		particleVS->CopyAllBufferData();
+		context->DrawIndexed(emitter->livingParticleCount * 6, 0, 0);
 	}
 	else
 	{
 		// Draw first half (0 -> dead)
-		context->DrawIndexed(max(emitter->firstDeadIndex - 1, 0) * 6, 0, 0);
+		particleVS->SetInt("startIndex", 0);
+		particleVS->CopyAllBufferData();
+		context->DrawIndexed(emitter->firstDeadIndex * 6, 0, 0);
 
 		// Draw second half (alive -> max)
-		context->DrawIndexed((emitter->maxParticles - emitter->firstAliveIndex) * 6, emitter->firstAliveIndex * 6, 0);
+		particleVS->SetInt("startIndex", emitter->firstAliveIndex);
+		particleVS->CopyAllBufferData();
+		context->DrawIndexed((emitter->maxParticles - emitter->firstAliveIndex) * 6, 0, 0);
 	}
-
 	//if (GetAsyncKeyState('C'))
 	//{
 	//	context->RSSetState(particleDebugRasterState);
