@@ -42,8 +42,9 @@ Game::~Game()
 	AssetManager::get().ReleaseAllAssetResource();
 
 	delete sceneGraph;
-	Sound.UnLoadSound("D:/RIT/Game Engine Architecture/Project/IGME750/DX11Starter/AudioCore/Sounds/Bullet.wav");
-	Sound.Shutdown;
+	Sound.UnLoadSound("../../Assets/Sounds/Bullet.wav");
+	Sound.Shutdown();
+		
 }
 
 // --------------------------------------------------------
@@ -76,7 +77,7 @@ void Game::Init()
 
 	//Initialize the Audio Engine
 	Sound.Init();
-	Sound.LoadSound("D:/RIT/Game Engine Architecture/Project/IGME750/DX11Starter/AudioCore/Sounds/Bullet.wav", false, false,false);
+	Sound.LoadSound("../../Assets/Sounds/Bullet.wav", false, false,false);
 
 }
 
@@ -241,7 +242,7 @@ void Game::Update(float deltaTime, float totalTime)
 		{
 			timeShot = time;
 			held = true;
-			Sound.PlaySounds("D:/RIT/Game Engine Architecture/Project/IGME750/DX11Starter/AudioCore/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
+			Sound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
 		}
 	}
 	else
