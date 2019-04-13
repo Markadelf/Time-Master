@@ -198,8 +198,8 @@ bool CAudioEngine::IsEventPlaying(const string &strEventName) const
 
 	FMOD::Studio::ParameterInstance* pParameter = NULL;
 	CAudioEngine::ErrorCheck(tFoundIt->second->getParameter(strParameterName.c_str(), &pParameter));
-	CAudioEngine::ErrorCheck(pParameter->getValue(parameter));*/
-}
+	CAudioEngine::ErrorCheck(pParameter->getValue(parameter));
+}*/
 //To Do (Reorganize) -- Use GetParameterbyName
 /*void CAudioEngine::SetEventParameter(const string &strEventName, const string &strParameterName, float fValue) {
 	auto tFoundIt = sgpImplementation->mEvents.find(strEventName);
