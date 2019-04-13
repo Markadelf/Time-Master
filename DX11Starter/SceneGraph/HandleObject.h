@@ -1,4 +1,5 @@
 #pragma once
+
 namespace Colliders2D {
 	// Collider type is used to define collider handles
 	enum ColliderType

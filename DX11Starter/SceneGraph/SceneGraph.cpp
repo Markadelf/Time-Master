@@ -39,6 +39,8 @@ void SceneGraph::Init(int maxEntities, int causalityPerEntity)
 	m_entityCount = 0;
 
 	m_entities = new TemporalEntity[maxEntities];
+	float min[] = { -1000, -1000, -1000 };
+	float max[] = { 1000, 1000, 1000 };
 }
 
 void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
@@ -56,17 +58,8 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 	// TODO: Check for collisions
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
 	HandleObject handle = entity->GetHandle();
-	Vector2 delta;
-	Vector2 overlap;
-	for (size_t i = 0; i < m_staticObjectCount; i++)
-	{
-		if (ColliderManager::get().CheckCollision(keyFrame.m_transform, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, delta, overlap))
-		{
-			Vector2 newP = keyFrame.m_transform.GetPos();
-			newP = newP + overlap;
-			keyFrame.m_transform.SetPos(newP);
-		}
-	}
+	float min[3];
+	float max[3];
 	Phantom* phantom = entity->StackKeyFrame(keyFrame);
 	if (keyFrame.m_shot && phantom != nullptr)
 	{
