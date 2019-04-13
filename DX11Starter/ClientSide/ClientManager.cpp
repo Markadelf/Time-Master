@@ -25,7 +25,7 @@ void ClientManager::Update(float deltaTime)
 	static int frame = 0;
 	if (frame > 30)
 	{
-		m_graph.StackKeyFrame(KeyFrameData(m_player.GetTransform(), m_player.GetTimeStamp(), m_player.GetEntityId(), false, 0));
+		m_graph.StackKeyFrame(m_player.GetKeyFrame());
 		frame = 0;
 		//timeShot = -1;
 	}
@@ -81,8 +81,8 @@ void ClientManager::Init()
 	Vector2 pos(0, -3);
 	// Add player
 	int id = m_graph.AddEntity(2048, 100);
+	m_player.Initialize(Transform(pos, 0), 0, handle);
 	m_graph.GetEntity(id)->Initialize(Transform(pos, 0), m_player.GetTimeStamp(), handle);
-	m_player.Initialize(Transform(pos, 0), m_player.GetTimeStamp(), handle);
 	m_player.SetEntityId(id);
 
 	PrepDrawGroupStatics();
@@ -125,7 +125,42 @@ void ClientManager::PrepDrawGroup()
 	pos.y = 0;
 	pos.z = player.GetPos().GetY();
 	m_drawInfo.m_camera.SetPosition(pos);
-	m_drawInfo.m_camera.SetYaw(-player.GetRot());
+	m_drawInfo.m_camera.SetYaw(player.GetRot());
+
+	// Entities
+	m_drawInfo.m_visibleCount = m_staticCount;
+	TimeStamp time = m_player.GetTimeStamp();
+
+	int eCount = m_graph.GetEntityCount();
+	for (size_t i = 0; i < eCount; i++)
+	{
+		TemporalEntity* entity = m_graph.GetEntity(i);
+		HandleObject handle = entity->GetHandle();
+
+		int phanCount = entity->GetImageCount();
+		Phantom* phantoms = entity->GetPhantomBuffer();
+		
+		for (size_t j = 0; j < phanCount; j++)
+		{
+			TimeInstableTransform trans = phantoms[j].GetTransform();
+			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+			{
+				ItemFromTransHandle(m_drawInfo.m_visibleObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+			}
+		}
+
+		int phenCount = entity->GetPhenominaCount();
+		Phenomina* phenomenas = entity->GetPhenominaBuffer();
+
+		for (size_t j = 0; j < phenCount; j++)
+		{
+			TimeInstableTransform trans = phenomenas[j].GetTransform();
+			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+			{
+				ItemFromTransHandle(m_drawInfo.m_visibleObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+			}
+		}
+	}
 }
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)

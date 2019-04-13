@@ -204,7 +204,7 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 	dX = dX % 10;
 	dY = dY % 10;
 
-	clientInterface->GetPlayer().Rotate(-dX / 180.f);
+	clientInterface->GetPlayer().Rotate(dX / 180.f);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

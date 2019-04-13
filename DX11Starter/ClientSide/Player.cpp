@@ -3,6 +3,7 @@
 
 Player::Player()
 {
+	m_reversed = false;
 }
 
 
@@ -42,6 +43,7 @@ void Player::Update(float deltaTime, StaticObject* statics, int staticCount)
 		if (!held)
 		{
 			m_lastTimeShot = m_time;
+			m_shot = true;
 			held = true;
 		}
 	}
@@ -59,6 +61,11 @@ Transform Player::GetTransform() const
 TimeStamp Player::GetTimeStamp() const
 {
 	return m_time;
+}
+
+TimeStamp Player::GetTimeShot() const
+{
+	return m_lastTimeShot;
 }
 
 bool Player::GetReversed() const
@@ -91,6 +98,13 @@ void Player::SetEntityId(int id)
 	m_entityId = id;
 }
 
+KeyFrameData Player::GetKeyFrame()
+{
+	KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_shot, m_lastTimeShot);
+	m_shot = false;
+	return key;
+}
+
 void Player::UpdatePosition(float deltaTime, StaticObject* statics, int staticCount) {
 	Vector2 vel;
 	if (GetAsyncKeyState('W') & 0x8000)
@@ -109,7 +123,7 @@ void Player::UpdatePosition(float deltaTime, StaticObject* statics, int staticCo
 	{
 		vel = vel + Vector2(1, 0);
 	}
-	vel = vel.Rotate(m_transform.GetRot());
+	vel = vel.Rotate(-m_transform.GetRot());
 	m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
 
 	Vector2 overlap;
