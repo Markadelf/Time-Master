@@ -45,21 +45,15 @@ struct HandleObject
 	Colliders2D::ColliderHandle m_collider;
 
 	// Handle for the relevant mesh 
-	int m_mesh;
+	int m_mesh = -1;
 
 	// Handle for the relevant material
-	int m_material;
+	int m_material = -1;
 
 	// X, Y, Z
 	float m_scale[3] = {1, 1, 1};
 
-	HandleObject() 
-	{ 
-		m_mesh = -1; 
-		m_material = -1; 
-	}
-
-	~HandleObject() {}
+	float m_yPos = 0;
 
 	// Convenience method
 	void SetUniformScale(float val) 

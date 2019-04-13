@@ -59,32 +59,8 @@ void Renderer::Init()
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	InitializeCamera();
 	InitializeShaders();
-}
-
-
-// --------------------------------------------------------
-// Handle resizing DirectX "stuff" to match the new window size.
-// For instance, updating our projection matrix's aspect ratio.
-// --------------------------------------------------------
-void Renderer::OnResize()
-{
-	// Handle base-level DX resize stuff
-	DXCore::OnResize();
-
-	m_currentView.SetAspectRatio((float)width / height);
-}
-
-// --------------------------------------------------------
-// Initializes the matrices necessary to represent our geometry's 
-// transformations and our 3D camera
-// --------------------------------------------------------
-void Renderer::InitializeCamera()
-{
-	m_currentView.SetPosition(XMFLOAT3(0, 0, -3));
-	m_currentView.SetYaw(0);
-	m_currentView.SetAspectRatio((float)width / height);
+	resize(width, height);
 }
 
 void Renderer::InitializeShaders()
@@ -107,11 +83,6 @@ void Renderer::InitializeShaders()
 
 	m_ps = new SimplePixelShader(device, context);
 	m_ps->LoadShaderFile(L"PixelShader.cso");
-}
-
-Camera* Renderer::GetCamera()
-{
-	return &m_currentView;
 }
 
 std::vector<DirectionalLight>* Renderer::GetLights()
@@ -144,24 +115,32 @@ void Renderer::End()
 
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 }
+//
+//void Renderer::DrawScene(SceneGraph* scenegraph, float time)
+//{
+//	StaticObject* objs;
+//	int sCount;
+//	scenegraph->GetStatics(&objs, sCount);
+//	for (size_t i = 0; i < sCount; i++)
+//	{
+//		RenderObjectAtPos(objs[i].GetHandles(), objs[i].GetTransform());
+//	}
+//	int eCount = scenegraph->GetEntityCount();
+//	for (size_t i = 0; i < eCount; i++)
+//	{
+//		RenderPhantoms(*scenegraph->GetEntity((int)i), time);
+//	}
+//}
 
-void Renderer::DrawScene(ServerSceneGraph* scenegraph, float time)
+void Renderer::RenderGroup(DrawGroup& drawGroup)
 {
-	StaticObject* objs;
-	int sCount;
-	scenegraph->GetStatics(&objs, sCount);
-	for (size_t i = 0; i < sCount; i++)
+	for (size_t i = 0; i < drawGroup.m_visibleCount; i++)
 	{
-		RenderObjectAtPos(objs[i].GetHandles(), objs[i].GetTransform());
-	}
-	int eCount = scenegraph->GetEntityCount();
-	for (size_t i = 0; i < eCount; i++)
-	{
-		RenderPhantoms(*scenegraph->GetEntity((int)i), time);
+		RenderVisibleEntity(drawGroup.m_visibleObjects[i], drawGroup.m_camera);
 	}
 }
 
-void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11ShaderResourceView* texture, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh)
+void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11ShaderResourceView* texture, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera)
 {
 	// Send data to shader variables
 	//  - Do this ONCE PER OBJECT you're drawing
@@ -169,8 +148,8 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11Shade
 	//    and then copying that entire buffer to the GPU.  
 	//  - The "SimpleShader" class handles all of that for you.
 	vs->SetMatrix4x4("world", transform);
-	vs->SetMatrix4x4("view", m_currentView.GetView());
-	vs->SetMatrix4x4("projection", m_currentView.GetProjection());
+	vs->SetMatrix4x4("view", camera.GetView());
+	vs->SetMatrix4x4("projection", camera.GetProjection());
 
 	// Once you've set all of the data you care to change for
 	// the next draw call, you need to actually send it to the GPU
@@ -212,57 +191,61 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11Shade
 		0);    // Offset to add to each index when looking up vertices
 }
 
-void Renderer::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
+//void Renderer::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
+//{
+//	Render(m_ps, m_vs, *AssetManager::get().GetTexturePointer(mat->GetTextureHandle()), m_sampler, transform, AssetManager::get().GetMeshPointer(meshHandle));
+//}
+
+void Renderer::RenderVisibleEntity(DrawItem& entity, Camera& camera)
 {
-	Render(m_ps, m_vs, *AssetManager::get().GetTexturePointer(mat->GetTextureHandle()), m_sampler, transform, AssetManager::get().GetMeshPointer(meshHandle));
+	Material* mat = AssetManager::get().GetMaterialPointer(entity.GetMaterialHandle());
+	ID3D11ShaderResourceView* texture = *AssetManager::get().GetTexturePointer(mat->GetTextureHandle());
+	Mesh* mesh = AssetManager::get().GetMeshPointer(entity.GetMeshHandle());
+	
+	Render(m_ps, m_vs, texture, m_sampler, entity.GetTransform(), mesh, camera);
 }
 
-void Renderer::RenderEntity(Entity& entity)
-{
-	Render(AssetManager::get().GetMaterialPointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
-	//Render(materialManager.GetResourcePointer(entity.GetMaterialHandle()), entity.GetTransform(), entity.GetMeshHandle());
-}
+//void Renderer::RenderObjectAtPos(HandleObject& handle, Transform trans)
+//{
+//	XMMATRIX matrix = XMMatrixScaling(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
+//	matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0));
+//	matrix = XMMatrixMultiply(matrix, XMMatrixTranslation(trans.GetPos().GetX(), 0, trans.GetPos().GetY()));
+//	XMFLOAT4X4 transform;
+//	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
+//
+//	Render(AssetManager::get().GetMaterialPointer(handle.m_material), transform, handle.m_mesh);
+//	//Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
+//}
+//
+//void Renderer::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
+//{
+//	RenderObjectAtPos(handle, trans.GetTransform(t));
+//}
+//
+//void Renderer::RenderPhantoms(TemporalEntity& phantom, float t)
+//{
+//	int phantoms = phantom.GetImageCount();
+//	Phantom* phantomBuffer = phantom.GetPhantomBuffer();
+//	HandleObject handle = phantom.GetHandle();
+//	for (size_t i = 0; i < phantoms; i++)
+//	{
+//		TimeInstableTransform trans = phantomBuffer[i].GetTransform();
+//		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
+//		{
+//			RenderLerpObject(handle, trans, t);
+//		}
+//	}
+//
+//	int phenomina = phantom.GetPhenominaCount();
+//	Phenomina* phenominaBuffer = phantom.GetPhenominaBuffer();
+//	for (size_t i = 0; i < phenomina; i++)
+//	{
+//		TimeInstableTransform trans = phenominaBuffer[i].GetTransform();
+//		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
+//		{
+//			handle = phenominaBuffer[i].GetHandle();
+//			RenderLerpObject(handle, trans, t);
+//		}
+//	}
+//}
 
-void Renderer::RenderObjectAtPos(HandleObject& handle, Transform trans)
-{
-	XMMATRIX matrix = XMMatrixScaling(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
-	matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0));
-	matrix = XMMatrixMultiply(matrix, XMMatrixTranslation(trans.GetPos().GetX(), 0, trans.GetPos().GetY()));
-	XMFLOAT4X4 transform;
-	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
-
-	Render(AssetManager::get().GetMaterialPointer(handle.m_material), transform, handle.m_mesh);
-	//Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
-}
-
-void Renderer::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
-{
-	RenderObjectAtPos(handle, trans.GetTransform(t));
-}
-
-void Renderer::RenderPhantoms(TemporalEntity& phantom, float t)
-{
-	int phantoms = phantom.GetImageCount();
-	Phantom* phantomBuffer = phantom.GetPhantomBuffer();
-	HandleObject handle = phantom.GetHandle();
-	for (size_t i = 0; i < phantoms; i++)
-	{
-		TimeInstableTransform trans = phantomBuffer[i].GetTransform();
-		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
-		{
-			RenderLerpObject(handle, trans, t);
-		}
-	}
-
-	int phenomina = phantom.GetPhenominaCount();
-	Phenomina* phenominaBuffer = phantom.GetPhenominaBuffer();
-	for (size_t i = 0; i < phenomina; i++)
-	{
-		TimeInstableTransform trans = phenominaBuffer[i].GetTransform();
-		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
-		{
-			handle = phenominaBuffer[i].GetHandle();
-			RenderLerpObject(handle, trans, t);
-		}
-	}
-}

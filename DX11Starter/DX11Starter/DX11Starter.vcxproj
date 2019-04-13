@@ -58,7 +58,6 @@
   <ImportGroup Label="Shared">
     <Import Project="..\NetworkingCore\NetworkingCore.vcxitems" Label="Shared" />
     <Import Project="..\SerializerCore\SerializerCore.vcxitems" Label="Shared" />
-    <Import Project="..\ClientSceneGraph\ClientSceneGraph.vcxitems" Label="Shared" />
     <Import Project="..\GameMath\GameMath.vcxitems" Label="Shared" />
     <Import Project="..\HostSceneGraph\HostSceneGraph.vcxitems" Label="Shared" />
     <Import Project="..\SceneGraph\SceneGraph.vcxitems" Label="Shared" />
@@ -66,6 +65,7 @@
     <Import Project="..\JobSystem\JobSystem.vcxitems" Label="Shared" />
     <Import Project="..\RenderingCore\RenderingCore.vcxitems" Label="Shared" />
     <Import Project="..\AssetManager\AssetManager.vcxitems" Label="Shared" />
+    <Import Project="..\ClientSide\ClientSide.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -105,7 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\ClientSide\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\libs\</AdditionalLibraryDirectories>
@@ -139,7 +139,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\ClientSide\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

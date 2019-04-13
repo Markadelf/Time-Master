@@ -15,12 +15,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)Collider.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)PartitioningKey.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)PartitioningManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)TimeInstableTransform.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Transform.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Collider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PartitioningKey.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PartitioningManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TimeInstableTransform.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Transform.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Vector2.h" />

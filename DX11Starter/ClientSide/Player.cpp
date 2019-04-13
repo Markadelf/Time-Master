@@ -1,0 +1,125 @@
+#include "Player.h"
+#include "ColliderManager.h"
+
+Player::Player()
+{
+}
+
+
+Player::~Player()
+{
+}
+
+void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle)
+{
+	m_transform = startingPos;
+	m_time = initialTime;
+	m_handle = handle;
+}
+
+void Player::Update(float deltaTime, StaticObject* statics, int staticCount)
+{
+	m_time += deltaTime * (m_reversed ? -1 : 1);
+
+	UpdatePosition(deltaTime, statics, staticCount);
+
+	static bool rHeld = false;
+	if (GetAsyncKeyState('R') & 0x8000)
+	{
+		if (!rHeld)
+		{
+			m_reversed = !m_reversed;
+			rHeld = true;
+		}
+	}
+	else
+	{
+		rHeld = false;
+	}
+	static bool held = false;
+	if (GetAsyncKeyState(' ') & 0x8000)
+	{
+		if (!held)
+		{
+			m_lastTimeShot = m_time;
+			held = true;
+		}
+	}
+	else
+	{
+		held = false;
+	}
+}
+
+Transform Player::GetTransform() const
+{
+	return m_transform;
+}
+
+TimeStamp Player::GetTimeStamp() const
+{
+	return m_time;
+}
+
+bool Player::GetReversed() const
+{
+	return m_reversed;
+}
+
+int Player::GetEntityId() const
+{
+	return m_entityId;
+}
+
+HandleObject Player::GetHandle() const
+{
+	return m_handle;
+}
+
+void Player::SetHandle(HandleObject& obj)
+{
+	m_handle = obj;
+}
+
+void Player::Rotate(float amount)
+{
+	m_transform.SetRot(m_transform.GetRot() + amount);
+}
+
+void Player::SetEntityId(int id)
+{
+	m_entityId = id;
+}
+
+void Player::UpdatePosition(float deltaTime, StaticObject* statics, int staticCount) {
+	Vector2 vel;
+	if (GetAsyncKeyState('W') & 0x8000)
+	{
+		vel = vel + Vector2(0, 1);
+	}
+	if (GetAsyncKeyState('A') & 0x8000)
+	{
+		vel = vel + Vector2(-1, 0);
+	}
+	if (GetAsyncKeyState('S') & 0x8000)
+	{
+		vel = vel + Vector2(0, -1);
+	}
+	if (GetAsyncKeyState('D') & 0x8000)
+	{
+		vel = vel + Vector2(1, 0);
+	}
+	vel = vel.Rotate(m_transform.GetRot());
+	m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
+
+	Vector2 overlap;
+	Vector2 empty;
+	for (size_t i = 0; i < staticCount; i++)
+	{
+		if (ColliderManager::get().CheckCollision(m_transform, m_handle.m_collider, statics[i].GetTransform(), statics[i].GetHandles().m_collider, empty, overlap))
+		{
+			Vector2 newP = m_transform.GetPos() + overlap;
+			m_transform.SetPos(newP);
+		}
+	}
+}
