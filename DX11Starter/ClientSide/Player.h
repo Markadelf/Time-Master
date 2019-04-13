@@ -40,6 +40,7 @@ public:
 	void SetHandle(HandleObject& obj);
 	void Rotate(float amount);
 	void SetEntityId(int id);
+	void SetTransform(Transform trans);
 
 	// Getting the keyframe, modifies the last time shot property
 	KeyFrameData GetKeyFrame();

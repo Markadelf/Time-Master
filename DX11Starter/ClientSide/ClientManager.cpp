@@ -4,6 +4,8 @@
 
 ClientManager::ClientManager()
 {
+	// This is where we currently initialize the collider manager
+	// Eventually we will want to do this when loading the scene
 	ColliderManager::get().Reinit(16, 16);
 }
 
@@ -14,20 +16,24 @@ ClientManager::~ClientManager()
 
 void ClientManager::Update(float deltaTime)
 {
+	// Get the static object count from the scenegraph again
+	// Later, the SCount for the draw group may differ from this one
 	int sCount;
 	StaticObject* statics;
 	m_graph.GetStatics(&statics, sCount);
 
+	// Update the first person controller
+	// TODO: Consider permiting more than one fps controller (AI controllers?)
 	m_player.Update(deltaTime, statics, sCount);
 	Transform trans = m_player.GetTransform();
-	m_graph.PreventCollision(m_player.GetEntityId(), m_player.GetTransform());
+	m_graph.PreventCollision(m_player.GetEntityId(), trans));
+	m_player.
 
 	static int frame = 0;
 	if (frame > 30)
 	{
 		m_graph.StackKeyFrame(m_player.GetKeyFrame());
 		frame = 0;
-		//timeShot = -1;
 	}
 	else
 	{
@@ -110,7 +116,7 @@ void ClientManager::PrepDrawGroupStatics()
 	m_graph.GetStatics(&objs, m_staticCount);
 	for (size_t i = 0; i < m_staticCount; i++)
 	{
-		ItemFromTransHandle(m_drawInfo.m_visibleObjects[i], objs[i].GetTransform(), objs[i].GetHandles());
+		ItemFromTransHandle(m_drawInfo.m_opaqueObjects[i], objs[i].GetTransform(), objs[i].GetHandles());
 	}
 
 	m_drawInfo.m_visibleCount = m_staticCount;
@@ -145,7 +151,7 @@ void ClientManager::PrepDrawGroup()
 			TimeInstableTransform trans = phantoms[j].GetTransform();
 			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				ItemFromTransHandle(m_drawInfo.m_visibleObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
 			}
 		}
 
@@ -157,7 +163,7 @@ void ClientManager::PrepDrawGroup()
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
 			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				ItemFromTransHandle(m_drawInfo.m_visibleObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
 			}
 		}
 	}

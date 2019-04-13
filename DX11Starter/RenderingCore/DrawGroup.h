@@ -10,16 +10,18 @@ struct TransparentEntity {
 // Used to communicate Draw Info to the Renderer
 struct DrawGroup
 {
+	// Camera used to render this group to the screen
 	Camera m_camera;
 
-	DrawItem m_visibleObjects[100];
+	// List of fully opaque objects
+	DrawItem m_opaqueObjects[100];
 	TransparentEntity m_transparentObjects[100];
 
 	int m_visibleCount = 0;
 	int m_transparentCount = 0;
 
 	inline void PushVisible(DrawItem& item) {
-		m_visibleObjects[m_visibleCount++] = item;
+		m_opaqueObjects[m_visibleCount++] = item;
 	}
 };
 

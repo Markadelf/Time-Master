@@ -136,7 +136,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 {
 	for (size_t i = 0; i < drawGroup.m_visibleCount; i++)
 	{
-		RenderVisibleEntity(drawGroup.m_visibleObjects[i], drawGroup.m_camera);
+		RenderVisibleEntity(drawGroup.m_opaqueObjects[i], drawGroup.m_camera);
 	}
 }
 

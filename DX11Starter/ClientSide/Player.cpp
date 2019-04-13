@@ -24,6 +24,7 @@ void Player::Update(float deltaTime, StaticObject* statics, int staticCount)
 
 	UpdatePosition(deltaTime, statics, staticCount);
 
+	// TODO: Replace with other input logic
 	static bool rHeld = false;
 	if (GetAsyncKeyState('R') & 0x8000)
 	{
@@ -98,15 +99,22 @@ void Player::SetEntityId(int id)
 	m_entityId = id;
 }
 
+void Player::SetTransform(Transform trans)
+{
+	m_transform = trans;
+}
+
 KeyFrameData Player::GetKeyFrame()
 {
 	KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_shot, m_lastTimeShot);
+	// Reset shot info
 	m_shot = false;
 	return key;
 }
 
 void Player::UpdatePosition(float deltaTime, StaticObject* statics, int staticCount) {
 	Vector2 vel;
+	// TODO: Replace with input logic
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		vel = vel + Vector2(0, 1);
@@ -125,15 +133,4 @@ void Player::UpdatePosition(float deltaTime, StaticObject* statics, int staticCo
 	}
 	vel = vel.Rotate(-m_transform.GetRot());
 	m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
-
-	Vector2 overlap;
-	Vector2 empty;
-	for (size_t i = 0; i < staticCount; i++)
-	{
-		if (ColliderManager::get().CheckCollision(m_transform, m_handle.m_collider, statics[i].GetTransform(), statics[i].GetHandles().m_collider, empty, overlap))
-		{
-			Vector2 newP = m_transform.GetPos() + overlap;
-			m_transform.SetPos(newP);
-		}
-	}
 }
