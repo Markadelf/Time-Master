@@ -43,8 +43,12 @@ void Debug::DumpToFile()
 }
 void Debug::DumpToConsole(const std::string & logline)
 {
-	std::cout.flush();
-	std::cout << logline << "\n" << std::endl;;
+	char buff[20];
+	struct tm *sTm;
+	time_t now = time(0);
+	sTm = gmtime(&now);
+	strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
+	printf("%s : %s\n",buff, logline.c_str());
 }
 Debug::~Debug()
 {
