@@ -37,7 +37,7 @@ inline void ThreadPool::Threadfunc(ThreadPool* const & poolref)
 ThreadPool::ThreadPool(unsigned int numberOfThreads)
 	:m_isDone(false), m_isStop(false)
 {
-	m_workers.resize(numberOfThreads);
+	//m_workers.resize(numberOfThreads);
 	std::cout << m_taskQueue.size() << std::endl;
 	for (size_t i = 0; i < numberOfThreads; i++)
 	{
