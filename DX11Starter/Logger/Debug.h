@@ -22,7 +22,7 @@ class Debug
 private:
 	std::string logFilePath;
 	std::vector<std::string> logs;
-	static std::atomic<unsigned long> index;
+	static std::atomic<int> index;
 	Debug();
 	~Debug();
 	void AppendLog(const std::string & logLine);

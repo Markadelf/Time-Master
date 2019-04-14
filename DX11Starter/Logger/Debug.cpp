@@ -6,7 +6,7 @@
 
 #include "Debug.h"
 
-std::atomic<unsigned long> Debug::index = -1;
+std::atomic<int> Debug::index = -1;
 
 Debug::Debug()
 	:logFilePath("logs.txt")
@@ -25,7 +25,7 @@ void Debug::DumpToFile()
 		struct tm *sTm;
 		time_t now = time(0);
 
-		for (unsigned long i = 0; i <= index; i++)
+		for (int i = 0; i <= index; i++)
 		{
 			sTm = gmtime(&now);
 			strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
@@ -52,7 +52,8 @@ void Debug::DumpToConsole(const std::string & logline)
 }
 Debug::~Debug()
 {
-	this->DumpToFile();
+	if(index>=0)
+		this->DumpToFile();
 }
 
 void Debug::AppendLog(const std::string & logLine)
