@@ -24,7 +24,7 @@ Game::Game(HINSTANCE hInstance)
 		1280,			// Width of the window's client area
 		720,			// Height of the window's client area
 		true)			// Show extra stats (fps) in title bar?
-	, connection(30001, Address(127, 0, 0, 1, 30000))
+	, connection(30001, Address(192, 168, 137, 1, 30000))
 {
 
 #if defined(DEBUG) || defined(_DEBUG)

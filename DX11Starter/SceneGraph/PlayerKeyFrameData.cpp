@@ -26,18 +26,18 @@ bool KeyFrameData::Serialize(Buffer & buffer) const
 {
 	return
 		m_transform.Serialize(buffer) &&
-		Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_timeStamp) &&
+		Serializer::SerializeFloatFP(buffer, (float)m_timeStamp) &&
 		Serializer::SerializeInteger<-1, 14>(buffer, m_entityId) &&
 		Serializer::SerializeBool(buffer, m_shot) &&
-		(m_shot ? Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_shotTime) : true);
+		(m_shot ? Serializer::SerializeFloatFP(buffer, (float)m_shotTime) : true);
 }
 
 bool KeyFrameData::Deserialize(Buffer & buffer)
 {
 	return
 		m_transform.Deserialize(buffer) &&
-		Serializer::DeserializeFloat<-1000, 1000, 1, 30>(buffer, m_timeStamp) &&
+		Serializer::DeserializeFloatFP(buffer, m_timeStamp) &&
 		Serializer::DeserializeInteger<-1, 14>(buffer, m_entityId) &&
 		Serializer::DeserializeBool(buffer, m_shot) &&
-		(m_shot ? Serializer::DeserializeFloat<-1000, 1000, 1, 30>(buffer, m_shotTime) : true);
+		(m_shot ? Serializer::DeserializeFloatFP(buffer, m_shotTime) : true);
 }

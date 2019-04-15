@@ -17,7 +17,7 @@ public:
 	// Pushes a va
 	bool Push(const T& dataIn) {
 		if (m_count < max) {
-			m_data[m_tail] = data;
+			m_data[m_tail] = dataIn;
 			m_tail = (m_tail + 1) % max;
 			m_count++;
 			return true;

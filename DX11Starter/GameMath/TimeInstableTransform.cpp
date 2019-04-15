@@ -81,8 +81,8 @@ bool TimeInstableTransform::Serialize(Buffer& buffer) const
 	return 
 		m_start.Serialize(buffer) && 
 		m_end.Serialize(buffer) &&
-		Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_startTime) &&
-		Serializer::SerializeFloat<-1000, 1000, 1, 30>(buffer, (float)m_endTime) && 
+		Serializer::SerializeFloatFP(buffer, (float)m_startTime) &&
+		Serializer::SerializeFloatFP(buffer, (float)m_endTime) && 
 		Serializer::SerializeBool(buffer, m_reversed);
 }
 
@@ -91,7 +91,7 @@ bool TimeInstableTransform::Deserialize(Buffer& buffer)
 	return
 		m_start.Deserialize(buffer) &&
 		m_end.Deserialize(buffer) &&
-		Serializer::DeserializeFloat<-1000, 1000, 1, 30>(buffer, m_startTime) &&
-		Serializer::DeserializeFloat<-1000, 1000, 1, 30>(buffer, m_endTime) &&
+		Serializer::DeserializeFloatFP(buffer, m_startTime) &&
+		Serializer::DeserializeFloatFP(buffer, m_endTime) &&
 		Serializer::DeserializeBool(buffer, m_reversed);
 }
