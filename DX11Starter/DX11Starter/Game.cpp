@@ -3,26 +3,15 @@
 //#include "WICTextureLoader.h"
 #include "FilePathHelper.h"
 #include <cmath>
-#include <Debug.h>
 #include "AssetManager.h"
 #include "ThreadPool.h"
-#include "Debug.h"
+
+
 Game* Game::GameInstance;
 
 // For the DirectX Math library
 using namespace DirectX;
 
-ThreadPool pool(5);
-
-void LogTest(int id)
-{
-	std::string test_log = "I am from LogTest";
-	test_log.append(std::to_string(id));
-	for (int i = 0; i < 10; i++)
-	{
-		Debug::Log(test_log,true);
-	}
-}
 
 // --------------------------------------------------------
 // Constructor
@@ -38,11 +27,6 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 	m_renderer.SetDraw(SDraw);
 	m_renderer.SetUpdate(SUpdate);
 	m_renderer.SetControls(SOnMouseDown, SOnMouseUp, SOnMouseMove, SOnMouseWheel);
-	pool.enqueue(LogTest,1);
-	pool.enqueue(LogTest,2);
-	pool.enqueue(LogTest,3);
-	pool.enqueue(LogTest,4);
-	std::cout << "Threads created" << std::endl;
 }
 
 // --------------------------------------------------------
@@ -96,7 +80,6 @@ void Game::LoadTextures()
 {
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-
 	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
@@ -113,7 +96,6 @@ void Game::LoadShaders()
 {
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-	Debug::Log("Textures are getting loded",true);
 	AssetManager::get().LoadMaterial(0, 0, "DEFAULT", "Textures/poster.png");
 	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/player3.png");
 	AssetManager::get().LoadMaterial(0, 0, "WOODEN", "Textures/Wooden.png");
@@ -144,7 +126,6 @@ void Game::CreateBasicGeometry()
 	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
-	Debug::Log("Setting up the scene", false);
 	// Add static objects to scene graph
 	const int div = 20;
 	StaticObject objs[div + 1];

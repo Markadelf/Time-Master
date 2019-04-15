@@ -28,6 +28,7 @@ private:
 	void AppendLog(const std::string & logLine);
 	void DumpToFile();
 	void DumpToConsole(const std::string &logline);
+	void GetTimeStamp(char * buff,int size);
 public:
 	static void Log(const std::string & logLine,bool dumpToConsole=false);
 };

@@ -15,6 +15,14 @@ Debug::Debug()
 	logs.resize(SHRT_MAX);
 }
 
+void Debug::GetTimeStamp(char * buff,int size)
+{
+	struct tm sTm;
+	time_t now = time(0);
+	localtime_s(&sTm, &now);
+	strftime(buff, size, "%Y-%m-%d %H:%M:%S", &sTm);
+}
+
 void Debug::DumpToFile()
 {
 	std::ofstream logfile;
@@ -22,13 +30,9 @@ void Debug::DumpToFile()
 	if (logfile.is_open())
 	{
 		char buff[20];
-		struct tm *sTm;
-		time_t now = time(0);
-
 		for (int i = 0; i <= index; i++)
 		{
-			sTm = gmtime(&now);
-			strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
+			GetTimeStamp(buff, sizeof(buff));
 			logfile << buff << " : " << logs[i];
 			logfile << "\n";
 		}
@@ -36,20 +40,16 @@ void Debug::DumpToFile()
 	}
 	else
 	{
-		std::cout << "Failed to open logFiles, dumping code on the console." << std::endl;
-		//std::cout << logs << std::endl;
-		//std::cin >> logs;
+		printf("Failed to open log file, dumping code on the console.\n");
 	}
 }
 void Debug::DumpToConsole(const std::string & logline)
 {
 	char buff[20];
-	struct tm *sTm;
-	time_t now = time(0);
-	sTm = gmtime(&now);
-	strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
+	GetTimeStamp(buff,sizeof(buff));
 	printf("%s : %s\n",buff, logline.c_str());
 }
+
 Debug::~Debug()
 {
 	if(index>=0)
