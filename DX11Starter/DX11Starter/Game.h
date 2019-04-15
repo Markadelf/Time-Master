@@ -2,6 +2,8 @@
 
 #include "Renderer.h"
 #include "ServerSceneGraph.h"
+#include "GameInput.h"
+#include "InputManager.h"
 
 // Handles the game engine level a the highest level of abstraction
 // Manages most of the other core components
@@ -44,6 +46,12 @@ private:
 	void CreateBasicGeometry();
 
 	Renderer m_renderer;
+
+	// game input
+	GameInput* inputManager;
+
+	void acquireInput();
+
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.

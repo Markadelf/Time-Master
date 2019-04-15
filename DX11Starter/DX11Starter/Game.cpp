@@ -71,6 +71,9 @@ void Game::Init()
 
 	lightList->push_back(light1);
 	lightList->push_back(light2);
+
+	// initialize the input handler
+    inputManager = new GameInput();
 }
 
 void Game::LoadTextures()
@@ -182,8 +185,8 @@ void Game::Update(float deltaTime, float totalTime)
 	Camera* cam = m_renderer.GetCamera();
 	time += deltaTime * (reversed ? -1 : 1);
 	// Quit if the escape key is pressed
-	if (GetAsyncKeyState(VK_ESCAPE))
-		m_renderer.Quit();
+	//if (GetAsyncKeyState(VK_ESCAPE))
+	//	m_renderer.Quit();
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		cam->MoveRelative(XMFLOAT3(0, 0, 1 * deltaTime));
@@ -305,6 +308,32 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		frame++;
 	}
+
+	//Input Manager Test
+	acquireInput();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Update ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+void Game::acquireInput()
+{
+	inputManager->acquireInput();
+
+	// act on user input
+	for (auto x : inputManager->activeKeyMap)
+	{
+		switch (x.first)
+		{
+		case input::GameCommands::Quit:
+			m_renderer.Quit();
+			break;
+
+		case input::GameCommands::showFPS:
+			//showFPS = !showFPS;
+			break;
+		}
+	}
 }
 
 void Game::SUpdate(float deltaTime, float totalTime)
@@ -417,4 +446,5 @@ Renderer* Game::GetRenderer()
 {
 	return &m_renderer;
 }
+
 #pragma endregion
