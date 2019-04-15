@@ -3,13 +3,15 @@
 //#include "WICTextureLoader.h"
 #include "FilePathHelper.h"
 #include <cmath>
-
 #include "AssetManager.h"
+#include "ThreadPool.h"
+
 
 Game* Game::GameInstance;
 
 // For the DirectX Math library
 using namespace DirectX;
+
 
 // --------------------------------------------------------
 // Constructor
@@ -42,6 +44,7 @@ Game::~Game()
 	AssetManager::get().ReleaseAllAssetResource();
 
 	delete sceneGraph;
+	
 }
 
 // --------------------------------------------------------
@@ -77,7 +80,6 @@ void Game::LoadTextures()
 {
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-
 	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
@@ -94,7 +96,6 @@ void Game::LoadShaders()
 {
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-
 	AssetManager::get().LoadMaterial(0, 0, "DEFAULT", "Textures/poster.png");
 	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/player3.png");
 	AssetManager::get().LoadMaterial(0, 0, "WOODEN", "Textures/Wooden.png");
@@ -106,6 +107,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager
@@ -124,7 +126,6 @@ void Game::CreateBasicGeometry()
 	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
-
 	// Add static objects to scene graph
 	const int div = 20;
 	StaticObject objs[div + 1];
