@@ -8,7 +8,7 @@ class Material
 	int vertexShaderHandle;
 	
 	int samplerHandle;
-	int shinniness;
+	float shinniness;
 	int diffuseTextureHandle;
 	int roughnessTextureHandle;
 

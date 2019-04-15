@@ -81,7 +81,7 @@ float3 BasicPointLight(float3 normal, Light light, float3 cameraPos, float3 worl
 	float diff = Diffuse(normal, dirToLight);
 	float spec = SpecularLight(dirToLight, normal, dirToCamera, shininess);
 	spec *= (1.0f - roughness);
-	float3 ambientLight = light.Color.rgb*light.AmbientIntensity*attn*surfaceColor;
+	float3 ambientLight = light.Color.rgb*light.AmbientIntensity*attn*surfaceColor.rgb;
 	float3 diffuseLight = (diff * surfaceColor.rgb + spec)* light.Color.rgb * light.DiffuseIntensity* attn;
 	return (diffuseLight.rgb + ambientLight.rgb);
 }

@@ -71,7 +71,7 @@ void Game::Init()
 	pointLight.Position = XMFLOAT3(-3, -3, 0);
 	pointLight.Direction = XMFLOAT3(1, 1, 0);
 	pointLight.Range = 20.0f;
-	pointLight.Color = XMFLOAT3(1.0f, 0.1, 0);
+	pointLight.Color = XMFLOAT3(1.0f, 0.1f, 0);
 	pointLight.DiffuseIntensity = 1.0f;
 	pointLight.AmbientIntensity = 0.0f;
 
@@ -95,7 +95,7 @@ void Game::Init()
 void Game::LoadTextures()
 {
 
-	ID3D11ShaderResourceView* image;
+	//ID3D11ShaderResourceView* image;
 	// Add if successful
 
 	ID3D11Device* device = m_renderer.GetDevice();
