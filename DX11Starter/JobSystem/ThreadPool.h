@@ -75,9 +75,9 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 		);
 
 	std::future<return_type> result = task->get_future();
-	
-	std::unique_lock<std::mutex> lock(m_queueMutex);
-
+	{
+		std::unique_lock<std::mutex> lock(m_queueMutex);
+	}
 	// don't allow enqueueing after stopping the pool
 	if (m_isStop)
 		throw std::runtime_error("Hey SquidWard...Threadpool is closed today!!!");

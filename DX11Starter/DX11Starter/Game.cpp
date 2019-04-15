@@ -8,6 +8,7 @@ Game* Game::GameInstance;
 
 // For the DirectX Math library
 using namespace DirectX;
+
 // --------------------------------------------------------
 // Constructor
 //
@@ -39,6 +40,7 @@ Game::~Game()
 	AssetManager::get().ReleaseAllAssetResource();
 
 	delete sceneGraph;
+	
 }
 
 // --------------------------------------------------------
@@ -98,15 +100,13 @@ void Game::LoadTextures()
 
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-	
+
 	AssetManager::get().LoadTexture(L"Textures/paint_albedo.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/paint_roughness.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/wood_albedo.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
-
-
 }
 
 // --------------------------------------------------------
@@ -120,12 +120,10 @@ void Game::LoadShaders()
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 
-	
 	//For now shinniness is being handled in Assetmanager.Will move it to the material once we have everythin up and running with latest renderer.
 	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
 	AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
 	AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
-	
 }
 
 // --------------------------------------------------------
@@ -133,6 +131,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager
@@ -151,7 +150,6 @@ void Game::CreateBasicGeometry()
 
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
-
 	// Add static objects to scene graph
 	const int div = 20;
 	StaticObject objs[div + 1];
