@@ -167,22 +167,7 @@ int SceneGraph::AddEntity(int maxImages, int maxPhenomina)
 	return m_entityCount++;
 }
 
-Colliders2D::ColliderHandle ServerSceneGraph::GetColliderHandle(Colliders2D::ColliderType cType, float a, float b)
-{
-	switch (cType)
-	{
-	case Colliders2D::Circle:
-		return m_colliderManager->GetCircleHandle(a);
-		break;
-	case Colliders2D::Rectangle:
-		return m_colliderManager->GetRectangularHandle(a, b);
-		break;
-	default:
-		return Colliders2D::ColliderHandle();
-	}
-}
-
-void ServerSceneGraph::ClientRecieve(Buffer& data)
+void SceneGraph::ClientRecieve(Buffer& data)
 {
 	KeyFrameData key;
 	key.Deserialize(data);
@@ -201,7 +186,7 @@ void ServerSceneGraph::ClientRecieve(Buffer& data)
 	}
 }
 
-void ServerSceneGraph::HostRecieve(Buffer& data, int playerId, ServerManager* server)
+void SceneGraph::HostRecieve(Buffer& data, int playerId, ServerManager* server)
 {
 	KeyFrameData key;
 	key.Deserialize(data);
@@ -223,4 +208,3 @@ void ServerSceneGraph::HostRecieve(Buffer& data, int playerId, ServerManager* se
 	server->SendToActiveUser(playerId);
 }
 
-}
