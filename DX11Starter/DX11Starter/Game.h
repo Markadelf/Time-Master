@@ -1,27 +1,13 @@
 #pragma once
 
-#include "DXCore.h"
-#include "SimpleShader.h"
-#include <DirectXMath.h>
-#include "Entity.h"
-#include "Camera.h"
+#include "Renderer.h"
+#include "ClientManager.h"
 
-// Manager includes
-#include "ResourceManager.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "Lights.h"
- 
-#include "ServerSceneGraph.h"
-#include "ClientHelper.h"
-
-//#include "ServerSceneGraph.h"
-//#include "Vector2.h"
- 
-
+// Handles the game engine level a the highest level of abstraction
+// Manages most of the other core components
 class Game 
-	: public DXCore
 {
+	static Game* GameInstance;
 
 public:
 	Game(HINSTANCE hInstance);
@@ -30,37 +16,26 @@ public:
 	// Overridden setup and game loop methods, which
 	// will be called automatically
 	void Init();
-	void OnResize();
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
+	void OnResize(int width, int height);
 
 	// Overridden mouse input helper methods
 	void OnMouseDown (WPARAM buttonState, int x, int y);
 	void OnMouseUp	 (WPARAM buttonState, int x, int y);
 	void OnMouseMove (WPARAM buttonState, int x, int y);
 	void OnMouseWheel(float wheelDelta,   int x, int y);
+
+	Renderer* GetRenderer();
+
 private:
 
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadTextures();
 	void LoadShaders();
-	void InitializeCamera();
 	void CreateBasicGeometry();
 
-	// Render logic
-	void Render(Material* mat, DirectX::XMFLOAT4X4& transform, int meshHandle);
-	void RenderEntity(Entity& entity);
-	void RenderObjectAtPos(HandleObject& handle, Transform trans);
-	void RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t);
-	void RenderPhantoms(TemporalEntity& phantom, float t);
-
-	// Networking
-	static Game* game;
-	static void NetworkRequest(Buffer& buffer);
-	static void NetworkData(Buffer& buffer);
-
-	// The matrices to go from model space to screen space
-	Camera camera;
+	Renderer m_renderer;
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.
@@ -71,16 +46,16 @@ private:
 
 	float timeShot = -1;
 
-	// Tracks all entities
-	std::vector<DirectionalLight> lightList;
+	ClientManager* clientInterface;
 
-	// Managers
-	ResourceManager<SimpleVertexShader*> vertexShaderManager;
-	ResourceManager<SimplePixelShader*> pixelShaderManager;
+	// static callbacks for the Function Pointers
+	static void SUpdate(float deltaTime, float totalTime);
+	static void SDraw(float deltaTime, float totalTime);
+	static void SOnResize(int width, int height);
+	static void SOnMouseDown(WPARAM buttonState, int x, int y);
+	static void SOnMouseUp(WPARAM buttonState, int x, int y);
+	static void SOnMouseMove(WPARAM buttonState, int x, int y);
+	static void SOnMouseWheel(float wheelDelta, int x, int y);
 
-	ResourceManager<ID3D11SamplerState*> samplerManager;
-	
-	ServerSceneGraph* sceneGraph;
-	ClientHelper connection;
 };
 

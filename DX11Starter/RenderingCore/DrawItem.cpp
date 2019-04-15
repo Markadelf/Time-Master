@@ -1,9 +1,8 @@
-#include "Entity.h"
+#include "DrawItem.h"
 
 using namespace DirectX;
-Entity::Entity()
+DrawItem::DrawItem()
 {
-	XMStoreFloat4x4(&transform, XMMatrixIdentity());
 	position = XMFLOAT3(0, 0, 0);
 	scale = XMFLOAT3(1.f, 1.f, 1.f);
 	XMStoreFloat4(&rotation, XMQuaternionIdentity());
@@ -11,30 +10,34 @@ Entity::Entity()
 	// Intiialize with a known illegal mesh handle
 	meshHandle = -1;
 
-	// The Matrix is an identity so it isn't dirty
-	isDirty = false; 
+	isDirty = true; 
 }
 
-Entity::Entity(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos): Entity()
+DrawItem::DrawItem(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos): DrawItem()
 {
 	this->meshHandle = meshHandle;
 	this->materialHandle = materialHandle;
 	position = pos;
-	isDirty = true;
 }
 
-Entity::Entity(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rot): Entity(meshHandle, materialHandle, pos)
+DrawItem::DrawItem(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rot): DrawItem(meshHandle, materialHandle, pos)
 {
 	this->scale = scale;
 	rotation = rot;
 }
 
+DrawItem::DrawItem(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT3 rot): DrawItem(meshHandle, materialHandle, pos)
+{
+	this->scale = scale;
+	XMStoreFloat4(&rotation, XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+}
 
-Entity::~Entity()
+
+DrawItem::~DrawItem()
 {
 }
 
-DirectX::XMFLOAT4X4 Entity::GetTransform()
+DirectX::XMFLOAT4X4 DrawItem::GetTransform()
 {
 	if (isDirty)
 	{
@@ -43,13 +46,13 @@ DirectX::XMFLOAT4X4 Entity::GetTransform()
 	return transform;
 }
 
-void Entity::SetPosition(DirectX::XMFLOAT3 pos)
+void DrawItem::SetPosition(DirectX::XMFLOAT3 pos)
 {
 	position = pos;
 	isDirty = true;
 }
 
-void Entity::Move(DirectX::XMFLOAT3 displacement)
+void DrawItem::Move(DirectX::XMFLOAT3 displacement)
 {
 	XMVECTOR pos = XMLoadFloat3(&position);
 	XMVECTOR disp = XMLoadFloat3(&displacement);
@@ -60,7 +63,7 @@ void Entity::Move(DirectX::XMFLOAT3 displacement)
 	isDirty = true;
 }
 
-void Entity::MoveForward(DirectX::XMFLOAT3 displacement)
+void DrawItem::MoveForward(DirectX::XMFLOAT3 displacement)
 {
 	XMVECTOR pos = XMLoadFloat3(&position);
 	XMVECTOR disp = XMLoadFloat3(&displacement);
@@ -73,44 +76,59 @@ void Entity::MoveForward(DirectX::XMFLOAT3 displacement)
 	isDirty = true;
 }
 
-DirectX::XMFLOAT3 Entity::GetPosition()
+DirectX::XMFLOAT3 DrawItem::GetPosition()
 {
 	return position;
 }
 
-void Entity::SetScale(DirectX::XMFLOAT3 scale)
+void DrawItem::SetScale(DirectX::XMFLOAT3 scale)
 {
 	this->scale = scale;
 	isDirty = true;
 }
 
-DirectX::XMFLOAT3 Entity::GetScale()
+DirectX::XMFLOAT3 DrawItem::GetScale()
 {
 	return scale;
 }
 
-void Entity::SetRotation(DirectX::XMFLOAT4 rot)
+void DrawItem::SetRotation(DirectX::XMFLOAT3 rot)
+{
+	XMStoreFloat4(&rotation, XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+}
+
+void DrawItem::SetRotation(DirectX::XMFLOAT4 rot)
 {
 	rotation = rot;
 	isDirty = true;
 }
 
-DirectX::XMFLOAT4 Entity::GetRotation()
+DirectX::XMFLOAT4 DrawItem::GetRotation()
 {
 	return rotation;
 }
 
-int Entity::GetMeshHandle()
+void DrawItem::SetMeshHandle(int val)
+{
+	meshHandle = val;
+}
+
+int DrawItem::GetMeshHandle()
 {
 	return meshHandle;
 }
 
-int Entity::GetMaterialHandle()
+void DrawItem::SetMaterialHandle(int val)
+{
+	materialHandle = val;
+}
+
+int DrawItem::GetMaterialHandle()
 {
 	return materialHandle;
 }
 
-void Entity::RecalculateMatrix()
+void DrawItem::RecalculateMatrix()
 {
 	// Scale, rotate, then translate
 	XMMATRIX matrix = XMMatrixScalingFromVector(XMLoadFloat3(&scale));

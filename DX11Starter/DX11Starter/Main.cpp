@@ -50,21 +50,24 @@ int WINAPI WinMain(
 	// Create the Game object using
 	// the app handle we got from WinMain
 	Game dxGame(hInstance);
+	Renderer* dxRenderer = dxGame.GetRenderer();
 
 	// Result variable for function calls below
 	HRESULT hr = S_OK;
 
 	// Attempt to create the window for our program, and
 	// exit early if something failed
-	hr = dxGame.InitWindow();
+	hr = dxRenderer->InitWindow();
 	if(FAILED(hr)) return hr;
 
 	// Attempt to initialize DirectX, and exit
 	// early if something failed
-	hr = dxGame.InitDirectX();
+	hr = dxRenderer->InitDirectX();
 	if(FAILED(hr)) return hr;
+
+	dxGame.Init();
 
 	// Begin the message and game loop, and then return
 	// whatever we get back once the game loop is over
-	return dxGame.Run();
+	return dxRenderer->Run();
 }

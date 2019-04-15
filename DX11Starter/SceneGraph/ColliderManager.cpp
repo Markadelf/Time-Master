@@ -2,12 +2,51 @@
 
 using namespace Colliders2D;
 
-ColliderManager::ColliderManager() : ColliderManager(16, 16)
+ColliderManager::ColliderManager()
 {
+	m_circles = nullptr;
+	m_rectangles = nullptr;
+
+	m_maxCircles = 0;
+	m_circleCount = 0;
+
+	m_maxRectangles = 0;
+	m_rectangleCount = 0;
 }
 
-ColliderManager::ColliderManager(int circles, int rectangles)
+ColliderManager::~ColliderManager()
 {
+	if (m_circles)
+	{
+		delete[] m_circles;
+		m_circles = nullptr;
+	}
+	if (m_rectangles)
+	{
+		delete[] m_rectangles;
+		m_rectangles = nullptr;
+	}
+}
+
+ColliderManager& ColliderManager::get()
+{
+	static ColliderManager singleton;
+	return singleton;
+}
+
+void ColliderManager::Reinit(int circles, int rectangles)
+{
+	if (m_circles)
+	{
+		delete[] m_circles;
+		m_circles = nullptr;
+	}
+	if (m_rectangles)
+	{
+		delete[] m_rectangles;
+		m_rectangles = nullptr;
+	}
+
 	m_circles = new CircleCollider[circles];
 	m_rectangles = new RectangleCollider[rectangles];
 
@@ -16,13 +55,6 @@ ColliderManager::ColliderManager(int circles, int rectangles)
 
 	m_maxRectangles = rectangles;
 	m_rectangleCount = 0;
-}
-
-
-ColliderManager::~ColliderManager()
-{
-	delete[] m_circles;
-	delete[] m_rectangles;
 }
 
 Colliders2D::ColliderHandle ColliderManager::GetCircleHandle(float radius)

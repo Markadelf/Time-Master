@@ -52,7 +52,7 @@ class TemporalEntity
 	int m_phenominaCount;
 
 	// Other Variables
-	PhenominaHandle m_killedBy;	// -1 if alive
+	PhenominaHandle m_killedBy;		// -1 if alive
 	bool m_reversed;				// false if moving forward in time
 	int m_entityId;
 	float m_lastTimeStamp;

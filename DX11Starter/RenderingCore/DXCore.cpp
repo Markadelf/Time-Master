@@ -278,6 +278,8 @@ HRESULT DXCore::InitDirectX()
 // --------------------------------------------------------
 void DXCore::OnResize()
 {
+	resize(width, height);
+
 	// Release existing DirectX views and buffers
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
@@ -334,6 +336,40 @@ void DXCore::OnResize()
 	context->RSSetViewports(1, &viewport);
 }
 
+void DXCore::SetUpdate(void(*callback)(float deltaTime, float totalTime))
+{
+	update = callback;
+}
+
+void DXCore::SetDraw(void(*callback)(float deltaTime, float totalTime), void(*resize)(int width, int height))
+{
+	draw = callback;
+	this->resize = resize;
+}
+
+void DXCore::SetControls(void(*msDown)(WPARAM buttonState, int x, int y), void(*msUp)(WPARAM buttonState, int x, int y), void(*msMove)(WPARAM buttonState, int x, int y), void(*msWheel)(float wheelDelta, int x, int y))
+{
+	onMouseDown = msDown;
+	onMouseUp = msUp;
+	onMouseMove = msMove;
+	onMouseWheel = msWheel;
+}
+
+ID3D11Device* &DXCore::GetDevice()
+{
+	return device;
+}
+
+ID3D11DeviceContext* &DXCore::GetContext()
+{
+	return context;
+}
+
+HWND &DXCore::GethWnd()
+{
+	return hWnd;
+}
+
 
 // --------------------------------------------------------
 // This is the main game loop, handling the following:
@@ -373,8 +409,8 @@ HRESULT DXCore::Run()
 				UpdateTitleBarStats();
 
 			// The game loop
-			Update(deltaTime, totalTime);
-			Draw(deltaTime, totalTime);
+			update(deltaTime, totalTime);
+			draw(deltaTime, totalTime);
 		}
 	}
 
@@ -556,24 +592,24 @@ LRESULT DXCore::ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		onMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	// Mouse button being released (while the cursor is currently over our window)
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
-		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		onMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	// Cursor moves over the window (or outside, while we're currently capturing it)
 	case WM_MOUSEMOVE:
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		onMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	// Mouse wheel is scrolled
 	case WM_MOUSEWHEEL:
-		OnMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		onMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	}
 

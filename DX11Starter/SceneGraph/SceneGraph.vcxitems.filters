@@ -20,6 +20,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)DataNetworkStructs.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)SceneGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)TemporalEntity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -46,6 +50,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)DataNetworkStructs.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)SceneGraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)TemporalEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
