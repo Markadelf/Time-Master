@@ -20,11 +20,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\PixelShader.hlsl" />
-    <FxCompile Include="shaders\VertexShader.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\lighting.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
