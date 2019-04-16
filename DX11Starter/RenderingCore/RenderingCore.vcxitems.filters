@@ -5,10 +5,6 @@
       <UniqueIdentifier>{60c5e209-b6c4-44e6-80ea-6b01a569eb3c}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{1fd4d28e-5497-46ea-97cd-cd8a70fd9e0c}</UniqueIdentifier>
-      <Extensions>.hlsl</Extensions>
-    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{be6dfa97-6f36-462c-9c3d-7bc8369dddda}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -70,11 +66,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="$(MSBuildThisFileDirectory)PixelShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="$(MSBuildThisFileDirectory)VertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
+    <None Include="$(MSBuildThisFileDirectory)shaders\lighting.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="$(MSBuildThisFileDirectory)shaders\PixelShader.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)shaders\VertexShader.hlsl" />
   </ItemGroup>
 </Project>

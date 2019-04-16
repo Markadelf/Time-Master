@@ -1,10 +1,8 @@
+#include <cmath>
+#include "AssetManager.h"
+#include "FilePathHelper.h"
 #include "Game.h"
 #include "Vertex.h"
-//#include "WICTextureLoader.h"
-#include "FilePathHelper.h"
-#include <cmath>
-
-#include "AssetManager.h"
 
 Game* Game::GameInstance;
 
@@ -42,6 +40,7 @@ Game::~Game()
 	AssetManager::get().ReleaseAllAssetResource();
 
 	delete clientInterface;
+	
 }
 
 // --------------------------------------------------------
@@ -56,32 +55,23 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
-
-	std::vector<DirectionalLight>* lightList = m_renderer.GetLights();
-
-	DirectionalLight light1;
-	light1.AmbientColor = DirectX::XMFLOAT4(.3f, .3f, .3f, 1);
-	light1.DiffuseColor = DirectX::XMFLOAT4(0, 0, 1, 1);
-	light1.Direction = DirectX::XMFLOAT3(1, 20, 10);
-
-	DirectionalLight light2;
-	light2.AmbientColor = DirectX::XMFLOAT4(.3f, .3f, .3f, 1);
-	light2.DiffuseColor = DirectX::XMFLOAT4(1, 1, 0, 1);
-	light2.Direction = DirectX::XMFLOAT3(-1, -10, -20);
-
-	lightList->push_back(light1);
-	lightList->push_back(light2);
 }
 
 void Game::LoadTextures()
 {
+
+	//ID3D11ShaderResourceView* image;
+	// Add if successful
+
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 
-	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Stripes.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/paint_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/paint_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/wood_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
 }
 
 // --------------------------------------------------------
@@ -95,10 +85,10 @@ void Game::LoadShaders()
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 
-	AssetManager::get().LoadMaterial(0, 0, "DEFAULT", "Textures/poster.png");
-	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/player3.png");
-	AssetManager::get().LoadMaterial(0, 0, "WOODEN", "Textures/Wooden.png");
-	AssetManager::get().LoadMaterial(0, 0, "STRIPES", "Textures/Stripes.png");
+	//For now shinniness is being handled in Assetmanager.Will move it to the material once we have everythin up and running with latest renderer.
+	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
 }
 
 // --------------------------------------------------------
@@ -106,6 +96,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
+	
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager
@@ -122,6 +113,7 @@ void Game::CreateBasicGeometry()
 
 	clientInterface->Init();
 }
+
 
 
 // --------------------------------------------------------
