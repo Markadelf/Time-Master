@@ -174,7 +174,7 @@ void ClientManager::PrepDrawGroup()
 	int eCount = m_graph.GetEntityCount();
 	for (size_t i = 0; i < eCount; i++)
 	{
-		TemporalEntity* entity = m_graph.GetEntity(i);
+		TemporalEntity* entity = m_graph.GetEntity((int)i);
 		HandleObject handle = entity->GetHandle();
 
 		int phanCount = entity->GetImageCount();
