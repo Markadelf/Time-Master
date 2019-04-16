@@ -1,17 +1,13 @@
-#include "Game.h"
-#include "Vertex.h"
-//#include "WICTextureLoader.h"
-#include "FilePathHelper.h"
 #include <cmath>
 #include "AssetManager.h"
-#include "ThreadPool.h"
-
+#include "FilePathHelper.h"
+#include "Game.h"
+#include "Vertex.h"
 
 Game* Game::GameInstance;
 
 // For the DirectX Math library
 using namespace DirectX;
-
 
 // --------------------------------------------------------
 // Constructor
@@ -60,30 +56,57 @@ void Game::Init()
 	LoadShaders();
 	CreateBasicGeometry();
 
-	std::vector<DirectionalLight>* lightList = m_renderer.GetLights();
+	std::vector<Light>* lightList = m_renderer.GetLights();
 
-	DirectionalLight light1;
-	light1.AmbientColor = DirectX::XMFLOAT4(.3f, .3f, .3f, 1);
-	light1.DiffuseColor = DirectX::XMFLOAT4(0, 0, 1, 1);
-	light1.Direction = DirectX::XMFLOAT3(1, 20, 10);
+	//Initiating lighting
+	Light directLight, spotLight, pointLight;
 
-	DirectionalLight light2;
-	light2.AmbientColor = DirectX::XMFLOAT4(.3f, .3f, .3f, 1);
-	light2.DiffuseColor = DirectX::XMFLOAT4(1, 1, 0, 1);
-	light2.Direction = DirectX::XMFLOAT3(-1, -10, -20);
+	directLight.Type = LIGHT_TYPE_DIRECTIONAL;
+	directLight.Direction = XMFLOAT3(-1, 0, 0);
+	directLight.Color = XMFLOAT3(0.8f, 0.8f, 0.8f);
+	directLight.DiffuseIntensity = 1.0f;
+	directLight.AmbientIntensity = 0.4f;
 
-	lightList->push_back(light1);
-	lightList->push_back(light2);
+	pointLight.Type = LIGHT_TYPE_POINT;
+	pointLight.Position = XMFLOAT3(-3, -3, 0);
+	pointLight.Direction = XMFLOAT3(1, 1, 0);
+	pointLight.Range = 20.0f;
+	pointLight.Color = XMFLOAT3(1.0f, 0.1f, 0);
+	pointLight.DiffuseIntensity = 1.0f;
+	pointLight.AmbientIntensity = 0.0f;
+
+	spotLight.Type = LIGHT_TYPE_SPOT;
+	spotLight.Position = XMFLOAT3(0, 5, 0);
+	spotLight.Direction = XMFLOAT3(0, -1, 0);
+
+	spotLight.Range = 20.0f;
+	spotLight.Color = XMFLOAT3(1, 0, 1);
+	spotLight.SpotFalloff = 25.0f;
+	spotLight.DiffuseIntensity = 1.0f;
+	spotLight.AmbientIntensity = 0.1f;
+
+	(*lightList).push_back(directLight);
+	(*lightList).push_back(pointLight);
+	(*lightList).push_back(spotLight);
+	
+
 }
 
 void Game::LoadTextures()
 {
+
+	//ID3D11ShaderResourceView* image;
+	// Add if successful
+
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-	AssetManager::get().LoadTexture(L"Textures/poster.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Stripes.png", device, context);
+
+	AssetManager::get().LoadTexture(L"Textures/paint_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/paint_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/wood_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
 }
 
 // --------------------------------------------------------
@@ -96,10 +119,11 @@ void Game::LoadShaders()
 {
 	ID3D11Device* device = m_renderer.GetDevice();
 	ID3D11DeviceContext* context = m_renderer.GetContext();
-	AssetManager::get().LoadMaterial(0, 0, "DEFAULT", "Textures/poster.png");
-	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/player3.png");
-	AssetManager::get().LoadMaterial(0, 0, "WOODEN", "Textures/Wooden.png");
-	AssetManager::get().LoadMaterial(0, 0, "STRIPES", "Textures/Stripes.png");
+
+	//For now shinniness is being handled in Assetmanager.Will move it to the material once we have everythin up and running with latest renderer.
+	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
 }
 
 // --------------------------------------------------------
@@ -120,10 +144,10 @@ void Game::CreateBasicGeometry()
 
 	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
 
-	int matHandle = AssetManager::get().GetMaterialHandle("DEFAULT");
-	int matHandle2 = AssetManager::get().GetMaterialHandle("STRIPES");
-	int matHandle3 = AssetManager::get().GetMaterialHandle("PLAYER3");
-	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
+	int floorMaterial = AssetManager::get().GetMaterialHandle("FLOOR");
+	int woodMaterial  = AssetManager::get().GetMaterialHandle("WOOD");
+	int playerMaterial = AssetManager::get().GetMaterialHandle("PLAYER3");
+
 
 	sceneGraph = new ServerSceneGraph(3, 10, 10);
 	// Add static objects to scene graph
@@ -131,7 +155,7 @@ void Game::CreateBasicGeometry()
 	StaticObject objs[div + 1];
 	Vector2 right = Vector2(5, 0);
 	HandleObject handle;
-	handle.m_material = matHandle;
+	handle.m_material = woodMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.m_scale[2] = 2;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Rectangle, 1, 2);
@@ -140,7 +164,7 @@ void Game::CreateBasicGeometry()
 	{
 		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
 	}
-	handle.m_material = matHandle4;
+	handle.m_material = playerMaterial;
 	handle.m_mesh = duckHandle;
 	handle.SetUniformScale(.01f);
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .5f);
@@ -150,7 +174,7 @@ void Game::CreateBasicGeometry()
 
 	sceneGraph->Init(&objs[0], div + 1);
 
-	handle.m_material = matHandle2;
+	handle.m_material = floorMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.m_collider = sceneGraph->GetColliderHandle(Colliders2D::ColliderType::Circle, .25f);
 	handle.m_scale[0] = 1;
@@ -164,14 +188,15 @@ void Game::CreateBasicGeometry()
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
-	handle.m_material = matHandle;
-	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), camera->GetYaw()), time, handle);
+	handle.m_material = playerMaterial;
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(3.14f / 3 * 2), (*camera).GetYaw()), time, handle);
 
 	// Add another player
 	id = sceneGraph->AddEntity(2048, 100);
-	handle.m_material = matHandle3;
-	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), camera->GetYaw()), time, handle);
+	handle.m_material = playerMaterial;
+	sceneGraph->GetEntity(id)->Initialize(Transform(Vector2(pos.x, pos.z).Rotate(-3.14f / 3 * 2), (*camera).GetYaw()), time, handle);
 }
+
 
 
 // --------------------------------------------------------

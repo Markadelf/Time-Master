@@ -54,6 +54,11 @@ private:
 
 	float timeShot = -1;
 
+	// Tracks all entities
+	std::vector<Light> lightList;
+
+
+	// Managers
 	ServerSceneGraph* sceneGraph;
 };
 
