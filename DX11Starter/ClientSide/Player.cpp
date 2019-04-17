@@ -18,11 +18,11 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
 	m_handle = handle;
 }
 
-void Player::Update(float deltaTime, StaticObject* statics, int staticCount)
+void Player::Update(float deltaTime)
 {
 	m_time += deltaTime * (m_reversed ? -1 : 1);
 
-	UpdatePosition(deltaTime, statics, staticCount);
+	UpdatePosition(deltaTime);
 
 	// TODO: Replace with other input logic
 	static bool rHeld = false;
@@ -112,7 +112,7 @@ KeyFrameData Player::GetKeyFrame()
 	return key;
 }
 
-void Player::UpdatePosition(float deltaTime, StaticObject* statics, int staticCount) {
+void Player::UpdatePosition(float deltaTime) {
 	Vector2 vel;
 	// TODO: Replace with input logic
 	if (GetAsyncKeyState('W') & 0x8000)

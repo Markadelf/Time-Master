@@ -16,15 +16,9 @@ ClientManager::~ClientManager()
 
 void ClientManager::Update(float deltaTime)
 {
-	// Get the static object count from the scenegraph again
-	// Later, the SCount for the draw group may differ from this one
-	int sCount;
-	StaticObject* statics;
-	m_graph.GetStatics(&statics, sCount);
-
 	// Update the first person controller
 	// TODO: Consider permiting more than one fps controller (AI controllers?)
-	m_player.Update(deltaTime, statics, sCount);
+	m_player.Update(deltaTime);
 	Transform trans = m_player.GetTransform();
 	m_graph.PreventCollision(m_player.GetEntityId(), trans);
 

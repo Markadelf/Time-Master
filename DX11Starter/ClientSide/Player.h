@@ -25,7 +25,7 @@ public:
 	~Player();
 
 	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle);
-	void Update(float deltaTime, StaticObject* statics, int staticCount);
+	void Update(float deltaTime);
 
 	// Accessor functions
 	Transform GetTransform() const;
@@ -46,6 +46,6 @@ public:
 	KeyFrameData GetKeyFrame();
 
 private:
-	void UpdatePosition(float deltaTime, StaticObject* statics, int staticCount);
+	void UpdatePosition(float deltaTime);
 };
 
