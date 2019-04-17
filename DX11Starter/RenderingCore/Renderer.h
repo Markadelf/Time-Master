@@ -13,6 +13,8 @@
 class Renderer
 	: public DXCore
 {
+	const float D_LIGHT_SHADOW_DISTANCE = 10;
+
 	// Shaders
 	SimplePixelShader* m_ps;
 	SimpleVertexShader* m_vs;
@@ -27,8 +29,8 @@ class Renderer
 
 	int shadowMapSize;
 
-	// Temporary shadow qualities
-	// TODO: Move somewhere else
+	// Items neccesary to use a single shadow map
+	// TODO: Consider having more than one shadow map
 	ID3D11DepthStencilView* m_shadowDSV;
 	ID3D11ShaderResourceView* m_shadowSRV;
 	DirectX::XMFLOAT4X4 m_shadowViewMatrix;
@@ -49,7 +51,6 @@ public:
 	// Render Controls
 	void Begin();
 	void End();
-	//void DrawScene(SceneGraph* scenegraph, float time);
 	void RenderGroup(DrawGroup& drawGroup);
 
 	// Render logic

@@ -99,7 +99,7 @@ void Renderer::InitializeShaders()
 void Renderer::InitializeShadowMaps()
 {
 	// Create shadow requirements ------------------------------------------
-	shadowMapSize = 1024;
+	shadowMapSize = 2048;
 
 	// Create the actual texture that will be the shadow map
 	D3D11_TEXTURE2D_DESC shadowDesc = {};
@@ -158,6 +158,12 @@ void Renderer::InitializeShadowMaps()
 	shadowRastDesc.SlopeScaledDepthBias = 1.0f;
 	device->CreateRasterizerState(&shadowRastDesc, &m_shadowRasterizer);
 
+	XMMATRIX shProj = XMMatrixOrthographicLH(
+		20,
+		20,
+		0.1f,
+		50);
+	XMStoreFloat4x4(&m_shadowProjectionMatrix, XMMatrixTranspose(shProj));
 }
 
 void Renderer::Begin()
@@ -190,17 +196,10 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 {
 	// Create the view and projection for the shadow map light
 	XMMATRIX shView = XMMatrixLookToLH(
-		XMVectorSet(10, 10, 0, 0),
+		XMVectorAdd(XMLoadFloat3(&drawGroup.m_camera.GetPosition()), XMVectorMultiply(XMLoadFloat3(&drawGroup.m_lightList[0].Direction), XMVectorSet(-D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, 0))),
 		XMLoadFloat3(&drawGroup.m_lightList[0].Direction),
 		XMVectorSet(0, 1, 0, 0));
 	XMStoreFloat4x4(&m_shadowViewMatrix, XMMatrixTranspose(shView));
-
-	XMMATRIX shProj = XMMatrixOrthographicLH(
-		10,
-		10,
-		0.1f,
-		50);
-	XMStoreFloat4x4(&m_shadowProjectionMatrix, XMMatrixTranspose(shProj));
 
 	// Set up the initial pipeline state for shadow map creation
 	context->OMSetRenderTargets(0, 0, m_shadowDSV);
