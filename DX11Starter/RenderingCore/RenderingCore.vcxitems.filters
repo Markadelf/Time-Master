@@ -71,5 +71,6 @@
   <ItemGroup>
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\PixelShader.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\VertexShader.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)ShadowVS.hlsl" />
   </ItemGroup>
 </Project>
