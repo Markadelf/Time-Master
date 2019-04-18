@@ -21,6 +21,7 @@ void ClientManager::Update(float deltaTime)
 	m_player.Update(deltaTime);
 	Transform trans = m_player.GetTransform();
 	m_graph.PreventCollision(m_player.GetEntityId(), trans);
+	m_player.SetTransform(trans);
 
 	static int frame = 0;
 	if (frame > 30)
