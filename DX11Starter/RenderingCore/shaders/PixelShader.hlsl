@@ -28,9 +28,10 @@ cbuffer externalData : register(b0)
 	float  shinniness;
 };
 
-Texture2D diffuseTexture : register(t0);
+Texture2D diffuseTexture   : register(t0);
 Texture2D roughnessTexture : register(t1);
-SamplerState basicSampler : register(s0);
+TextureCube Sky            : register(t2);
+SamplerState basicSampler  : register(s0);
 
 
 

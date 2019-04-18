@@ -17,6 +17,15 @@ class Renderer
 	SimpleVertexShader* m_vs;
 	ID3D11SamplerState* m_sampler;
 
+	//Skybox: 
+	std::vector<Mesh*> meshes;
+	std::vector<DrawItem*> items;
+	ID3D11ShaderResourceView* m_skySRV;
+	SimpleVertexShader* m_skyVS;
+	SimplePixelShader* m_skyPS;
+	ID3D11RasterizerState* m_skyRasterState;
+	ID3D11DepthStencilState* m_skyDepthState;
+
 public:
 	Renderer(HINSTANCE hInstance);
 	~Renderer();
@@ -31,6 +40,7 @@ public:
 	void End();
 	//void DrawScene(SceneGraph* scenegraph, float time);
 	void RenderGroup(DrawGroup& drawGroup);
+	void DrawSky(Camera& camera, Mesh* mesh);
 
 	// Render logic
 private:
