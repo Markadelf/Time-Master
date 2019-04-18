@@ -101,6 +101,7 @@ void Renderer::Begin()
 
 	// Reset depth stencil state
 	context->OMSetDepthStencilState(0, 0);
+	context->OMSetBlendState(0, 0, 0xFFFFFF);
 }
 
 void Renderer::End()
