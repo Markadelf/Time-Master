@@ -3,7 +3,7 @@
 #include "Vector2.h"
 #include <Serializer.h>
 
-class Transform
+struct Transform
 {
 	Vector2 m_position;
 	float m_rotation;

@@ -62,6 +62,33 @@ bool TimeInstableTransform::GetReversed() const
 	return m_reversed;
 }
 
+void TimeInstableTransform::GetBounds(float* min, float* max) const
+{
+	if (m_start.m_position.m_x < m_end.m_position.m_x)
+	{
+		min[0] = m_start.m_position.m_x;
+		max[0] = m_end.m_position.m_x;
+	}
+	else
+	{
+		min[0] = m_end.m_position.m_x;
+		max[0] = m_start.m_position.m_x;
+	}
+	if (m_start.m_position.m_y < m_end.m_position.m_y)
+	{
+		min[1] = m_start.m_position.m_y;
+		max[1] = m_end.m_position.m_y;
+	}
+	else
+	{
+		min[1] = m_end.m_position.m_y;
+		max[1] = m_start.m_position.m_y;
+	}
+	min[2] = m_startTime;
+	max[2] = m_endTime;
+}
+
+
 void TimeInstableTransform::Trim(TimeStamp time)
 {
 	if (m_reversed)

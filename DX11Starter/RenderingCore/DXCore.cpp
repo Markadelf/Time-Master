@@ -278,6 +278,8 @@ HRESULT DXCore::InitDirectX()
 // --------------------------------------------------------
 void DXCore::OnResize()
 {
+	resize(width, height);
+
 	// Release existing DirectX views and buffers
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
@@ -339,9 +341,10 @@ void DXCore::SetUpdate(void(*callback)(float deltaTime, float totalTime))
 	update = callback;
 }
 
-void DXCore::SetDraw(void(*callback)(float deltaTime, float totalTime))
+void DXCore::SetDraw(void(*callback)(float deltaTime, float totalTime), void(*resize)(int width, int height))
 {
 	draw = callback;
+	this->resize = resize;
 }
 
 void DXCore::SetControls(void(*msDown)(WPARAM buttonState, int x, int y), void(*msUp)(WPARAM buttonState, int x, int y), void(*msMove)(WPARAM buttonState, int x, int y), void(*msWheel)(float wheelDelta, int x, int y))
