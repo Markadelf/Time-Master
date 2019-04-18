@@ -10,9 +10,9 @@ cbuffer externalData : register(b0)
 struct VertexShaderInput
 {
 	float3 position		: POSITION;
-	float2 uv			: TEXCOORD;
 	float3 normal		: NORMAL;
-	float3 tangent		: TANGENT;
+	float2 uv			: TEXCOORD;	
+	//float3 tangent		: TANGENT;
 };
 
 // Out of the vertex shader (and eventually input to the PS)

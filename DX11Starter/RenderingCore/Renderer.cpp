@@ -64,8 +64,8 @@ void Renderer::Init()
 	resize(width, height);
 
 	// Load the sky box
-	CreateDDSTextureFromFile(device, L"Textures/SunnyCubeMap.dds", 0, &m_skySRV);
-
+	CreateDDSTextureFromFile(device, L"../../Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
+		
 	// Create the states for the sky
 	D3D11_RASTERIZER_DESC rd = {};
 	rd.CullMode = D3D11_CULL_FRONT;
@@ -116,7 +116,7 @@ void Renderer::Begin()
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
-	context->ClearRenderTargetView(backBufferRTV, color);
+//	context->ClearRenderTargetView(backBufferRTV, color);
 	context->ClearDepthStencilView(
 		depthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
@@ -140,6 +140,8 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	{
 		RenderVisibleEntity(drawGroup.m_opaqueObjects[i], drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount);
 	}
+	// Draw the sky AFTER all opaque geometry
+	DrawSky(drawGroup.m_camera);
 }
 
 void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount)
@@ -163,7 +165,7 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
 	ps->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()));
 	ps->SetShaderResourceView("roughnessTexture", *AssetManager::get().GetTexturePointer(mat->GetRoughnessTextureHandle()));
-	ps->SetShaderResourceView("Sky", m_skySRV);
+	//ps->SetShaderResourceView("Sky", m_skySRV);
 	ps->SetSamplerState("basicSampler", sampler);
 	ps->CopyAllBufferData();
 
@@ -193,9 +195,6 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 		mesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
 		0,     // Offset to the first index we want to use
 		0);    // Offset to add to each index when looking up vertices
-
-		// Draw the sky AFTER all opaque geometry
-	DrawSky(camera,mesh);
 }
 
 void Renderer::RenderVisibleEntity(DrawItem& entity, Camera& camera, Light* lights, int lightCount)
@@ -206,15 +205,19 @@ void Renderer::RenderVisibleEntity(DrawItem& entity, Camera& camera, Light* ligh
 	Render(m_ps, m_vs, mat, m_sampler, entity.GetTransform(), mesh, camera, lights, lightCount);
 }
 
-void Renderer::DrawSky(Camera& camera, Mesh* mesh)
+void Renderer::DrawSky(Camera& camera)
 {
-	ID3D11Buffer* vBuffer = mesh->GetVertexBuffer();
+
+	Mesh* mesh = AssetManager::get().GetMeshPointer(1);
+
+	ID3D11Buffer* vb = mesh->GetVertexBuffer();
+	ID3D11Buffer* ib = mesh->GetIndexBuffer();
 	
 	// Set buffers in the input assembler
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, &vBuffer, &stride, &offset);
-	context->IASetIndexBuffer(mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 
 	// Set up shaders
 	m_skyVS->SetMatrix4x4("view", camera.GetView());

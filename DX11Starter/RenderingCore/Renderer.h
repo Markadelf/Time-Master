@@ -40,7 +40,7 @@ public:
 	void End();
 	//void DrawScene(SceneGraph* scenegraph, float time);
 	void RenderGroup(DrawGroup& drawGroup);
-	void DrawSky(Camera& camera, Mesh* mesh);
+	void DrawSky(Camera& camera);
 
 	// Render logic
 private:

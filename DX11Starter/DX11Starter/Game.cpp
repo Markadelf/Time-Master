@@ -101,12 +101,9 @@ void Game::CreateBasicGeometry()
 	ID3D11DeviceContext* context = m_renderer.GetContext();
 	// Load in the files and get the handles for each from the meshManager
 	int coneHandle = AssetManager::get().LoadMesh("OBJ_Files/cone.obj", device);
-
 	int cubeHandle = AssetManager::get().LoadMesh("OBJ_Files/cube.obj", device);
-
 	int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj", device);
 	int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj", device);
-
 	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
 
 	clientInterface = new ClientManager();
