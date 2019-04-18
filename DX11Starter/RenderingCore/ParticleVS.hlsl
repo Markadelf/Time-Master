@@ -61,6 +61,7 @@ VertexToPixel main(uint id : SV_VertexID)
 
 	// Calc the age percent
 	float t = currentTime - p.SpawnTime;
+	t = ((t % lifetime) + lifetime) % lifetime;
 	float agePercent = t / lifetime; // The "age percent": 0 - 1
 
 	// Calc anything based on time
