@@ -341,7 +341,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	m_renderer.DrawScene(sceneGraph, time);
 
-	m_renderer.RenderEmitterSystem(emitter,totalTime);
+	m_renderer.RenderEmitterSystem(emitter,time);
 
 	m_renderer.End();
 
