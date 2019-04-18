@@ -46,7 +46,12 @@ Renderer::~Renderer()
 {
 	delete m_ps;
 	delete m_vs;
+	delete m_skyPS;
+	delete m_skyVS;
 
+	m_skySRV->Release();
+	m_skyRasterState->Release();
+	m_skyDepthState->Release();
 	m_sampler->Release();
 }
 

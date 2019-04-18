@@ -19,7 +19,6 @@ class Renderer
 
 	//Skybox: 
 	std::vector<Mesh*> meshes;
-	std::vector<DrawItem*> items;
 	ID3D11ShaderResourceView* m_skySRV;
 	SimpleVertexShader* m_skyVS;
 	SimplePixelShader* m_skyPS;
