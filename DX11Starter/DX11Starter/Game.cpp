@@ -55,6 +55,8 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
+	LoadUI();
+	m_renderer.OnResize();
 }
 
 void Game::LoadTextures()
@@ -111,6 +113,34 @@ void Game::CreateBasicGeometry()
 	clientInterface->Init();
 }
 
+void Game::LoadUI()
+{
+	UIManager::get().SetContext(m_renderer.GetContext());
+	int graphID = UIManager::get().MakeGraph();
+	UIGraph& graph = UIManager::get().GetGraph(graphID);
+	UIManager::get().SetGraphActiveInFront(graphID);
+	
+	UIElement element;
+	element.m_transform.m_size = Vector2(.5f, .5f);
+	element.m_transform.m_anchor = Vector2(.5f, .5f);
+	element.m_transform.m_pivot = Vector2(.5f, .5f);
+	element.m_color = DirectX::XMFLOAT4(1, 1, 1, .5f);
+	element.m_textureHandle = 0;
+	element.m_transform.m_parent = graph.AddItem(element);
+	element.m_transform.m_anchor = Vector2(0, 0);
+	element.m_transform.m_pivot = Vector2(0, 0);
+	element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
+	element.m_transform.m_parent = graph.AddItem(element);
+	element.m_transform.m_anchor = Vector2(1, 1);
+	element.m_transform.m_pivot = Vector2(1, 1);
+	element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
+	element.m_transform.m_parent = graph.AddItem(element);
+	element.m_transform.m_anchor = Vector2(0, 0);
+	element.m_transform.m_pivot = Vector2(0, 0);
+	element.m_color = DirectX::XMFLOAT4(0, 0, 1, 1);
+	element.m_transform.m_parent = graph.AddItem(element);
+}
+
 
 
 // --------------------------------------------------------
@@ -137,6 +167,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	m_renderer.Begin();
 
 	m_renderer.RenderGroup(clientInterface->GetDrawGroup());
+	UIManager::get().Render();
 
 	m_renderer.End();
 }
@@ -144,6 +175,7 @@ void Game::Draw(float deltaTime, float totalTime)
 void Game::OnResize(int width, int height)
 {
 	clientInterface->GetDrawGroup().m_camera.SetAspectRatio((float)width / height);
+	UIManager::get().SetScreenDimensions(width, height);
 }
 
 

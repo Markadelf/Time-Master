@@ -34,7 +34,6 @@ Renderer::Renderer(HINSTANCE hInstance)
 	m_ps = nullptr;
 	m_vs = nullptr;
 	m_sampler = nullptr;
-
 }
 
 // --------------------------------------------------------
@@ -92,6 +91,7 @@ void Renderer::Init()
 	dd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	device->CreateDepthStencilState(&dd, &m_skyDepthState);
 }
+
 
 void Renderer::InitializeShaders()
 {
@@ -208,6 +208,10 @@ void Renderer::Begin()
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
+
+	// Reset depth stencil state
+	context->OMSetDepthStencilState(0, 0);
+	context->OMSetBlendState(0, 0, 0xFFFFFF);
 }
 
 void Renderer::End()

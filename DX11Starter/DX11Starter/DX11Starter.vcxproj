@@ -63,6 +63,7 @@
     <Import Project="..\SceneGraph\SceneGraph.vcxitems" Label="Shared" />
     <Import Project="..\SharedDataStructures\SharedDataStructures.vcxitems" Label="Shared" />
     <Import Project="..\JobSystem\JobSystem.vcxitems" Label="Shared" />
+    <Import Project="..\UICore\UICore.vcxitems" Label="Shared" />
     <Import Project="..\RenderingCore\RenderingCore.vcxitems" Label="Shared" />
     <Import Project="..\AssetManager\AssetManager.vcxitems" Label="Shared" />
     <Import Project="..\ClientSide\ClientSide.vcxitems" Label="Shared" />
@@ -106,7 +107,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\UICore\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\libs\</AdditionalLibraryDirectories>
@@ -140,7 +141,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\;..\UICore\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "UIManager.h"
 #include "ClientManager.h"
 
 // Handles the game engine level a the highest level of abstraction
@@ -34,6 +35,7 @@ private:
 	void LoadTextures();
 	void LoadShaders();
 	void CreateBasicGeometry();
+	void LoadUI();
 
 	Renderer m_renderer;
 

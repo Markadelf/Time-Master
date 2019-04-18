@@ -8,6 +8,7 @@
 #include "Lights.h"
 #include "DrawGroup.h"
 #include "Material.h"
+#include "UIManager.h"
 
 // Contains the core rendering logic
 class Renderer
