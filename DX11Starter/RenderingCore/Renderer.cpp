@@ -99,7 +99,7 @@ void Renderer::InitializeShaders()
 void Renderer::InitializeShadowMaps()
 {
 	// Create shadow requirements ------------------------------------------
-	shadowMapSize = 2048;
+	shadowMapSize = 4096;
 
 	// Create the actual texture that will be the shadow map
 	D3D11_TEXTURE2D_DESC shadowDesc = {};
