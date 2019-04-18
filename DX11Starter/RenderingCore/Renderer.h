@@ -36,6 +36,14 @@ class Renderer
 	DirectX::XMFLOAT4X4 m_shadowViewMatrix;
 	DirectX::XMFLOAT4X4 m_shadowProjectionMatrix;
 
+	//Skybox: 
+	std::vector<Mesh*> meshes;
+	ID3D11ShaderResourceView* m_skySRV;
+	SimpleVertexShader* m_skyVS;
+	SimplePixelShader* m_skyPS;
+	ID3D11RasterizerState* m_skyRasterState;
+	ID3D11DepthStencilState* m_skyDepthState;
+
 public:
 	Renderer(HINSTANCE hInstance);
 	~Renderer();
@@ -52,6 +60,7 @@ public:
 	void Begin();
 	void End();
 	void RenderGroup(DrawGroup& drawGroup);
+	void DrawSky(Camera& camera);
 
 	// Render logic
 private:

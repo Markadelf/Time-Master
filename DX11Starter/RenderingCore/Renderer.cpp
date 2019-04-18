@@ -3,6 +3,7 @@
 #include "FilePathHelper.h"
 #include <cmath>
 #include "AssetManager.h"
+#include "DDSTextureLoader.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -46,7 +47,12 @@ Renderer::~Renderer()
 	delete m_ps;
 	delete m_vs;
 	delete m_shadowVS;
+	delete m_skyPS;
+	delete m_skyVS;
 
+	m_skySRV->Release();
+	m_skyRasterState->Release();
+	m_skyDepthState->Release();
 	m_sampler->Release();
 
 	m_shadowSampler->Release();
@@ -69,6 +75,22 @@ void Renderer::Init()
 	InitializeShaders();
 	InitializeShadowMaps();
 	resize(width, height);
+
+	// Load the sky box
+	CreateDDSTextureFromFile(device, L"../../Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
+		
+	// Create the states for the sky
+	D3D11_RASTERIZER_DESC rd = {};
+	rd.CullMode = D3D11_CULL_FRONT;
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.DepthClipEnable = true;
+	device->CreateRasterizerState(&rd, &m_skyRasterState);
+
+	D3D11_DEPTH_STENCIL_DESC dd = {};
+	dd.DepthEnable = true;
+	dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	device->CreateDepthStencilState(&dd, &m_skyDepthState);
 }
 
 void Renderer::InitializeShaders()
@@ -94,6 +116,12 @@ void Renderer::InitializeShaders()
 
 	m_shadowVS = new SimpleVertexShader(device, context);
 	m_shadowVS->LoadShaderFile(L"ShadowVS.cso");
+
+	m_skyVS = new SimpleVertexShader(device, context);
+	m_skyVS->LoadShaderFile(L"SkyVertexShader.cso");
+
+	m_skyPS = new SimplePixelShader(device, context);
+	m_skyPS->LoadShaderFile(L"SkyPixelShader.cso");
 }
 
 void Renderer::InitializeShadowMaps()
@@ -174,7 +202,7 @@ void Renderer::Begin()
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
-	context->ClearRenderTargetView(backBufferRTV, color);
+//	context->ClearRenderTargetView(backBufferRTV, color);
 	context->ClearDepthStencilView(
 		depthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
@@ -243,6 +271,8 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	{
 		RenderVisibleEntity(drawGroup.m_opaqueObjects[i], drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount);
 	}
+	// Draw the sky AFTER all opaque geometry
+	DrawSky(drawGroup.m_camera);
 }
 
 void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount)
@@ -328,4 +358,42 @@ void Renderer::RenderVisibleEntity(DrawItem& entity, Camera& camera, Light* ligh
 	Mesh* mesh = AssetManager::get().GetMeshPointer(entity.GetMeshHandle());
 	
 	Render(m_ps, m_vs, mat, m_sampler, entity.GetTransform(), mesh, camera, lights, lightCount);
+}
+
+void Renderer::DrawSky(Camera& camera)
+{
+
+	Mesh* mesh = AssetManager::get().GetMeshPointer(1);
+
+	ID3D11Buffer* vb = mesh->GetVertexBuffer();
+	ID3D11Buffer* ib = mesh->GetIndexBuffer();
+	
+	// Set buffers in the input assembler
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+	// Set up shaders
+	m_skyVS->SetMatrix4x4("view", camera.GetView());
+	m_skyVS->SetMatrix4x4("projection", camera.GetProjection());
+	m_skyVS->CopyAllBufferData();
+	m_skyVS->SetShader();
+
+	m_skyPS->SetShaderResourceView("Sky", m_skySRV);
+	m_skyPS->SetSamplerState("BasicSampler", m_sampler);
+	m_skyPS->SetShader();
+
+
+	// Set up sky-specific render states
+	context->RSSetState(m_skyRasterState);
+	context->OMSetDepthStencilState(m_skyDepthState, 0);
+
+	// Draw
+	context->DrawIndexed(mesh->GetIndexCount(), 0, 0);
+
+	// Reset your states
+	context->RSSetState(0);
+	context->OMSetDepthStencilState(0, 0);
+
 }
