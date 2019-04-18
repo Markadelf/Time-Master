@@ -121,12 +121,13 @@ void Game::LoadUI()
 	UIManager::get().SetGraphActiveInFront(graphID);
 	
 	UIElement element;
-	element.m_transform.m_size = Vector2(.5f, .5f);
-	element.m_transform.m_anchor = Vector2(.5f, .5f);
-	element.m_transform.m_pivot = Vector2(.5f, .5f);
+	element.m_transform.m_size = Vector2(.25f, .25f);
+	element.m_transform.m_anchor = Vector2(0, 0);
+	element.m_transform.m_pivot = Vector2(0, 0);
 	element.m_color = DirectX::XMFLOAT4(1, 1, 1, .5f);
 	element.m_textureHandle = 0;
 	element.m_transform.m_parent = graph.AddItem(element);
+	element.m_transform.m_size = Vector2(.5f, .5f);
 	element.m_transform.m_anchor = Vector2(0, 0);
 	element.m_transform.m_pivot = Vector2(0, 0);
 	element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
