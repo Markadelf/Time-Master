@@ -1,27 +1,16 @@
-#include "ServerSceneGraph.h"
+#include "SceneGraph.h"
 
 
-ServerSceneGraph::ServerSceneGraph()
+SceneGraph::SceneGraph()
 {
 	m_entities = nullptr;
 	m_statics = nullptr;
-}
-
-ServerSceneGraph::ServerSceneGraph(int maxEntities, int causalityPerEntity, int maxColliders)
-{
-	m_maxEntities = maxEntities;
 	m_entityCount = 0;
-	m_colliderManager = new ColliderManager(maxColliders, maxColliders);
-
-	m_entities = new TemporalEntity[maxEntities];
-
-	m_statics = nullptr;
-
-	// Number of StaticObjects
+	m_maxEntities = 0;
 	m_staticObjectCount = 0;
 }
 
-ServerSceneGraph::~ServerSceneGraph()
+SceneGraph::~SceneGraph()
 {
 	if (m_entities)
 	{
@@ -32,14 +21,29 @@ ServerSceneGraph::~ServerSceneGraph()
 		delete[] m_statics;
 		m_statics = nullptr;
 	}
-	if (m_colliderManager)
-	{
-		delete m_colliderManager;
-		m_colliderManager = nullptr;
-	}
 }
 
-void ServerSceneGraph::Init(StaticObject * staticObjs, int staticobjectCount)
+void SceneGraph::Init(int maxEntities, int causalityPerEntity)
+{
+	if (m_entities)
+	{
+		delete[] m_entities;
+		m_entities = nullptr;
+	}
+	if (m_statics) {
+		delete[] m_statics;
+		m_statics = nullptr;
+	}
+
+	m_maxEntities = maxEntities;
+	m_entityCount = 0;
+
+	m_entities = new TemporalEntity[maxEntities];
+	float min[] = { -1000, -1000, -1000 };
+	float max[] = { 1000, 1000, 1000 };
+}
+
+void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
 {
 	// Static Object Buffer
 	m_statics = new StaticObject[staticobjectCount];
@@ -49,22 +53,11 @@ void ServerSceneGraph::Init(StaticObject * staticObjs, int staticobjectCount)
 	m_staticObjectCount = staticobjectCount;
 }
 
-void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
+void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 {
 	// TODO: Check for collisions
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
 	HandleObject handle = entity->GetHandle();
-	Vector2 delta;
-	Vector2 overlap;
-	for (size_t i = 0; i < m_staticObjectCount; i++)
-	{
-		if (m_colliderManager->CheckCollision(keyFrame.m_transform, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, delta, overlap))
-		{
-			Vector2 newP = keyFrame.m_transform.GetPos();
-			newP = newP + overlap;
-			keyFrame.m_transform.SetPos(newP);
-		}
-	}
 	Phantom* phantom = entity->StackKeyFrame(keyFrame);
 	if (keyFrame.m_shot && phantom != nullptr)
 	{
@@ -81,7 +74,7 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 		for (size_t i = 0; i < m_staticObjectCount; i++)
 		{
 			// TODO: DONT USE THE SHOOTER'S COLLIDER
-			if (m_colliderManager->CheckCollision(traj, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, timeStamp))
+			if (ColliderManager::get().CheckCollision(traj, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, timeStamp))
 			{
 				if (traj.GetReversed() ? firstTimeStamp < timeStamp : firstTimeStamp > timeStamp)
 				{
@@ -106,14 +99,14 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			for (size_t j = 0; j < pCount; j++)
 			{
 				// TODO: DONT USE THE SHOOTER'S COLLIDER
-				if (m_colliderManager->CheckCollision(traj, handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
+				if (ColliderManager::get().CheckCollision(traj, handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
 				{
 					// We hit, let everyone know we died
 					PhenominaHandle reset;
 					m_entities[i].Kill((int)j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
 					for (size_t k = 0; k < m_entityCount; k++)
 					{
-						if (m_entities[k].CheckRevive(reset)) 
+						if (m_entities[k].CheckRevive(reset))
 						{
 							m_entities[k].Revive();
 						}
@@ -132,7 +125,7 @@ void ServerSceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 	}
 }
 
-bool ServerSceneGraph::PreventCollision(int entityId, Transform& trans) {
+bool SceneGraph::PreventCollision(int entityId, Transform& trans) {
 	TemporalEntity* entity = &m_entities[entityId];
 	HandleObject handle = entity->GetHandle();
 	Vector2 overlap;
@@ -140,7 +133,7 @@ bool ServerSceneGraph::PreventCollision(int entityId, Transform& trans) {
 	bool ret = false;
 	for (size_t i = 0; i < m_staticObjectCount; i++)
 	{
-		if (m_colliderManager->CheckCollision(trans, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, delta, overlap))
+		if (ColliderManager::get().CheckCollision(trans, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, delta, overlap))
 		{
 			Vector2 newP = trans.GetPos();
 			newP = newP + overlap;
@@ -151,39 +144,23 @@ bool ServerSceneGraph::PreventCollision(int entityId, Transform& trans) {
 	return ret;
 }
 
-void ServerSceneGraph::GetStatics(StaticObject** objs, int& count) {
+void SceneGraph::GetStatics(StaticObject** objs, int& count) {
 	*objs = m_statics;
 	count = m_staticObjectCount;
 }
 
-TemporalEntity* ServerSceneGraph::GetEntity(int index)
+TemporalEntity* SceneGraph::GetEntity(int index)
 {
 	return &m_entities[index];
 }
 
-int ServerSceneGraph::GetEntityCount() const
+int SceneGraph::GetEntityCount() const
 {
 	return m_entityCount;
 }
 
-int ServerSceneGraph::AddEntity(int maxImages, int maxPhenomina)
+int SceneGraph::AddEntity(int maxImages, int maxPhenomina)
 {
 	m_entities[m_entityCount].Initialize(maxImages, maxPhenomina, m_entityCount);
 	return m_entityCount++;
 }
-
-Colliders2D::ColliderHandle ServerSceneGraph::GetColliderHandle(Colliders2D::ColliderType cType, float a, float b)
-{
-	switch (cType)
-	{
-	case Colliders2D::Circle:
-		return m_colliderManager->GetCircleHandle(a);
-		break;
-	case Colliders2D::Rectangle:
-		return m_colliderManager->GetRectangularHandle(a, b);
-		break;
-	default:
-		return Colliders2D::ColliderHandle();
-	}
-}
-

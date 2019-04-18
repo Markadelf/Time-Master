@@ -3,7 +3,7 @@
 
 // Currently unused
 // Will be useful for rendering objects that don't need to be updated from the scene graph
-class Entity
+class DrawItem
 {
 	// Net transformation matrix
 	DirectX::XMFLOAT4X4 transform;
@@ -25,10 +25,11 @@ class Entity
 	bool isDirty;
 
 public:
-	Entity();
-	Entity(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos);
-	Entity(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rot);
-	~Entity();
+	DrawItem();
+	DrawItem(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos);
+	DrawItem(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rot);
+	DrawItem(int meshHandle, int materialHandle, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT3 rot);
+	~DrawItem();
 
 	// Accessors
 	DirectX::XMFLOAT4X4 GetTransform();
@@ -41,10 +42,13 @@ public:
 	void SetScale(DirectX::XMFLOAT3 scale);
 	DirectX::XMFLOAT3 GetScale();
 
+	void SetRotation(DirectX::XMFLOAT3 rot);
 	void SetRotation(DirectX::XMFLOAT4 rot);
 	DirectX::XMFLOAT4 GetRotation();
 
+	void SetMeshHandle(int val);
 	int GetMeshHandle();
+	void SetMaterialHandle(int val);
 	int GetMaterialHandle();
 
 private:

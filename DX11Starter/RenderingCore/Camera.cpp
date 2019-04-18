@@ -2,9 +2,12 @@
 
 using namespace DirectX;
 
-Camera::Camera()
+Camera::Camera(): position(0, 0, 0)
 {
-	// Little initialization is done here, we assume external initialization for now
+	position = XMFLOAT3(0, 0, 0);
+	yaw = 0;
+	pitch = 0;
+	
 	viewDirty = true;
 }
 

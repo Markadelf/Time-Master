@@ -1,7 +1,7 @@
 #pragma once
 #include <Serializer.h>
 
-class Vector2
+struct Vector2
 {
 	const static Vector2 Zero;
 	float m_x;
