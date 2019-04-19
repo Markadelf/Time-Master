@@ -58,8 +58,6 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 	// TODO: Check for collisions
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
 	HandleObject handle = entity->GetHandle();
-	float min[3];
-	float max[3];
 	Phantom* phantom = entity->StackKeyFrame(keyFrame);
 	if (keyFrame.m_shot && phantom != nullptr)
 	{

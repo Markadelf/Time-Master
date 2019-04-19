@@ -16,18 +16,12 @@ ClientManager::~ClientManager()
 
 void ClientManager::Update(float deltaTime)
 {
-	// Get the static object count from the scenegraph again
-	// Later, the SCount for the draw group may differ from this one
-	int sCount;
-	StaticObject* statics;
-	m_graph.GetStatics(&statics, sCount);
-
 	// Update the first person controller
 	// TODO: Consider permiting more than one fps controller (AI controllers?)
-	m_player.Update(deltaTime, statics, sCount);
+	m_player.Update(deltaTime);
 	Transform trans = m_player.GetTransform();
-	m_graph.PreventCollision(m_player.GetEntityId(), trans));
-	m_player.
+	m_graph.PreventCollision(m_player.GetEntityId(), trans);
+	m_player.SetTransform(trans);
 
 	static int frame = 0;
 	if (frame > 30)
@@ -43,6 +37,12 @@ void ClientManager::Update(float deltaTime)
 
 void ClientManager::Init()
 {
+	//TODO: Modify to load either from file or from a preset instead of hard coding it
+
+	int floorMaterial = AssetManager::get().GetMaterialHandle("FLOOR");
+	int woodMaterial  = AssetManager::get().GetMaterialHandle("WOOD");
+	int playerMaterial = AssetManager::get().GetMaterialHandle("PLAYER3");
+
 	// Load in the files and get the handles for each from the meshManager
 	int coneHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cone.obj");
 	int cubeHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cube.obj");
@@ -50,17 +50,12 @@ void ClientManager::Init()
 	int sphereHandle = AssetManager::get().GetMeshHandle("OBJ_Files/sphere.obj");
 	int duckHandle = AssetManager::get().GetMeshHandle("OBJ_Files/duck.fbx");
 
-	int matHandle = AssetManager::get().GetMaterialHandle("DEFAULT");
-	int matHandle2 = AssetManager::get().GetMaterialHandle("STRIPES");
-	int matHandle3 = AssetManager::get().GetMaterialHandle("PLAYER3");
-	int matHandle4 = AssetManager::get().GetMaterialHandle("WOODEN");
-
 	// Add static objects to scene graph
 	const int div = 20;
 	StaticObject objs[div + 1];
 	Vector2 right = Vector2(5, 0);
 	HandleObject handle;
-	handle.m_material = matHandle;
+	handle.m_material = woodMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.m_scale[2] = 2;
 	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 2);
@@ -69,7 +64,7 @@ void ClientManager::Init()
 	{
 		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
 	}
-	handle.m_material = matHandle4;
+	handle.m_material = floorMaterial;
 	handle.m_mesh = cylinderHandle;
 	handle.SetUniformScale(1);
 	handle.m_collider = ColliderManager::get().GetCircleHandle(.5f);
@@ -80,11 +75,12 @@ void ClientManager::Init()
 	m_graph.Init(16, 100);
 	m_graph.Init(&objs[0], div + 1);
 
-	handle.m_material = matHandle2;
+	handle.m_material = playerMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
 	handle.SetUniformScale(1);
 	Vector2 pos(0, -3);
+
 	// Add player
 	int id = m_graph.AddEntity(2048, 100);
 	m_player.Initialize(Transform(pos, 0), 0, handle);
@@ -92,6 +88,39 @@ void ClientManager::Init()
 	m_player.SetEntityId(id);
 
 	PrepDrawGroupStatics();
+
+	//Initiating lighting
+	Light directLight, spotLight, pointLight;
+
+	directLight.Type = LIGHT_TYPE_DIRECTIONAL;
+	directLight.Direction = DirectX::XMFLOAT3(-1, 0, 0);
+	directLight.Color = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
+	directLight.DiffuseIntensity = 1.0f;
+	directLight.AmbientIntensity = 0.4f;
+
+	pointLight.Type = LIGHT_TYPE_POINT;
+	pointLight.Position = DirectX::XMFLOAT3(-3, -3, 0);
+	pointLight.Direction = DirectX::XMFLOAT3(1, 1, 0);
+	pointLight.Range = 20.0f;
+	pointLight.Color = DirectX::XMFLOAT3(1.0f, 0.1f, 0);
+	pointLight.DiffuseIntensity = 1.0f;
+	pointLight.AmbientIntensity = 0.0f;
+
+	spotLight.Type = LIGHT_TYPE_SPOT;
+	spotLight.Position = DirectX::XMFLOAT3(0, 5, 0);
+	spotLight.Direction = DirectX::XMFLOAT3(0, -1, 0);
+
+	spotLight.Range = 20.0f;
+	spotLight.Color = DirectX::XMFLOAT3(1, 0, 1);
+	spotLight.SpotFalloff = 25.0f;
+	spotLight.DiffuseIntensity = 1.0f;
+	spotLight.AmbientIntensity = 0.1f;
+
+	m_drawInfo.m_lightList[0] = directLight;
+	m_drawInfo.m_lightList[1] = pointLight;
+	m_drawInfo.m_lightList[2] = spotLight;
+
+	m_drawInfo.m_lightCount = 3;
 }
 
 Player& ClientManager::GetPlayer()
@@ -140,7 +169,7 @@ void ClientManager::PrepDrawGroup()
 	int eCount = m_graph.GetEntityCount();
 	for (size_t i = 0; i < eCount; i++)
 	{
-		TemporalEntity* entity = m_graph.GetEntity(i);
+		TemporalEntity* entity = m_graph.GetEntity((int)i);
 		HandleObject handle = entity->GetHandle();
 
 		int phanCount = entity->GetImageCount();

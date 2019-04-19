@@ -85,11 +85,6 @@ void Renderer::InitializeShaders()
 	m_ps->LoadShaderFile(L"PixelShader.cso");
 }
 
-std::vector<DirectionalLight>* Renderer::GetLights()
-{
-	return &m_lightList;
-}
-
 void Renderer::Begin()
 {
 	// Background color (Cornflower Blue in this case) for clearing
@@ -115,32 +110,16 @@ void Renderer::End()
 
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 }
-//
-//void Renderer::DrawScene(SceneGraph* scenegraph, float time)
-//{
-//	StaticObject* objs;
-//	int sCount;
-//	scenegraph->GetStatics(&objs, sCount);
-//	for (size_t i = 0; i < sCount; i++)
-//	{
-//		RenderObjectAtPos(objs[i].GetHandles(), objs[i].GetTransform());
-//	}
-//	int eCount = scenegraph->GetEntityCount();
-//	for (size_t i = 0; i < eCount; i++)
-//	{
-//		RenderPhantoms(*scenegraph->GetEntity((int)i), time);
-//	}
-//}
 
 void Renderer::RenderGroup(DrawGroup& drawGroup)
 {
 	for (size_t i = 0; i < drawGroup.m_visibleCount; i++)
 	{
-		RenderVisibleEntity(drawGroup.m_opaqueObjects[i], drawGroup.m_camera);
+		RenderVisibleEntity(drawGroup.m_opaqueObjects[i], drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount);
 	}
 }
 
-void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11ShaderResourceView* texture, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera)
+void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount)
 {
 	// Send data to shader variables
 	//  - Do this ONCE PER OBJECT you're drawing
@@ -156,10 +135,11 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11Shade
 	//  - If you skip this, the "SetMatrix" calls above won't make it to the GPU!
 	vs->CopyAllBufferData();
 
-	ps->SetInt("lightAmount", (int)m_lightList.size());
+	ps->SetInt("lightCount", (int)lightCount);
+	ps->SetData("lights", (void*)(lights), sizeof(Light) * MAX_LIGHTS);
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
-	ps->SetData("light", (&m_lightList[0]), sizeof(DirectionalLight) * 10 - DirectionalLight::PAD);
-	ps->SetShaderResourceView("diffuseTexture", texture);
+	ps->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()));
+	ps->SetShaderResourceView("roughnessTexture", *AssetManager::get().GetTexturePointer(mat->GetRoughnessTextureHandle()));
 	ps->SetSamplerState("basicSampler", sampler);
 	ps->CopyAllBufferData();
 
@@ -191,61 +171,10 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, ID3D11Shade
 		0);    // Offset to add to each index when looking up vertices
 }
 
-//void Renderer::Render(Material* mat, XMFLOAT4X4& transform, int meshHandle)
-//{
-//	Render(m_ps, m_vs, *AssetManager::get().GetTexturePointer(mat->GetTextureHandle()), m_sampler, transform, AssetManager::get().GetMeshPointer(meshHandle));
-//}
-
-void Renderer::RenderVisibleEntity(DrawItem& entity, Camera& camera)
+void Renderer::RenderVisibleEntity(DrawItem& entity, Camera& camera, Light* lights, int lightCount)
 {
 	Material* mat = AssetManager::get().GetMaterialPointer(entity.GetMaterialHandle());
-	ID3D11ShaderResourceView* texture = *AssetManager::get().GetTexturePointer(mat->GetTextureHandle());
 	Mesh* mesh = AssetManager::get().GetMeshPointer(entity.GetMeshHandle());
 	
-	Render(m_ps, m_vs, texture, m_sampler, entity.GetTransform(), mesh, camera);
+	Render(m_ps, m_vs, mat, m_sampler, entity.GetTransform(), mesh, camera, lights, lightCount);
 }
-
-//void Renderer::RenderObjectAtPos(HandleObject& handle, Transform trans)
-//{
-//	XMMATRIX matrix = XMMatrixScaling(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
-//	matrix = XMMatrixMultiply(matrix, XMMatrixRotationRollPitchYaw(0, trans.GetRot(), 0));
-//	matrix = XMMatrixMultiply(matrix, XMMatrixTranslation(trans.GetPos().GetX(), 0, trans.GetPos().GetY()));
-//	XMFLOAT4X4 transform;
-//	XMStoreFloat4x4(&transform, XMMatrixTranspose(matrix));
-//
-//	Render(AssetManager::get().GetMaterialPointer(handle.m_material), transform, handle.m_mesh);
-//	//Render(materialManager.GetResourcePointer(handle.m_material), transform, handle.m_mesh);
-//}
-//
-//void Renderer::RenderLerpObject(HandleObject& handle, TimeInstableTransform trans, float t)
-//{
-//	RenderObjectAtPos(handle, trans.GetTransform(t));
-//}
-//
-//void Renderer::RenderPhantoms(TemporalEntity& phantom, float t)
-//{
-//	int phantoms = phantom.GetImageCount();
-//	Phantom* phantomBuffer = phantom.GetPhantomBuffer();
-//	HandleObject handle = phantom.GetHandle();
-//	for (size_t i = 0; i < phantoms; i++)
-//	{
-//		TimeInstableTransform trans = phantomBuffer[i].GetTransform();
-//		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
-//		{
-//			RenderLerpObject(handle, trans, t);
-//		}
-//	}
-//
-//	int phenomina = phantom.GetPhenominaCount();
-//	Phenomina* phenominaBuffer = phantom.GetPhenominaBuffer();
-//	for (size_t i = 0; i < phenomina; i++)
-//	{
-//		TimeInstableTransform trans = phenominaBuffer[i].GetTransform();
-//		if (trans.GetEndTime() > t && trans.GetStartTime() <= t)
-//		{
-//			handle = phenominaBuffer[i].GetHandle();
-//			RenderLerpObject(handle, trans, t);
-//		}
-//	}
-//}
-

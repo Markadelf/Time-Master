@@ -56,6 +56,5 @@ private:
 	static void SOnMouseUp(WPARAM buttonState, int x, int y);
 	static void SOnMouseMove(WPARAM buttonState, int x, int y);
 	static void SOnMouseWheel(float wheelDelta, int x, int y);
-
 };
 

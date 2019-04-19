@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameSpecificLogic", "GameSp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClientSide", "ClientSide\ClientSide.vcxitems", "{068F8FF8-107D-4211-BF8A-88ADD530EF88}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Logger", "Logger\Logger.vcxitems", "{36966CDB-251D-474B-A7A6-8DA7AE07AE8E}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ClientSide\ClientSide.vcxitems*{068f8ff8-107d-4211-bf8a-88add530ef88}*SharedItemsImports = 9
@@ -41,6 +43,7 @@ Global
 		SceneGraph\SceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		SerializerCore\SerializerCore.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		SharedDataStructures\SharedDataStructures.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		Logger\Logger.vcxitems*{36966cdb-251d-474b-a7a6-8da7ae07ae8e}*SharedItemsImports = 9
 		RenderingCore\RenderingCore.vcxitems*{3c103edb-e873-4261-9ce2-27c77f97600e}*SharedItemsImports = 9
 		JobSystem\JobSystem.vcxitems*{62a82e2f-b0e2-493b-96e2-82fbbf021f5b}*SharedItemsImports = 9
 		HostSceneGraph\HostSceneGraph.vcxitems*{7d300808-81dc-4452-8628-b1792fae6110}*SharedItemsImports = 9
@@ -52,6 +55,7 @@ Global
 		GameMath\GameMath.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		HostSceneGraph\HostSceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		JobSystem\JobSystem.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		Logger\Logger.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		NetworkingCore\NetworkingCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		RenderingCore\RenderingCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		SceneGraph\SceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
