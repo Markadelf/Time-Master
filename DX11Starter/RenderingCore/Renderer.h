@@ -58,16 +58,23 @@ private:
 
 public:
 	// Render Controls
+    // Wipes the screen and sets default states
 	void Begin();
+    // Displays the render target, activating the swap chain
 	void End();
+    // Renders a collection of commands at once
 	void RenderGroup(DrawGroup& drawGroup);
+    // Renders the sky
 	void DrawSky(Camera& camera);
 
 	// Render logic
 private:
+    // Renders a draw item without concern for opacity
 	void RenderVisibleEntity(DrawItem& entity, Camera& camera, Light* lights, int lightCount);
+    // Renders an object with the given parameters
 	void Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount);
-	void RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh);
+	// Renders a mesh to a shadow map
+    void RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh);
 
 };
 

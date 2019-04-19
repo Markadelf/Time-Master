@@ -32,10 +32,10 @@ cbuffer externalData : register(b0)
 Texture2D diffuseTexture    : register(t0);
 Texture2D roughnessTexture  : register(t1);
 TextureCube Sky             : register(t2);
-Texture2D ShadowMap			: register(t3);
+Texture2D ShadowMap         : register(t3);
 
-SamplerState basicSampler				: register(s0);
-SamplerComparisonState ShadowSampler	: register(s1);
+SamplerState basicSampler               : register(s0);
+SamplerComparisonState ShadowSampler    : register(s1);
 
 
 
