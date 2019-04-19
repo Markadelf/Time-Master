@@ -46,6 +46,7 @@ void Player::Update(float deltaTime)
 			m_lastTimeShot = m_time;
 			m_shot = true;
 			held = true;
+			PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
 		}
 	}
 	else

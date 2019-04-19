@@ -3,6 +3,7 @@
 #include "HandleObject.h"
 #include "StaticObject.h"
 #include "PlayerKeyFrameData.h"
+#include "AudioEngine.h"
 
 class Player
 {
@@ -19,6 +20,9 @@ class Player
 	TimeStamp m_time;
 
 	TimeStamp m_lastTimeShot;
+
+	//Player Sound
+	CAudioEngine PlayerSound;
 
 public:
 	Player();
