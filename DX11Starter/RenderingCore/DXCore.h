@@ -48,7 +48,7 @@ public:
 	
 	// Functions to set function pointers
 	void SetUpdate(void(*callback)(float deltaTime, float totalTime));
-	void SetDraw(void (*callback)(float deltaTime, float totalTime));
+	void SetDraw(void (*draw)(float deltaTime, float totalTime), void(*resize)(int width, int height));
 	void SetControls(
 		void(*msDown)(WPARAM buttonState, int x, int y), 
 		void(*msUp)(WPARAM buttonState, int x, int y), 
@@ -81,7 +81,8 @@ protected:
 	// Update function pointers
 	void (*update)(float deltaTime, float totalTime);
 	void (*draw)(float deltaTime, float totalTime);
-	
+	void (*resize)(int width, int height);
+
 	// Convenience methods for handling mouse input, since we
 	// can easily grab mouse input from OS-level messages
 	void (*onMouseDown)(WPARAM buttonState, int x, int y);

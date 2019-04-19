@@ -1,13 +1,27 @@
 #pragma once
-
 #include <DirectXMath.h>
 
-// Directional Light Info container
-struct DirectionalLight{
-	DirectX::XMFLOAT4 AmbientColor;
-	DirectX::XMFLOAT4 DiffuseColor;
-	DirectX::XMFLOAT3 Direction;
-	INT16 padding;
+#define MAX_LIGHTS 128
 
-	static const int PAD = 4;
+// Light types
+// Must match definitions in shader
+#define LIGHT_TYPE_DIRECTIONAL  0
+#define LIGHT_TYPE_POINT		1
+#define LIGHT_TYPE_SPOT			2
+
+struct Light
+{
+	int					Type;
+	DirectX::XMFLOAT3	Direction;	// 16 bytes
+
+	float				Range;
+	DirectX::XMFLOAT3	Position;	// 32 bytes
+
+	float				SpotFalloff;
+	DirectX::XMFLOAT3	Color;		// 48 bytes
+
+	float				AmbientIntensity;
+	float				DiffuseIntensity;
+	float	        	Padding_1;
+	float	        	Padding_2;	// 64 bytes
 };

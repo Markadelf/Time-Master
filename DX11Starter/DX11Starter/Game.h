@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Renderer.h"
-#include "ServerSceneGraph.h"
 #include "GameInput.h"
 #include "InputManager.h"
+#include "ClientManager.h"
 
 // Handles the game engine level a the highest level of abstraction
 // Manages most of the other core components
@@ -20,21 +20,13 @@ public:
 	void Init();
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
+	void OnResize(int width, int height);
 
 	// Overridden mouse input helper methods
 	void OnMouseDown (WPARAM buttonState, int x, int y);
 	void OnMouseUp	 (WPARAM buttonState, int x, int y);
 	void OnMouseMove (WPARAM buttonState, int x, int y);
 	void OnMouseWheel(float wheelDelta,   int x, int y);
-
-	// static callbacks for the Function Pointers
-	static void SUpdate(float deltaTime, float totalTime);
-	static void SDraw(float deltaTime, float totalTime);
-	static void SOnMouseDown(WPARAM buttonState, int x, int y);
-	static void SOnMouseUp(WPARAM buttonState, int x, int y);
-	static void SOnMouseMove(WPARAM buttonState, int x, int y);
-	static void SOnMouseWheel(float wheelDelta, int x, int y);
-
 
 	Renderer* GetRenderer();
 
@@ -62,6 +54,15 @@ private:
 
 	float timeShot = -1;
 
-	ServerSceneGraph* sceneGraph;
+	ClientManager* clientInterface;
+
+	// static callbacks for the Function Pointers
+	static void SUpdate(float deltaTime, float totalTime);
+	static void SDraw(float deltaTime, float totalTime);
+	static void SOnResize(int width, int height);
+	static void SOnMouseDown(WPARAM buttonState, int x, int y);
+	static void SOnMouseUp(WPARAM buttonState, int x, int y);
+	static void SOnMouseMove(WPARAM buttonState, int x, int y);
+	static void SOnMouseWheel(float wheelDelta, int x, int y);
 };
 
