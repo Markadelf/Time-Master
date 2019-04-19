@@ -13,10 +13,14 @@ class ColliderManager
 	int m_maxRectangles;
 	int m_rectangleCount;
 
-public:
 	ColliderManager();
-	ColliderManager(int circles, int rectangles);
 	~ColliderManager();
+
+public:
+
+	static ColliderManager& get();
+
+	void Reinit(int circles, int rectangles);
 
 	// Collider Distribution
 	Colliders2D::ColliderHandle GetCircleHandle(float radius);

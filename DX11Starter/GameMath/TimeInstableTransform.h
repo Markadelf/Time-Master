@@ -30,6 +30,8 @@ public:
 	TimeStamp GetEndTime() const;
 
 	bool GetReversed() const;
+	
+	void GetBounds(float* min, float* max) const;
 
 	// Modifiers
 	void Trim(TimeStamp time);
