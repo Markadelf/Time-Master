@@ -165,44 +165,29 @@ int SceneGraph::AddEntity(int maxImages, int maxPhenomina)
 	return m_entityCount++;
 }
 
-void SceneGraph::ClientRecieve(Buffer& data)
+void SceneGraph::AuthoritativeStack(HostDataHeader& authoritativeHeader)
 {
-	KeyFrameData key;
-	key.Deserialize(data);
+    int phenominaIndex = 0;
+    // Add any phantoms the server told us to
+    for (size_t i = 0; i < authoritativeHeader.m_phantomCount; i++)
+    {
+        Phantom& phantom = authoritativeHeader.m_phantoms[i];
+        TemporalEntity& entity = m_entities[phantom.GetEntityId()];
 
-	TemporalEntity* entity = &m_entities[key.m_entityId];
-
-	Phantom phan;
-	phan.Deserialize(data);
-
-	entity->TrackPhantom(phan);
-
-	if (key.m_shot) {
-		Phenomina bull;
-		bull.Deserialize(data);
-		entity->TrackPhenomina(bull, key.m_shotTime);
-	}
-}
-
-void SceneGraph::HostRecieve(Buffer& data, int playerId, ServerManager* server)
-{
-	KeyFrameData key;
-	key.Deserialize(data);
-
-	StackKeyFrame(key);
-	TemporalEntity* entity = &m_entities[key.m_entityId];
-
-	Phantom phan = entity->Head();
-
-	Buffer* outData = server->GetNextBufferActiveUser(MessageType::GameData, playerId);
-	key.Serialize(*outData);
-	phan.Serialize(*outData);
-
-	if (key.m_shot) {
-		Phenomina bull = entity->GetPhenominaBuffer()[entity->GetPhenominaCount() - 1];
-		bull.Serialize(*outData);
-	}
-
-	server->SendToActiveUser(playerId);
+        // If there is a phenomina for this keyframe, track it
+        entity.TrackPhantom(phantom);
+        if (phantom.GetShot())
+        {
+            entity.TrackPhenomina(authoritativeHeader.m_phenomina[phenominaIndex], phantom.GetShotTime());
+            phenominaIndex++;
+        }
+    }
+    // Kill anyone the server said to kill
+    PhenominaHandle placeHolder;
+    for (size_t i = 0; i < authoritativeHeader.m_deathCount; i++)
+    {
+        DeathInfo death = authoritativeHeader.m_deaths[0];
+        m_entities[death.m_entityId].Kill(death.m_image, death.m_deathTime, death.m_killedBy, placeHolder);
+    }
 }
 

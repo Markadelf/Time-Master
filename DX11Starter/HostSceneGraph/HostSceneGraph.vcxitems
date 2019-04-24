@@ -15,12 +15,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)GameHost.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)TemporalEntity.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)ServerSceneGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)GameHost.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)TemporalEntity.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)ServerSceneGraph.h" />
   </ItemGroup>
 </Project>

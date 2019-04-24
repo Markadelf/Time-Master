@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "SceneGraph.h"
 #include "DrawGroup.h"
+#include "ClientHelper.h"
 
 // Client Manager is the interface used to update the scene graph and handle Controllers from the client side.
 class ClientManager
@@ -18,6 +19,9 @@ class ClientManager
 
 	// Number of objects in the draw group we don't override each frame.
 	int m_staticCount;
+
+    // Nullptr if not communicating over the network
+    ClientHelper* m_networkConnection;
 
 public:
 	ClientManager();
@@ -36,6 +40,10 @@ public:
 	// Rebuilds the Draw group when called
 	DrawGroup& GetDrawGroup();
 	
+    void SetNetworkPointer(ClientHelper* connection);
+
+    void RecieveData(Buffer& data);
+
 private:
 	// Prepares the static objects from the scenegraph
 	void PrepDrawGroupStatics();

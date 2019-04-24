@@ -9,8 +9,6 @@ Game* Game::GameInstance;
 // For the DirectX Math library
 using namespace DirectX;
 
-Game* Game::game;
-
 // --------------------------------------------------------
 // Constructor
 //
@@ -42,7 +40,7 @@ Game::~Game()
 	AssetManager::get().ReleaseAllAssetResource();
 
 	delete clientInterface;
-	
+    delete networkConnection;
 }
 
 // --------------------------------------------------------
@@ -57,6 +55,7 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
+    InitializeNetwork();
 }
 
 void Game::LoadTextures()
@@ -116,6 +115,18 @@ void Game::CreateBasicGeometry()
 	clientInterface->Init();
 }
 
+void Game::InitializeNetwork()
+{
+    // Local host is 127.0.0.1
+    Address serverAddress(127, 0, 0, 1, 30000);
+    networkConnection = new ClientHelper(30001, serverAddress);
+    networkConnection->SetActiveCallBack(SUserCallback);
+    networkConnection->SetClientCallBack(SClientCallback);
+    clientInterface->SetNetworkPointer(networkConnection);
+    networkConnection->GetNextBuffer(MessageType::GameRequest);
+    networkConnection->SendToServer();
+}
+
 
 
 // --------------------------------------------------------
@@ -127,6 +138,7 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		m_renderer.Quit();
 	clientInterface->Update(deltaTime);
+    networkConnection->Listen();
 }
 
 void Game::SUpdate(float deltaTime, float totalTime)
@@ -249,5 +261,12 @@ void Game::SOnMouseMove(WPARAM buttonState, int x, int y)
 void Game::SOnMouseWheel(float wheelDelta, int x, int y)
 {
 	GameInstance->OnMouseWheel(wheelDelta, x, y);
+}
+void Game::SClientCallback(Buffer& bitBuffer)
+{
+}
+void Game::SUserCallback(Buffer& bitBuffer)
+{
+    GameInstance->clientInterface->RecieveData(bitBuffer);
 }
 #pragma endregion

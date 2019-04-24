@@ -4,12 +4,12 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ColliderManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DataNetworkStructs.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phantom.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phenomina.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)RequestNetworkStructs.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SceneGraph.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)StaticObject.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)TemporalEntity.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)KeyFrameData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ColliderManager.h" />

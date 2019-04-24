@@ -3,7 +3,7 @@
 
 bool DeathInfo::Serialize(Buffer& buffer) const
 {
-	return m_phenominaReset.Serialize(buffer),
+	return m_killedBy.Serialize(buffer),
 		Serializer::SerializeInteger<0, 100>(buffer, m_entityId),
 		Serializer::SerializeInteger<0, 100>(buffer, m_image),
 		Serializer::SerializeFloatFP(buffer, m_deathTime);
@@ -11,7 +11,7 @@ bool DeathInfo::Serialize(Buffer& buffer) const
 
 bool DeathInfo::Deserialize(Buffer& buffer)
 {
-	return m_phenominaReset.Deserialize(buffer),
+	return m_killedBy.Deserialize(buffer),
 		Serializer::DeserializeInteger<0, 100>(buffer, m_entityId),
 		Serializer::DeserializeInteger<0, 100>(buffer, m_image),
 		Serializer::DeserializeFloatFP(buffer, m_deathTime);

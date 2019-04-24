@@ -3,7 +3,7 @@
 
 // Struct detailing the circumstances of a player's death
 struct DeathInfo {
-	PhenominaHandle m_phenominaReset;
+	PhenominaHandle m_killedBy;
 	int m_entityId;
 	int m_image;
 	TimeStamp m_deathTime;

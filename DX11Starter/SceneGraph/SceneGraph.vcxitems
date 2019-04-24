@@ -17,7 +17,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ColliderManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DataNetworkStructs.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phantom.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)KeyFrameData.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phenomina.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)RequestNetworkStructs.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SceneGraph.cpp" />

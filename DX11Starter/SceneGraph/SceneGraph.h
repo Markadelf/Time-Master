@@ -5,6 +5,7 @@
 #include "ColliderManager.h"
 #include "KeyFrameData.h"
 #include "ServerManager.h"
+#include "DataNetworkStructs.h"
 
 class SceneGraph
 {
@@ -40,12 +41,8 @@ public:
 
 	int AddEntity(int maxImages, int maxPhenomina);
 
-	Colliders2D::ColliderHandle GetColliderHandle(Colliders2D::ColliderType cType, float a = 0, float b = 0);
-
 	// Networking
-	void ClientRecieve(Buffer& data);
-	void HostRecieve(Buffer& data, int playerId, ServerManager* server);
-
+    void AuthoritativeStack(HostDataHeader& authoritativeHeader);
 
 };
 

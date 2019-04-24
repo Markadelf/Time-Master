@@ -2,6 +2,7 @@
 
 #include "Renderer.h"
 #include "ClientManager.h"
+#include "ClientHelper.h"
 
 // Handles the game engine level a the highest level of abstraction
 // Manages most of the other core components
@@ -34,6 +35,7 @@ private:
 	void LoadTextures();
 	void LoadShaders();
 	void CreateBasicGeometry();
+    void InitializeNetwork();
 
 	Renderer m_renderer;
 
@@ -47,6 +49,7 @@ private:
 	float timeShot = -1;
 
 	ClientManager* clientInterface;
+    ClientHelper* networkConnection;
 
 	// static callbacks for the Function Pointers
 	static void SUpdate(float deltaTime, float totalTime);
@@ -56,5 +59,8 @@ private:
 	static void SOnMouseUp(WPARAM buttonState, int x, int y);
 	static void SOnMouseMove(WPARAM buttonState, int x, int y);
 	static void SOnMouseWheel(float wheelDelta, int x, int y);
+
+    static void SClientCallback(Buffer& bitBuffer);
+    static void SUserCallback(Buffer& bitBuffer);
 };
 

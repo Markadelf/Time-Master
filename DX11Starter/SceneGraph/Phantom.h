@@ -19,7 +19,7 @@ public:
 
 	// Accessor
 	TimeInstableTransform GetTransform();
-	int GetPlayerId();
+	int GetEntityId();
 	float GetShotTime();
 	bool IsActiveHead();
 	bool GetShot();

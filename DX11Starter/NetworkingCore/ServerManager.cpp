@@ -141,9 +141,8 @@ void ServerManager::ListenHelperStatic(Address ad, const void* data, const int s
 
 int ServerManager::GetClientId(Address ad)
 {
-	// Currently users are only differentiated by the port they are on
-	// TODO: USE/IMPLEMENT A BETTER HASH TABLE
-	auto client = m_clientMap.find(ad.GetPort());
+	// Currently users are only differentiated by the address they are on
+	auto client = m_clientMap.find(ad.GetAddress());
 	int clientId = -1;
 	if (client == m_clientMap.end())
 	{
@@ -158,7 +157,7 @@ int ServerManager::GetClientId(Address ad)
 		{
 			return -1;
 		}
-		m_clientMap[ad.GetPort()] = clientId;
+		m_clientMap[ad.GetAddress()] = clientId;
 	}
 	else
 	{

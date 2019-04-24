@@ -1,12 +1,14 @@
 #include "ClientManager.h"
 #include "ColliderManager.h"
 #include "AssetManager.h"
+#include "DataNetworkStructs.h"
 
 ClientManager::ClientManager()
 {
 	// This is where we currently initialize the collider manager
 	// Eventually we will want to do this when loading the scene
 	ColliderManager::get().Reinit(16, 16);
+    m_networkConnection = nullptr;
 }
 
 
@@ -26,8 +28,17 @@ void ClientManager::Update(float deltaTime)
 	static int frame = 0;
 	if (frame > 30)
 	{
-		m_graph.StackKeyFrame(m_player.GetKeyFrame());
-		frame = 0;
+        if (m_networkConnection == nullptr)
+        {
+            m_graph.StackKeyFrame(m_player.GetKeyFrame());
+        }
+        else 
+        {
+            Buffer* buffer = m_networkConnection->GetNextBuffer(MessageType::GameData);
+            m_player.GetKeyFrame().Serialize(*buffer);
+            m_networkConnection->SendToServer();
+        }
+        frame = 0;
 	}
 	else
 	{
@@ -137,6 +148,19 @@ DrawGroup& ClientManager::GetDrawGroup()
 {
 	PrepDrawGroup();
 	return m_drawInfo;
+}
+
+void ClientManager::SetNetworkPointer(ClientHelper* connection)
+{
+    m_networkConnection = connection;
+}
+
+void ClientManager::RecieveData(Buffer& data)
+{
+    HostDataHeader header;
+    
+    header.Deserialize(data);
+    m_graph.AuthoritativeStack(header);
 }
 
 void ClientManager::PrepDrawGroupStatics()
