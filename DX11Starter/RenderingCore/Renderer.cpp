@@ -263,7 +263,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 		Mesh* mesh = AssetManager::get().GetMeshPointer(drawGroup.m_opaqueObjects[i].GetMeshHandle());
 		RenderToShadowMap(drawGroup.m_opaqueObjects[i].GetTransform(), mesh);
 	}
-
+	//Resetting the render states
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 	vp.Width = (float)width;
 	vp.Height = (float)height;
@@ -277,6 +277,11 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	}
 	// Draw the sky AFTER all opaque geometry
 	DrawSky(drawGroup.m_camera);
+
+	// Turn off all texture at the pixel shader stage
+	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
+	ID3D11ShaderResourceView* noSRV[16] = {};
+	context->PSSetShaderResources(0, 16, noSRV);
 }
 
 void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount)
