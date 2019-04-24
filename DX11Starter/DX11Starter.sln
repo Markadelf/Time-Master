@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HostSceneGraph", "HostScene
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JobSystem", "JobSystem\JobSystem.vcxitems", "{62A82E2F-B0E2-493B-96E2-82FBBF021F5B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UICore", "UICore\UICore.vcxitems", "{89956E3C-FEB7-4D31-B1FB-F2021077EAD1}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderingCore", "RenderingCore\RenderingCore.vcxitems", "{3C103EDB-E873-4261-9CE2-27C77F97600E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AssetManager", "AssetManager\AssetManager.vcxitems", "{1F23AAB9-7FE8-4F1C-8490-900FC96AA843}"
@@ -47,6 +49,7 @@ Global
 		RenderingCore\RenderingCore.vcxitems*{3c103edb-e873-4261-9ce2-27c77f97600e}*SharedItemsImports = 9
 		JobSystem\JobSystem.vcxitems*{62a82e2f-b0e2-493b-96e2-82fbbf021f5b}*SharedItemsImports = 9
 		HostSceneGraph\HostSceneGraph.vcxitems*{7d300808-81dc-4452-8628-b1792fae6110}*SharedItemsImports = 9
+		UICore\UICore.vcxitems*{89956e3c-feb7-4d31-b1fb-f2021077ead1}*SharedItemsImports = 9
 		SerializerCore\SerializerCore.vcxitems*{955e7972-cca6-4857-9c70-b9175bace62a}*SharedItemsImports = 9
 		GameSpecificLogic\GameSpecificLogic.vcxitems*{9948cad7-73d5-461b-ba6c-a67eebefe9c2}*SharedItemsImports = 9
 		SceneGraph\SceneGraph.vcxitems*{bd8944e3-18b2-42ef-9f4c-57e0997ad5a8}*SharedItemsImports = 9
@@ -61,6 +64,7 @@ Global
 		SceneGraph\SceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		SerializerCore\SerializerCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		SharedDataStructures\SharedDataStructures.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		UICore\UICore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		SharedDataStructures\SharedDataStructures.vcxitems*{f3806a24-6266-4272-bee9-9ff1af978286}*SharedItemsImports = 9
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

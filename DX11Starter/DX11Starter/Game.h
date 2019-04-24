@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "UIManager.h"
 #include "ClientManager.h"
 #include "ClientHelper.h"
 
@@ -36,6 +37,7 @@ private:
 	void LoadShaders();
 	void CreateBasicGeometry();
     void InitializeNetwork();
+	void LoadUI();
 
 	Renderer m_renderer;
 

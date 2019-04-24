@@ -25,3 +25,12 @@ struct Light
 	float	        	Padding_1;
 	float	        	Padding_2;	// 64 bytes
 };
+
+// Not passed to shaders, but is still heavily related to rendering lights
+struct ShadowMapInfo 
+{
+	ID3D11DepthStencilView* shadowDSV;
+	ID3D11ShaderResourceView* shadowSRV;
+	DirectX::XMFLOAT4X4 shadowViewMatrix;
+	DirectX::XMFLOAT4X4 shadowProjectionMatrix;
+};
