@@ -4,11 +4,14 @@
 Player::Player()
 {
 	m_reversed = false;
+	// initialize the input manager
+	PlayerInput = new GameInput();
 }
 
 
 Player::~Player()
 {
+	delete PlayerInput;
 }
 
 void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle)
@@ -18,40 +21,64 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
 	m_handle = handle;
 }
 
+void Player::acquireInput(float deltaTime)
+{
+	PlayerInput->acquireInput();
+	Vector2 vel;
+		// act on user input
+		for (auto x : PlayerInput->activeKeyMap)
+		{
+			switch (x.first)
+			{
+			//case input::GameCommands::Quit:
+			//	m_renderer.Quit();
+			//	break;
+
+			//case input::GameCommands::showFPS:
+			//	printf("TEST FPS");
+			//	break;
+
+			case input::GameCommands::Shoot:
+				printf("SHOOTING");
+				m_lastTimeShot = m_time;
+				m_shot = true;
+				break;
+
+			case input::GameCommands::PlayerMoveForward:
+				printf("W");
+				vel = vel + Vector2(0, 1);
+				break;
+
+			case input::GameCommands::PlayerMoveBack:
+				printf("S");
+				vel = vel + Vector2(0, -1);
+				break;
+			case input::GameCommands::PlayerMoveLeft:
+				printf("A");
+				vel = vel + Vector2(-1, 0);
+				break;
+			case input::GameCommands::PlayerMoveRight:
+				printf("D");
+				vel = vel + Vector2(1, 0);
+				break;
+			case input::GameCommands::ReverseTime:
+				m_reversed = !m_reversed;
+				break;
+							
+			}
+
+			vel = vel.Rotate(-m_transform.GetRot());
+			m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
+		}	
+}
+
 void Player::Update(float deltaTime)
 {
 	m_time += deltaTime * (m_reversed ? -1 : 1);
 
 	UpdatePosition(deltaTime);
 
-	// TODO: Replace with other input logic
-	static bool rHeld = false;
-	if (GetAsyncKeyState('R') & 0x8000)
-	{
-		if (!rHeld)
-		{
-			m_reversed = !m_reversed;
-			rHeld = true;
-		}
-	}
-	else
-	{
-		rHeld = false;
-	}
-	static bool held = false;
-	if (GetAsyncKeyState(' ') & 0x8000)
-	{
-		if (!held)
-		{
-			m_lastTimeShot = m_time;
-			m_shot = true;
-			held = true;
-		}
-	}
-	else
-	{
-		held = false;
-	}
+	acquireInput(deltaTime);
 }
 
 Transform Player::GetTransform() const
@@ -113,24 +140,5 @@ KeyFrameData Player::GetKeyFrame()
 }
 
 void Player::UpdatePosition(float deltaTime) {
-	Vector2 vel;
-	// TODO: Replace with input logic
-	if (GetAsyncKeyState('W') & 0x8000)
-	{
-		vel = vel + Vector2(0, 1);
-	}
-	if (GetAsyncKeyState('A') & 0x8000)
-	{
-		vel = vel + Vector2(-1, 0);
-	}
-	if (GetAsyncKeyState('S') & 0x8000)
-	{
-		vel = vel + Vector2(0, -1);
-	}
-	if (GetAsyncKeyState('D') & 0x8000)
-	{
-		vel = vel + Vector2(1, 0);
-	}
-	vel = vel.Rotate(-m_transform.GetRot());
-	m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
+	acquireInput(deltaTime);
 }

@@ -40,6 +40,7 @@ Game::~Game()
 	AssetManager::get().ReleaseAllAssetResource();
 
 	delete clientInterface;
+	//delete inputManager;
 	
 }
 
@@ -56,7 +57,7 @@ void Game::Init()
 	LoadShaders();
 	CreateBasicGeometry();
 	// initialize the input handler
-    inputManager = new GameInput();
+    //inputManager = new GameInput();
 	LoadUI();
 	m_renderer.OnResize();
 }
@@ -155,12 +156,9 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		m_renderer.Quit();
 	clientInterface->Update(deltaTime);
-
-	//Input Manager Test
-	acquireInput();
 }
 
-
+/*
 /////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// Update ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -178,10 +176,29 @@ void Game::acquireInput()
 			break;
 
 		case input::GameCommands::showFPS:
-			//showFPS = !showFPS;
+			printf("TEST FPS");
 			break;
+
+		case input::GameCommands::Shoot:
+			printf("SHOOTING");
+			break;
+
+		case input::GameCommands::PlayerMoveForward:
+			printf("W");
+			break;
+
+		case input::GameCommands::PlayerMoveBack:
+			printf("S");
+			break;
+		case input::GameCommands::PlayerMoveLeft:
+			printf("A");
+			break;
+		case input::GameCommands::PlayerMoveRight:
+			printf("D");
 		}
 	}
+}
+*/
 
 void Game::SUpdate(float deltaTime, float totalTime)
 {

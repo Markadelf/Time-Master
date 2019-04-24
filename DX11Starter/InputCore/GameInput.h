@@ -5,7 +5,7 @@
 // define game commands
 namespace input
 {
-	enum GameCommands { Quit, showFPS };
+	enum GameCommands { Quit, showFPS, Shoot, PlayerMoveForward, PlayerMoveBack, PlayerMoveLeft, PlayerMoveRight, ReverseTime};
 }
 
 // CLASSES //////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
 #include "HandleObject.h"
 #include "StaticObject.h"
 #include "PlayerKeyFrameData.h"
+#include "GameInput.h"
 
 class Player
 {
@@ -44,6 +45,10 @@ public:
 
 	// Getting the keyframe, modifies the last time shot property
 	KeyFrameData GetKeyFrame();
+
+	// Player Input
+	GameInput *PlayerInput;
+	void acquireInput(float deltaTime);
 
 private:
 	void UpdatePosition(float deltaTime);

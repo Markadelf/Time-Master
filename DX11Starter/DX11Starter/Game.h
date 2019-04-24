@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Renderer.h"
-#include "GameInput.h"
 #include "InputManager.h"
 #include "UIManager.h"
 #include "ClientManager.h"
@@ -42,9 +41,8 @@ private:
 	Renderer m_renderer;
 
 	// game input
-	GameInput* inputManager;
-
-	void acquireInput();
+	//GameInput* inputManager;
+	//void acquireInput();
 
 
 	// Keeps track of the old mouse position.  Useful for 

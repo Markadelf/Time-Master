@@ -130,7 +130,7 @@ namespace input
 		{
 		case VK_LEFT: case VK_RIGHT: case VK_UP: case VK_DOWN:
 		case VK_HOME: case VK_END: case VK_PRIOR: case VK_NEXT:
-		case VK_INSERT: case VK_DELETE: case VK_DIVIDE: case VK_NUMLOCK:
+		case VK_INSERT: case VK_DELETE: case VK_DIVIDE: case VK_NUMLOCK: case VK_SPACE:
 			scanCode |= 0x100;
 			break;
 		}
