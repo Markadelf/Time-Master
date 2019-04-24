@@ -52,7 +52,7 @@ void ClientManager::Init()
 
 	// Add static objects to scene graph
 	const int div = 20;
-	StaticObject objs[div + 1];
+	StaticObject objs[div + 2];
 	Vector2 right = Vector2(5, 0);
 	HandleObject handle;
 	handle.m_material = woodMaterial;
@@ -71,10 +71,18 @@ void ClientManager::Init()
 	//handle.m_scale[2] = 1;
 
 	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
+	
+	// Add floor
+	handle.m_collider = Colliders2D::ColliderHandle();
+	handle.m_yPos = -1;
+	handle.m_scale[0] = 10;
+	handle.m_scale[2] = 10;
+	objs[div + 1] = (StaticObject(Transform(Vector2(), 0), handle));
 
 	m_graph.Init(16, 100);
-	m_graph.Init(&objs[0], div + 1);
+	m_graph.Init(&objs[0], div + 2);
 
+	handle.m_yPos = 0;
 	handle.m_material = playerMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
@@ -93,10 +101,10 @@ void ClientManager::Init()
 	Light directLight, spotLight, pointLight;
 
 	directLight.Type = LIGHT_TYPE_DIRECTIONAL;
-	directLight.Direction = DirectX::XMFLOAT3(-1, 0, 0);
+	directLight.Direction = DirectX::XMFLOAT3(-1, -1, 0);
 	directLight.Color = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
 	directLight.DiffuseIntensity = 1.0f;
-	directLight.AmbientIntensity = 0.4f;
+	directLight.AmbientIntensity = 0;//0.4f;
 
 	pointLight.Type = LIGHT_TYPE_POINT;
 	pointLight.Position = DirectX::XMFLOAT3(-3, -3, 0);

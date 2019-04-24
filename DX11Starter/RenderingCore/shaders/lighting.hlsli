@@ -57,7 +57,7 @@ float SpecularLight(float3 lightDirection, float3 normal, float3 dirToCamera, fl
 
 //Basic Lighiting
 
-float3 BasicDirectLight(float3 normal, Light light, float3 cameraPos, float3 worldPos, float4 surfaceColor, float shininess, float roughness)
+float3 BasicDirectLight(float3 normal, Light light, float3 cameraPos, float3 worldPos, float4 surfaceColor, float shininess, float roughness, float shadowAmount)
 {
 
 	float3 dirToCamera = normalize(cameraPos - worldPos);
@@ -67,10 +67,10 @@ float3 BasicDirectLight(float3 normal, Light light, float3 cameraPos, float3 wor
 	float spec = SpecularLight(dirToLight, normal, dirToCamera, shininess); //Specular intensity needs to added in the Materials I guess.
 
 	spec *= (1.0f - roughness);
-	return (diff*surfaceColor.rgb + spec)*light.Color.rgb*light.DiffuseIntensity + light.Color.rgb*light.AmbientIntensity*surfaceColor.rgb;
+	return (diff*surfaceColor.rgb + spec)*light.Color.rgb*light.DiffuseIntensity * shadowAmount + light.Color.rgb*light.AmbientIntensity*surfaceColor.rgb;
 }
 
-float3 BasicPointLight(float3 normal, Light light, float3 cameraPos, float3 worldPos, float4 surfaceColor, float shininess, float roughness)
+float3 BasicPointLight(float3 normal, Light light, float3 cameraPos, float3 worldPos, float4 surfaceColor, float shininess, float roughness, float shadowAmount)
 {
 
 	float3 dirToCamera = normalize(cameraPos - worldPos);
@@ -82,17 +82,17 @@ float3 BasicPointLight(float3 normal, Light light, float3 cameraPos, float3 worl
 	float spec = SpecularLight(dirToLight, normal, dirToCamera, shininess);
 	spec *= (1.0f - roughness);
 	float3 ambientLight = light.Color.rgb*light.AmbientIntensity*attn*surfaceColor.rgb;
-	float3 diffuseLight = (diff * surfaceColor.rgb + spec)* light.Color.rgb * light.DiffuseIntensity* attn;
+	float3 diffuseLight = (diff * surfaceColor.rgb + spec)* light.Color.rgb * light.DiffuseIntensity* attn * shadowAmount;
 	return (diffuseLight.rgb + ambientLight.rgb);
 }
 
 
-float3 BasicSpotLight(float3 normal, Light light, float3 cameraPos, float3 worldPos, float4 surfaceColor, float shininess, float roughness)
+float3 BasicSpotLight(float3 normal, Light light, float3 cameraPos, float3 worldPos, float4 surfaceColor, float shininess, float roughness, float shadowAmount)
 {
 	float3 toLight = normalize(light.Position - worldPos);
 	float penumbra = pow(saturate(dot(-toLight, light.Direction)), light.SpotFalloff);
 
-	return BasicPointLight(normal, light, cameraPos, worldPos, surfaceColor, shininess, roughness) * penumbra;
+	return BasicPointLight(normal, light, cameraPos, worldPos, surfaceColor, shininess, roughness, shadowAmount) * penumbra;
 }
 
 
