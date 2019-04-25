@@ -40,11 +40,6 @@ private:
 
 	Renderer m_renderer;
 
-	// game input
-	//GameInput* inputManager;
-	//void acquireInput();
-
-
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;

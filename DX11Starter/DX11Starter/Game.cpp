@@ -39,9 +39,7 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	AssetManager::get().ReleaseAllAssetResource();
 
-	delete clientInterface;
-	//delete inputManager;
-	
+	delete clientInterface;	
 }
 
 // --------------------------------------------------------
@@ -56,8 +54,6 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
-	// initialize the input handler
-    //inputManager = new GameInput();
 	LoadUI();
 	m_renderer.OnResize();
 }
@@ -157,48 +153,6 @@ void Game::Update(float deltaTime, float totalTime)
 		m_renderer.Quit();
 	clientInterface->Update(deltaTime);
 }
-
-/*
-/////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////// Update ////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-void Game::acquireInput()
-{
-	inputManager->acquireInput();
-
-	// act on user input
-	for (auto x : inputManager->activeKeyMap)
-	{
-		switch (x.first)
-		{
-		case input::GameCommands::Quit:
-			m_renderer.Quit();
-			break;
-
-		case input::GameCommands::showFPS:
-			printf("TEST FPS");
-			break;
-
-		case input::GameCommands::Shoot:
-			printf("SHOOTING");
-			break;
-
-		case input::GameCommands::PlayerMoveForward:
-			printf("W");
-			break;
-
-		case input::GameCommands::PlayerMoveBack:
-			printf("S");
-			break;
-		case input::GameCommands::PlayerMoveLeft:
-			printf("A");
-			break;
-		case input::GameCommands::PlayerMoveRight:
-			printf("D");
-		}
-	}
-}
-*/
 
 void Game::SUpdate(float deltaTime, float totalTime)
 {
