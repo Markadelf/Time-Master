@@ -42,12 +42,12 @@ bool Transform::Serialize(Buffer& buffer) const
 {
 	return
 		m_position.Serialize(buffer) &&
-		Serializer::SerializeFloat<0, 4, 1, 100>(buffer, m_rotation);
+		Serializer::SerializeFloatFP(buffer, m_rotation);
 }
 
 bool Transform::Deserialize(Buffer& buffer)
 {
 	return
 		m_position.Deserialize(buffer) &&
-		Serializer::DeserializeFloat<0, 4, 1, 100>(buffer, m_rotation);
+		Serializer::DeserializeFloatFP(buffer, m_rotation);
 }
