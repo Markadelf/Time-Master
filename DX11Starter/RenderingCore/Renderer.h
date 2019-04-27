@@ -28,7 +28,8 @@ class Renderer
 	// Rasterizer states
 	ID3D11RasterizerState* m_shadowRasterizer;
 
-	//Blender States
+	//Blend variables
+	SimplePixelShader* m_blendPS;
 	ID3D11RasterizerState* m_blendRasterizer;
 	ID3D11BlendState* m_blendState;
 	ID3D11DepthStencilState* m_blendDepthState;

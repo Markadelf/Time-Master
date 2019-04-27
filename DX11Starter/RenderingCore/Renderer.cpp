@@ -34,6 +34,9 @@ Renderer::Renderer(HINSTANCE hInstance)
 	m_ps = nullptr;
 	m_vs = nullptr;
 	m_sampler = nullptr;
+	m_blendPS = nullptr;
+	m_skyPS = nullptr;
+	m_skyVS = nullptr;
 }
 
 // --------------------------------------------------------
@@ -48,6 +51,7 @@ Renderer::~Renderer()
 	delete m_shadowVS;
 	delete m_skyPS;
 	delete m_skyVS;
+	delete m_blendPS;
 
 	m_skySRV->Release();
 	m_skyRasterState->Release();
@@ -165,6 +169,10 @@ void Renderer::InitializeShaders()
 
 	m_skyPS = new SimplePixelShader(device, context);
 	m_skyPS->LoadShaderFile(L"SkyPixelShader.cso");
+
+
+	m_blendPS = new SimplePixelShader(device, context);
+	m_blendPS->LoadShaderFile(L"BlendingPixelShader.cso");
 }
 
 void Renderer::InitializeShadowMaps()
@@ -361,7 +369,9 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 
 	ps->SetInt("lightCount", (int)lightCount);
 	ps->SetData("lights", (void*)(lights), sizeof(Light) * MAX_LIGHTS);
-	ps->SetFloat("transparency", transparency);
+	if (ps == m_blendPS) {
+		ps->SetFloat("transparency", transparency);
+	}
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
 	ps->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()));
 	ps->SetShaderResourceView("roughnessTexture", *AssetManager::get().GetTexturePointer(mat->GetRoughnessTextureHandle()));
@@ -424,7 +434,7 @@ void Renderer::RenderTransperentEntity(DrawItem& entity, Camera& camera, Light* 
 	Material* mat = AssetManager::get().GetMaterialPointer(entity.GetMaterialHandle());
 	Mesh* mesh = AssetManager::get().GetMeshPointer(entity.GetMeshHandle());
 	
-	Render(m_ps, m_vs, mat, m_sampler, entity.GetTransform(), mesh, camera, lights, lightCount,transperency);
+	Render(m_blendPS, m_vs, mat, m_sampler, entity.GetTransform(), mesh, camera, lights, lightCount,transperency);
 }
 
 
