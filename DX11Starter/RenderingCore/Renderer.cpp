@@ -54,14 +54,17 @@ Renderer::~Renderer()
 	m_skyDepthState->Release();
 	m_sampler->Release();
 
+
 	m_shadowSampler->Release();
 	m_shadowRasterizer->Release();
 
 	m_shadowDSV->Release();
 	m_shadowSRV->Release();
 
-
 	m_blendState->Release();
+	m_blendDepthState->Release();
+	m_blendRasterizer->Release();
+
 }
 
 // --------------------------------------------------------
@@ -95,9 +98,24 @@ void Renderer::Init()
 	device->CreateDepthStencilState(&dd, &m_skyDepthState);
 
 
+
 	//Setting up blender state
+
+	// Create a rasterizer description and then state
+	D3D11_RASTERIZER_DESC blendRasterizerDesc = {};
+	blendRasterizerDesc.CullMode = D3D11_CULL_NONE;
+	blendRasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	device->CreateRasterizerState(&blendRasterizerDesc, &m_blendRasterizer);
+
+	// Depth state off?
+	D3D11_DEPTH_STENCIL_DESC blendDepthStencilDesc = {};
+	blendDepthStencilDesc.DepthEnable = false;
+	device->CreateDepthStencilState(&blendDepthStencilDesc, &m_blendDepthState);
+	
+	//context->OMSetDepthStencilState(depthState, 0);
+
 	//Setup blendstate for the transperant group
-	D3D11_BLEND_DESC bd;
+	D3D11_BLEND_DESC bd = {};
 	bd.RenderTarget[0].BlendEnable = true;
 
 	// Settings for blending RGB channels
@@ -303,11 +321,9 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Draw the sky AFTER all opaque geometry
 	DrawSky(drawGroup.m_camera);
 	
-
-	
-
-	
-	// Set the state! (For last param, set all the bits!)
+	// Set the states!
+	context->RSSetState(m_blendRasterizer);
+	context->OMSetDepthStencilState(m_blendDepthState, 0);
 	context->OMSetBlendState(m_blendState, 0, 0xFFFFFFFF);
 	for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
 	{
@@ -317,7 +333,8 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	
 	// Resetting blender state
 	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
-
+	context->RSSetState(0);
+	context->OMSetDepthStencilState(0, 0);
 	// Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
 	ID3D11ShaderResourceView* noSRV[16] = {};

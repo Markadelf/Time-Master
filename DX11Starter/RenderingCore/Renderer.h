@@ -29,7 +29,9 @@ class Renderer
 	ID3D11RasterizerState* m_shadowRasterizer;
 
 	//Blender States
+	ID3D11RasterizerState* m_blendRasterizer;
 	ID3D11BlendState* m_blendState;
+	ID3D11DepthStencilState* m_blendDepthState;
 
 	int shadowMapSize;
 
