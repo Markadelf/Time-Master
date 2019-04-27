@@ -13,13 +13,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)SocketWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)ClientHelper.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)AckBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)Connection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)ServerManager.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)NetworkManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,16 +33,10 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)SocketWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)ClientHelper.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)AckBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)Connection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)MessageHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)ServerManager.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)NetworkManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

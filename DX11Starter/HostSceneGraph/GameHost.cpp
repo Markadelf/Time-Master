@@ -67,7 +67,7 @@ void GameHost::HostRecievePlayer(Buffer& data, int playerId)
 void GameHost::StartGame()
 {
     m_inactive = true;
-    for (size_t i = 0; i < PLAYERS_PER_SESSION; i++)
+    for (int i = 0; i < PLAYERS_PER_SESSION; i++)
     {
         int client;
         m_clientQueue.Pop(client);

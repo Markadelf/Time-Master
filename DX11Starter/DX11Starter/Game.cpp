@@ -23,6 +23,7 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 	m_renderer.SetDraw(SDraw, SOnResize);
 	m_renderer.SetUpdate(SUpdate);
 	m_renderer.SetControls(SOnMouseDown, SOnMouseUp, SOnMouseMove, SOnMouseWheel);
+    networkConnection = nullptr;
 }
 
 // --------------------------------------------------------
@@ -32,15 +33,19 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 // --------------------------------------------------------
 Game::~Game()
 {
-	// Release any (and all!) DirectX objects
-	// we've made in the Game class	
-	//AssetManager::get().~AssetManager();
-	// Delete our simple shader objects, which
-	// will clean up their own internal DirectX stuff
-	AssetManager::get().ReleaseAllAssetResource();
+    // Release any (and all!) DirectX objects
+    // we've made in the Game class	
+    //AssetManager::get().~AssetManager();
+    // Delete our simple shader objects, which
+    // will clean up their own internal DirectX stuff
+    AssetManager::get().ReleaseAllAssetResource();
 
-	delete clientInterface;
-    delete networkConnection;
+    delete clientInterface;
+    if (networkConnection != nullptr)
+    {
+        delete networkConnection;
+        networkConnection = nullptr;
+    }
 }
 
 // --------------------------------------------------------
@@ -55,7 +60,7 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
-    InitializeNetwork();
+    //InitializeNetwork();
 	LoadUI();
 	m_renderer.OnResize();
 }
@@ -166,7 +171,10 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		m_renderer.Quit();
 	clientInterface->Update(deltaTime);
-    networkConnection->Listen();
+    if (networkConnection != nullptr)
+    {
+        networkConnection->Listen();
+    }
 }
 
 void Game::SUpdate(float deltaTime, float totalTime)

@@ -30,10 +30,12 @@ void ClientManager::Update(float deltaTime)
 	{
         if (m_networkConnection == nullptr)
         {
+            // Offline logic
             m_graph.StackKeyFrame(m_player.GetKeyFrame());
         }
         else 
         {
+            // Online logic
             Buffer* buffer = m_networkConnection->GetNextBuffer(MessageType::GameData);
             m_player.GetKeyFrame().Serialize(*buffer);
             m_networkConnection->SendToServer();

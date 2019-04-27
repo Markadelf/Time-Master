@@ -146,13 +146,11 @@ void Connection::Ack(SocketWrapper& sock, Buffer& landing)
 
 bool Connection::Resend(SocketWrapper& sock, unsigned __int32 packetId)
 {
-	// No, we aren't going to resend a packet we haven't sent yet
-	if (packetId >= m_remote.m_nextSend)
+    Buffer* buffer = m_outBuffer.GetPacketBuffer(packetId);
+	if (buffer != nullptr)
 	{
-		return false;
+        sock.Send(m_remote.m_address, buffer->GetBuffer(), (int)buffer->Size());
+        return true;
 	}
-
-	Buffer* buffer = m_outBuffer.GetPacketBuffer(packetId);
-	sock.Send(m_remote.m_address, buffer->GetBuffer(), (int)buffer->Size());
-	return true;
+    return false;
 }
