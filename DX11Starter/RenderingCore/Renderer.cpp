@@ -34,7 +34,6 @@ Renderer::Renderer(HINSTANCE hInstance)
 	m_ps = nullptr;
 	m_vs = nullptr;
 	m_sampler = nullptr;
-	bd = {};
 }
 
 // --------------------------------------------------------
@@ -98,6 +97,7 @@ void Renderer::Init()
 
 	//Setting up blender state
 	//Setup blendstate for the transperant group
+	D3D11_BLEND_DESC bd;
 	bd.RenderTarget[0].BlendEnable = true;
 
 	// Settings for blending RGB channels
@@ -112,6 +112,9 @@ void Renderer::Init()
 
 	// Setting for masking out individual color channels
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	// Create the state
+	device->CreateBlendState(&bd, &m_blendState);
+
 }
 
 
@@ -303,9 +306,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 
 	
 
-	// Create the state
-	device->CreateBlendState(&bd, &m_blendState);
-
+	
 	// Set the state! (For last param, set all the bits!)
 	context->OMSetBlendState(m_blendState, 0, 0xFFFFFFFF);
 	for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
