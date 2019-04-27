@@ -278,6 +278,11 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Draw the sky AFTER all opaque geometry
 	DrawSky(drawGroup.m_camera);
 
+	for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
+	{
+
+	}
+
 	// Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
 	ID3D11ShaderResourceView* noSRV[16] = {};

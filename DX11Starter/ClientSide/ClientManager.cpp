@@ -183,12 +183,23 @@ void ClientManager::PrepDrawGroup()
 		int phanCount = entity->GetImageCount();
 		Phantom* phantoms = entity->GetPhantomBuffer();
 		
+		bool lastReversed = !phantoms[0].GetTransform().GetReversed();
 		for (size_t j = 0; j < phanCount; j++)
 		{
 			TimeInstableTransform trans = phantoms[j].GetTransform();
 			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+				bool reversed = trans.GetReversed();
+				if (lastReversed != reversed)
+				{
+					TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
+					ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
+					tEnt.m_transparency = trans.GetProgress(time);
+				}
+				else
+				{
+					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+				}
 			}
 		}
 
@@ -204,6 +215,8 @@ void ClientManager::PrepDrawGroup()
 			}
 		}
 	}
+
+	// sort 
 }
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)
