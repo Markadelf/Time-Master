@@ -34,6 +34,7 @@ Renderer::Renderer(HINSTANCE hInstance)
 	m_ps = nullptr;
 	m_vs = nullptr;
 	m_sampler = nullptr;
+	bd = {};
 }
 
 // --------------------------------------------------------
@@ -93,6 +94,24 @@ void Renderer::Init()
 	dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	device->CreateDepthStencilState(&dd, &m_skyDepthState);
+
+
+	//Setting up blender state
+	//Setup blendstate for the transperant group
+	bd.RenderTarget[0].BlendEnable = true;
+
+	// Settings for blending RGB channels
+	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+
+	// Settings for blending alpha channel
+	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+	// Setting for masking out individual color channels
+	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 }
 
 
@@ -282,22 +301,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	DrawSky(drawGroup.m_camera);
 	
 
-	//Setup blendstate for the transperant group
-	D3D11_BLEND_DESC bd = {};
-	bd.RenderTarget[0].BlendEnable = true;
-
-	// Settings for blending RGB channels
-	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-
-	// Settings for blending alpha channel
-	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-
-	// Setting for masking out individual color channels
-	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	
 
 	// Create the state
 	device->CreateBlendState(&bd, &m_blendState);
