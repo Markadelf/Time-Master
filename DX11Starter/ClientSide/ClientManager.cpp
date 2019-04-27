@@ -171,7 +171,8 @@ void ClientManager::PrepDrawGroup()
 	m_drawInfo.m_camera.SetYaw(player.GetRot());
 
 	// Entities
-	m_drawInfo.m_visibleCount = m_staticCount;
+    m_drawInfo.m_visibleCount = m_staticCount;
+    m_drawInfo.m_transparentCount = 0;
 	TimeStamp time = m_player.GetTimeStamp();
 
 	int eCount = m_graph.GetEntityCount();
@@ -200,6 +201,7 @@ void ClientManager::PrepDrawGroup()
 				{
 					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
 				}
+                lastReversed = reversed;
 			}
 		}
 

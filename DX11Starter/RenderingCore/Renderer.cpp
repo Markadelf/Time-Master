@@ -112,6 +112,9 @@ void Renderer::Init()
 
 	// Setting for masking out individual color channels
 	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    // Create the state
+    device->CreateBlendState(&bd, &m_blendState);
 }
 
 
@@ -300,11 +303,6 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Draw the sky AFTER all opaque geometry
 	DrawSky(drawGroup.m_camera);
 	
-
-	
-
-	// Create the state
-	device->CreateBlendState(&bd, &m_blendState);
 
 	// Set the state! (For last param, set all the bits!)
 	context->OMSetBlendState(m_blendState, 0, 0xFFFFFFFF);
