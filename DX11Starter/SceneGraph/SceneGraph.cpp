@@ -5,8 +5,8 @@ SceneGraph::SceneGraph()
 {
 	m_entities = nullptr;
 	m_statics = nullptr;
+    m_phenomenaTypes = nullptr;
 	m_entityCount = 0;
-	m_maxEntities = 0;
 	m_staticObjectCount = 0;
 }
 
@@ -21,30 +21,32 @@ SceneGraph::~SceneGraph()
 		delete[] m_statics;
 		m_statics = nullptr;
 	}
+    if (m_phenomenaTypes) {
+        delete[] m_phenomenaTypes;
+        m_phenomenaTypes = nullptr;
+    }
 }
 
-void SceneGraph::Init(int maxEntities, int causalityPerEntity)
+void SceneGraph::Init(int entityCount)
 {
 	if (m_entities)
 	{
 		delete[] m_entities;
 		m_entities = nullptr;
 	}
-	if (m_statics) {
-		delete[] m_statics;
-		m_statics = nullptr;
-	}
 
-	m_maxEntities = maxEntities;
-	m_entityCount = 0;
+	m_entityCount = entityCount;
 
-	m_entities = new TemporalEntity[maxEntities];
-	float min[] = { -1000, -1000, -1000 };
-	float max[] = { 1000, 1000, 1000 };
+	m_entities = new TemporalEntity[entityCount];
 }
 
 void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
 {
+    if (m_statics) {
+        delete[] m_statics;
+        m_statics = nullptr;
+    }
+
 	// Static Object Buffer
 	m_statics = new StaticObject[staticobjectCount];
 	memcpy(m_statics, staticObjs, staticobjectCount * sizeof(StaticObject));
@@ -53,29 +55,49 @@ void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
 	m_staticObjectCount = staticobjectCount;
 }
 
+void SceneGraph::Init(PhenomenaPrototype* phenomenaTypes, int count)
+{
+    if (m_phenomenaTypes) {
+        delete[] m_phenomenaTypes;
+        m_phenomenaTypes = nullptr;
+    }
+
+    // Phenomena prototype Buffer
+    m_phenomenaTypes = new PhenomenaPrototype[count];
+    memcpy(m_phenomenaTypes, phenomenaTypes, count * sizeof(PhenomenaPrototype));
+
+    // Number of prototypes
+    m_phenomenaTypeCount = count;
+}
+
 void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 {
-	// TODO: Check for collisions
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
 	HandleObject handle = entity->GetHandle();
 	Phantom* phantom = entity->StackKeyFrame(keyFrame);
-	if (keyFrame.m_shot && phantom != nullptr)
+	if (keyFrame.m_usedAction && phantom != nullptr)
 	{
-		// TODO: MAKE DIFFERENT BULLET TYPES POSSIBLE
-		Transform transform = phantom->GetTransform().GetTransform(keyFrame.m_shotTime);
-		const float BULLETRANGE = 10;
-		const TimeStamp BULLETPERIOD = 2;
-		Vector2 finalPos = transform.GetPos() + Vector2(0, BULLETRANGE).Rotate(-transform.GetRot());
-		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), keyFrame.m_shotTime, keyFrame.m_shotTime + BULLETPERIOD, false);
+        ActionInfo action = entity->GetAction();
+        float shotTime = keyFrame.m_timeStamp + action.m_deploymentTime;
+        PhenomenaPrototype& proto = m_phenomenaTypes[action.m_phenomenaType];
+
+        // Stack a keyframe for this action
+        keyFrame.m_timeStamp += action.m_duration;
+        phantom = entity->StackKeyFrame(keyFrame);
+
+        Transform transform = keyFrame.m_transform;
+
+        Vector2 finalPos = transform.GetPos() + Vector2(0, proto.m_range).Rotate(-transform.GetRot());
+		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), shotTime, shotTime + proto.m_period, false);
 
 		TimeStamp timeStamp;
 		TimeStamp firstTimeStamp = traj.GetReversed() ? traj.GetStartTime() : traj.GetEndTime();
 		// Check for collisions with walls
 		for (size_t i = 0; i < m_staticObjectCount; i++)
 		{
-			// TODO: DONT USE THE SHOOTER'S COLLIDER
-			if (ColliderManager::get().CheckCollision(traj, handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, timeStamp))
+			if (ColliderManager::get().CheckCollision(traj, proto.m_handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, timeStamp))
 			{
+                // We only care about the earliest collision
 				if (traj.GetReversed() ? firstTimeStamp < timeStamp : firstTimeStamp > timeStamp)
 				{
 					firstTimeStamp = timeStamp;
@@ -98,12 +120,11 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			// For each entity, check each image
 			for (size_t j = 0; j < pCount; j++)
 			{
-				// TODO: DONT USE THE SHOOTER'S COLLIDER
-				if (ColliderManager::get().CheckCollision(traj, handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
+				if (ColliderManager::get().CheckCollision(traj, proto.m_handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
 				{
 					// We hit, let everyone know we died
-					PhenominaHandle reset;
-					m_entities[i].Kill((int)j, timeStamp, PhenominaHandle(keyFrame.m_entityId, entity->GetPhenominaCount()), reset);
+					PhenomenaHandle reset;
+					m_entities[i].Kill((int)j, timeStamp, PhenomenaHandle(keyFrame.m_entityId, entity->GetPhenomenaCount()), reset);
 					for (size_t k = 0; k < m_entityCount; k++)
 					{
 						if (m_entities[k].CheckRevive(reset))
@@ -115,13 +136,7 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			}
 		}
 
-		// TODO: MAKE DIFFERENT BULLET HANDLES POSSIBLE
-		HandleObject bulletHandle = HandleObject();
-		bulletHandle.m_material = 1;
-		bulletHandle.m_mesh = 3;
-		bulletHandle.SetUniformScale(.5f);
-
-		entity->TrackPhenomina(Phenomina(traj, bulletHandle), keyFrame.m_shotTime);
+		entity->TrackPhenomena(Phenomena(traj, proto.m_handle));
 	}
 }
 
@@ -149,6 +164,12 @@ void SceneGraph::GetStatics(StaticObject** objs, int& count) {
 	count = m_staticObjectCount;
 }
 
+void SceneGraph::GetEntities(TemporalEntity** ents, int& count)
+{
+    *ents = m_entities;
+    count = m_entityCount;
+}
+
 TemporalEntity* SceneGraph::GetEntity(int index)
 {
 	return &m_entities[index];
@@ -157,10 +178,4 @@ TemporalEntity* SceneGraph::GetEntity(int index)
 int SceneGraph::GetEntityCount() const
 {
 	return m_entityCount;
-}
-
-int SceneGraph::AddEntity(int maxImages, int maxPhenomina)
-{
-	m_entities[m_entityCount].Initialize(maxImages, maxPhenomina, m_entityCount);
-	return m_entityCount++;
 }

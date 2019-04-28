@@ -56,7 +56,7 @@ Global
 		AssetManager\AssetManager.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		ClientSide\ClientSide.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		GameMath\GameMath.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
-		HostSceneGraph\HostSceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		GameSpecificLogic\GameSpecificLogic.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		JobSystem\JobSystem.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		Logger\Logger.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		NetworkingCore\NetworkingCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4

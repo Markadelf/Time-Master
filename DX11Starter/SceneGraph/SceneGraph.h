@@ -13,19 +13,25 @@ class SceneGraph
 	// Static Object Buffer
 	StaticObject* m_statics;
 
+    // Phenomena info buffer
+    PhenomenaPrototype* m_phenomenaTypes;
+
 	// Number of entities
-	int m_maxEntities;
 	int m_entityCount;
 
 	// Number of StaticObjects
 	int m_staticObjectCount;
 
+    // Number of varieties of phenomena
+    int m_phenomenaTypeCount;
+
 public:
 	SceneGraph();
 	~SceneGraph();
 
-	void Init(int maxEntities, int causalityPerEntity);
+	void Init(int entityCount);
 	void Init(StaticObject* staticObjs, int staticobjectCount);
+    void Init(PhenomenaPrototype* phenomenaTypes, int count);
 
 	// Use keyframe data to modify an entity by adding actions to the top of its stack
 	void StackKeyFrame(KeyFrameData phantom);
@@ -34,9 +40,9 @@ public:
 
 	void GetStatics(StaticObject** objs, int& count);
 
+    void GetEntities(TemporalEntity** ents, int& count);
+
 	TemporalEntity* GetEntity(int index);
 	int GetEntityCount() const;
-
-	int AddEntity(int maxImages, int maxPhenomina);
 };
 
