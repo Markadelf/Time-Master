@@ -3,7 +3,6 @@
 
 ArenaLevel::ArenaLevel()
 {
-
     int floorMaterial = 2;
     int woodMaterial = 1;
     int playerMaterial = 0;

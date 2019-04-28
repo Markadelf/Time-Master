@@ -8,6 +8,7 @@
 #endif // CLIENT
 
 
+// Instructions on how to build an entity
 struct EntitySpawnInfo 
 {
     Transform m_startingPos;
@@ -46,9 +47,11 @@ public:
     // Initializes the level, does not load assets
     void LoadScene(SceneGraph& graph);
 
+    // Fetch the spawn info for a particular Entity
     EntitySpawnInfo& GetSpawnInfo(int id);
 
 #ifdef CLIENT
+    // Fetch the lights associated with the level
     void GetLights(Light** lights, int& count);
 #endif // CLIENT
 
