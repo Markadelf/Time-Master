@@ -45,6 +45,22 @@ UIElement& UIGraph::GetElement(int handle)
 	return m_elements[handle];
 }
 
+int UIGraph::GetClickEventHandle(int x, int y, int& arg)
+{
+    int handle = -1;
+    // Loop from front to back
+    for (int i = m_elementCount - 1; i >= 0 && handle == -1; i--)
+    {
+        RECT& rect = m_elements[i].m_rect;
+        if (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y && m_elements[i].m_eventBinding != -1)
+        {
+            arg = m_elements[i].m_eventArg;
+            return m_elements[i].m_eventBinding;
+        }
+    }
+    return -1;
+}
+
 void UIGraph::Recalculate(int width, int height)
 {
 	for (; m_firstDirty < m_elementCount; m_firstDirty++)

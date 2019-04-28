@@ -1,12 +1,17 @@
 #pragma once
-
 #include "UIGraph.h"
 
 // The UIManager class is the main interface through which the engine accesses the Menu System
 // The UIManager Handles all of the UIGraphs and communicates any input across them
 class UIManager
 {
+    typedef void(*UIEvent)(int graph, int arg);
+
 	static UIManager* s_instance;
+
+    // Event bindings
+    UIEvent m_eventBindings[20];
+    int m_eBindCount;
 
 	// UIGraphs
 	UIGraph* m_graphs;
@@ -22,9 +27,6 @@ class UIManager
 	int m_graphCount;
 	// Number of graphs currently being drawn
 	int m_activeCount;
-
-	// This is the graph that gets any keyboard input sent to it
-	int m_inputGraph;
 
 	// Screen Dimensions
 	int m_width;
@@ -60,5 +62,19 @@ public:
 	void Render();
 
 	// TODO: ADD Controls and event system for UI
+    
+    // Calls events if a button is clicked
+    void OnClick(int x, int y);
+
+    // Binds a function pointer to a handle
+    int Bind(UIEvent callback);
+
+
+    // Static ui events
+    static void OpenUIFront(int graph, int arg);
+    static void OpenUIBack(int graph, int arg);
+    static void CloseUI(int graph, int arg);
+
+    static void MoveToUI(int graph, int arg);
 };
 

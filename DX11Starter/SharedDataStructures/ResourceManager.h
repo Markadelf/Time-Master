@@ -1,6 +1,5 @@
 #pragma once
 #include <unordered_map>
-#include <stack>
 #include "Mesh.h"
 #include <string.h>
 

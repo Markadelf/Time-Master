@@ -24,8 +24,8 @@ struct UIElement
 {
 	UITransform m_transform;
 	int m_textureHandle = -1;
-	// TODO: CREATE UI EVENT SYSTEM
 	int m_eventBinding = -1;
+    int m_eventArg = 0;
 	// Color tinting the ui element
 	DirectX::XMFLOAT4 m_color = DirectX::XMFLOAT4(1, 1, 1, 1);
 

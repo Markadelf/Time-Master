@@ -127,19 +127,26 @@ void Game::LoadUI()
 	element.m_color = DirectX::XMFLOAT4(1, 1, 1, .5f);
 	element.m_textureHandle = 0;
 	element.m_transform.m_parent = graph.AddItem(element);
-	element.m_transform.m_size = Vector2(.5f, .5f);
+	
+    element.m_transform.m_size = Vector2(.5f, .5f);
 	element.m_transform.m_anchor = Vector2(0, 0);
 	element.m_transform.m_pivot = Vector2(0, 0);
 	element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
 	element.m_transform.m_parent = graph.AddItem(element);
-	element.m_transform.m_anchor = Vector2(1, 1);
+	
+    element.m_transform.m_anchor = Vector2(1, 1);
 	element.m_transform.m_pivot = Vector2(1, 1);
 	element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
 	element.m_transform.m_parent = graph.AddItem(element);
+
 	element.m_transform.m_anchor = Vector2(0, 0);
 	element.m_transform.m_pivot = Vector2(0, 0);
 	element.m_color = DirectX::XMFLOAT4(0, 0, 1, 1);
-	element.m_transform.m_parent = graph.AddItem(element);
+
+    element.m_eventBinding = UIManager::get().Bind(UIManager::CloseUI);
+
+    element.m_transform.m_parent = graph.AddItem(element);
+
 }
 
 
@@ -199,6 +206,8 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
 	SetCapture(m_renderer.GethWnd());
+
+    UIManager::get().OnClick(x, y);
 }
 
 // --------------------------------------------------------
