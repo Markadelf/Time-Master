@@ -40,6 +40,7 @@ Global
 		AssetManager\AssetManager.vcxitems*{1f23aab9-7fe8-4f1c-8490-900fc96aa843}*SharedItemsImports = 9
 		NetworkingCore\NetworkingCore.vcxitems*{2506268c-e545-4dc8-8c64-cf6363bddd89}*SharedItemsImports = 9
 		GameMath\GameMath.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		GameSpecificLogic\GameSpecificLogic.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		HostSceneGraph\HostSceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		NetworkingCore\NetworkingCore.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		SceneGraph\SceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4

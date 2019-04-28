@@ -1,5 +1,5 @@
 #include "ArenaLevel.h"
-#include "AssetManager.h"
+#include "StaticObject.h"
 
 ArenaLevel::ArenaLevel()
 {
@@ -24,9 +24,11 @@ ArenaLevel::ArenaLevel()
     handle.m_scale[2] = 2;
     handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 2);
 
+    Transform trans;
     for (size_t i = 0; i < div; i++)
     {
-        objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
+        trans = Transform(right.Rotate(6.28f / div * i), -6.28f / div * i);
+        objs[i] = StaticObject(trans, handle);
     }
     handle.m_material = floorMaterial;
     handle.m_mesh = cylinderHandle;
@@ -34,14 +36,15 @@ ArenaLevel::ArenaLevel()
     handle.m_collider = ColliderManager::get().GetCircleHandle(.5f);
     //handle.m_scale[2] = 1;
 
-    objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
+    trans = Transform(Vector2(), 0);
+    objs[div] = StaticObject(trans, handle);
 
     // Add floor
     handle.m_collider = Colliders2D::ColliderHandle();
     handle.m_yPos = -1;
     handle.m_scale[0] = 10;
     handle.m_scale[2] = 10;
-    objs[div + 1] = (StaticObject(Transform(Vector2(), 0), handle));
+    objs[div + 1] = StaticObject(trans, handle);
 
     m_staticObjectCount = div + 2;
     m_staticObjs = new StaticObject[m_staticObjectCount];
