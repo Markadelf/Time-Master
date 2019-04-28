@@ -1,25 +1,25 @@
 #include "Phenomena.h"
 
-Phenomena::Phenomena(): Phenomena(TimeInstableTransform(), HandleObject())
+Phenomenon::Phenomenon(): Phenomenon(TimeInstableTransform(), HandleObject())
 {
 }
 
-Phenomena::Phenomena(TimeInstableTransform trajectory, HandleObject handles)
+Phenomenon::Phenomenon(TimeInstableTransform trajectory, HandleObject handles)
 {
 	m_transform = trajectory;
 	m_handles = handles;
 }
 
-Phenomena::~Phenomena()
+Phenomenon::~Phenomenon()
 {
 }
 
-TimeInstableTransform Phenomena::GetTransform() const
+TimeInstableTransform Phenomenon::GetTransform() const
 {
 	return m_transform;
 }
 
-HandleObject Phenomena::GetHandle() const
+HandleObject Phenomenon::GetHandle() const
 {
 	return m_handles;
 }

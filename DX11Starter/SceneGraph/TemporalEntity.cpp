@@ -86,7 +86,7 @@ void TemporalEntity::Initialize(int maxImages, int maxPhenomena, int entityId)
 	// Initialize Buffers
 	m_images = new Phantom[maxImages];
 	m_phenomenaImages = new int[maxPhenomena];
-	m_phenomenaBuffer = new Phenomena[maxPhenomena];
+	m_phenomenaBuffer = new Phenomenon[maxPhenomena];
 
 	// Intialize indices
 	m_imageCount = 0;
@@ -118,7 +118,7 @@ Phantom* TemporalEntity::GetPhantomBuffer() const
 	return m_images;
 }
 
-Phenomena* TemporalEntity::GetPhenomenaBuffer() const
+Phenomenon* TemporalEntity::GetPhenomenaBuffer() const
 {
 	return m_phenomenaBuffer;
 }
@@ -181,7 +181,7 @@ Phantom* TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
 	return &m_images[m_imageCount++];
 }
 
-void TemporalEntity::TrackPhenomena(Phenomena phenomena)
+void TemporalEntity::TrackPhenomena(Phenomenon phenomena)
 {
 	m_phenomenaImages[m_phenomenaCount] = m_imageCount;
 	m_phenomenaBuffer[m_phenomenaCount] = phenomena;

@@ -136,7 +136,7 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			}
 		}
 
-		entity->TrackPhenomena(Phenomena(traj, proto.m_handle));
+		entity->TrackPhenomena(Phenomenon(traj, proto.m_handle));
 	}
 }
 

@@ -114,7 +114,7 @@ void ClientManager::PrepDrawGroup()
 		}
 
 		int phenCount = entity->GetPhenomenaCount();
-		Phenomena* phenomenas = entity->GetPhenomenaBuffer();
+		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
 
 		for (size_t j = 0; j < phenCount; j++)
 		{

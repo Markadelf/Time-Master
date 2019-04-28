@@ -13,7 +13,7 @@ class TemporalEntity
 	// Buffer containing indexes of projectiles
 	int* m_phenomenaImages;
 	// Buffer containing the Phenomena
-	Phenomena* m_phenomenaBuffer;
+	Phenomenon* m_phenomenaBuffer;
 
 	// Most Recent Transform of the Player
 	Transform m_currentTransform;
@@ -54,7 +54,7 @@ public:
 	int GetImageCount() const;
 	int GetPhenomenaCount() const;
 	Phantom* GetPhantomBuffer() const;
-	Phenomena* GetPhenomenaBuffer() const;
+	Phenomenon* GetPhenomenaBuffer() const;
 	Transform GetTransform() const;
 	TimeStamp GetTimeStamp() const;
 	bool GetReversed() const;
@@ -70,7 +70,7 @@ public:
 	
 	// Creates a phantom on the player's phantom stack and returns info for that phantom
 	Phantom* StackKeyFrame(KeyFrameData keyFrame);
-	void TrackPhenomena(Phenomena Phenomena);
+	void TrackPhenomena(Phenomenon Phenomena);
 
 	// Kill a player at a given time
 	void Kill(int imageIndex, TimeStamp time, const PhenomenaHandle& murderHandle, PhenomenaHandle& PhenomenaResetHandle);

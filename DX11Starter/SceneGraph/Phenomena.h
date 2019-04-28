@@ -47,15 +47,15 @@ struct PhenomenaHandle
 };
 
 // This class is for storing data about an instance of a phenomena
-class Phenomena
+class Phenomenon
 {
 	TimeInstableTransform m_transform;
 	HandleObject m_handles;
 
 public:
-	Phenomena();
-	Phenomena(TimeInstableTransform trajectory, HandleObject handles);
-	~Phenomena();
+	Phenomenon();
+	Phenomenon(TimeInstableTransform trajectory, HandleObject handles);
+	~Phenomenon();
 
 	// Accessors
 	TimeInstableTransform GetTransform() const;
