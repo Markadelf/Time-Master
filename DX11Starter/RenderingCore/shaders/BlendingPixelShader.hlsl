@@ -87,7 +87,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		}
 	}
 
-	return float4(transparency.rrr, textureColor.a*transparency);
+	return float4(finalColor, textureColor.a*transparency);
 
 
 }

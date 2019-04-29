@@ -189,10 +189,10 @@ void ClientManager::PrepDrawGroup()
         int rCount = 0;
 
         // Build transparancy map
-		bool lastReversed = !phantoms[0].GetTransform().GetReversed();
         pTime[0] = 0;
         pTimeReversed[0] = 0;
         rCount = 1;
+        bool lastReversed = phantoms[0].GetTransform().GetReversed();
         for (int j = 0; j < phanCount - 1; j++)
         {
             bool reversed = phantoms[j + 1].GetTransform().GetReversed();
@@ -212,7 +212,7 @@ void ClientManager::PrepDrawGroup()
 			TimeInstableTransform trans = phantoms[j].GetTransform();
             if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-                float personalTime = pTime[j] + (time - trans.GetStartTime());
+                float personalTime = pTime[j] + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
                 float opacity = 1;
                 while (personalTime >= pTimeReversed[rIndex + 1])
                 {
