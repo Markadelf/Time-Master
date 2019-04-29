@@ -1,6 +1,9 @@
 #include "ClientManager.h"
 #include "ColliderManager.h"
 #include "AssetManager.h"
+#include "MathUtil.h"
+
+#include <algorithm>
 
 ClientManager::ClientManager()
 {
@@ -246,8 +249,10 @@ void ClientManager::PrepDrawGroup()
                 else if(opacity > 0)
                 {
                     TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
+					
                     ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
                     tEnt.m_transparency = opacity;
+					tEnt.m_distance = mathutil::Distance(m_drawInfo.m_camera.GetPosition(), tEnt.m_entity.GetPosition());
                 }
 			}
         }
@@ -265,7 +270,14 @@ void ClientManager::PrepDrawGroup()
 		}
 	}
 
-	// sort 
+	// sorting transperant entities
+	std::sort(m_drawInfo.m_transparentObjects, m_drawInfo.m_transparentObjects + m_drawInfo.m_transparentCount,
+			//lambda to define the sorting comparision
+			[](TransparentEntity const & first, TransparentEntity const & second)->bool
+			{
+				return first.m_distance < second.m_distance;
+			}	
+	);
 }
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)
