@@ -61,8 +61,6 @@ public:
 	// Renders to the screen
 	void Render();
 
-	// TODO: ADD Controls and event system for UI
-    
     // Calls events if a button is clicked
     void OnClick(int x, int y);
 
