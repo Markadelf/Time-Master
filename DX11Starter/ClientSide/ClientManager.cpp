@@ -184,38 +184,69 @@ void ClientManager::PrepDrawGroup()
 		int phanCount = entity->GetImageCount();
 		Phantom* phantoms = entity->GetPhantomBuffer();
 		
+        float pTime[1000];
+        float pTimeReversed[100];
+        int rCount = 0;
+
+        // Build transparancy map
 		bool lastReversed = !phantoms[0].GetTransform().GetReversed();
+        pTime[0] = 0;
+        pTimeReversed[0] = 0;
+        rCount = 1;
+        for (int j = 0; j < phanCount - 1; j++)
+        {
+            bool reversed = phantoms[j + 1].GetTransform().GetReversed();
+            pTime[j + 1] = pTime[j] + phantoms[j].GetTransform().GetEndTime() - phantoms[j].GetTransform().GetStartTime();
+            if (lastReversed != reversed)
+            {
+                pTimeReversed[rCount++] = pTime[j + 1];
+            }
+            lastReversed = reversed;
+        }
+        pTimeReversed[rCount++] = pTime[phanCount - 1] + phantoms[phanCount - 1].GetTransform().GetEndTime() - phantoms[phanCount - 1].GetTransform().GetStartTime();
+
+        const float fadePeriod = .5f;
+        int rIndex = 0;
 		for (size_t j = 0; j < phanCount; j++)
 		{
 			TimeInstableTransform trans = phantoms[j].GetTransform();
-            bool reversed = trans.GetReversed();
             if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				if (lastReversed != reversed)
-				{
-					TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
-                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
-					tEnt.m_transparency = trans.GetProgress(time);
-                    if (reversed)
+                float personalTime = pTime[j] + (time - trans.GetStartTime());
+                float opacity = 1;
+                while (personalTime >= pTimeReversed[rIndex + 1])
+                {
+                    rIndex++;
+                }
+                if (personalTime <= pTimeReversed[rIndex] + fadePeriod)
+                {
+                    opacity = (personalTime - pTimeReversed[rIndex]) / fadePeriod;
+                }
+                if (personalTime + fadePeriod >= pTimeReversed[rIndex + 1])
+                {
+                    if (opacity != 1)
                     {
-                        tEnt.m_transparency = 1 - tEnt.m_transparency;
+                        float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
+                        opacity = opacity < opacity2 ? opacity : opacity2;
+                    }
+                    else
+                    {
+                        opacity = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
                     }
                 }
-                else if (j == phanCount - 1 || phantoms[j + 1].GetTransform().GetReversed() != reversed) {
-                    TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
-                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
-                    tEnt.m_transparency = trans.GetProgress(time);
-                    if (!reversed)
-                    {
-                        tEnt.m_transparency = 1 - tEnt.m_transparency;
-                    }
-                }
-				else
+                opacity = opacity * opacity;
+				
+				if(opacity == 1)
 				{
 					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
 				}
+                else if(opacity > 0)
+                {
+                    TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
+                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
+                    tEnt.m_transparency = opacity;
+                }
 			}
-            lastReversed = reversed;
         }
 
 		int phenCount = entity->GetPhenominaCount();
