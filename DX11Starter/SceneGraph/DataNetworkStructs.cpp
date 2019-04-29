@@ -21,12 +21,12 @@ bool HostDataHeader::Serialize(Buffer& buffer) const
 {
 	return Serializer::Serialize<Phantom, 15>(buffer, m_phantoms, m_phantomCount),
 		Serializer::Serialize<DeathInfo, 15>(buffer, m_deaths, m_deathCount),
-		Serializer::Serialize<Phenomina, 15>(buffer, m_phenomina, m_phenominaCount);
+		Serializer::Serialize<Phenomenon, 15>(buffer, m_phenomina, m_phenominaCount);
 }
 
 bool HostDataHeader::Deserialize(Buffer& buffer)
 {
 	return Serializer::Deserialize<Phantom, 15>(buffer, m_phantoms, m_phantomCount),
 		Serializer::Deserialize<DeathInfo, 15>(buffer, m_deaths, m_deathCount),
-		Serializer::Deserialize<Phenomina, 15>(buffer, m_phenomina, m_phenominaCount);
+		Serializer::Deserialize<Phenomenon, 15>(buffer, m_phenomina, m_phenominaCount);
 }

@@ -2,6 +2,7 @@
 #include "DataNetworkStructs.h"
 #include "RequestNetworkStructs.h"
 #include "StaticObject.h"
+#include "ArenaLevel.h"
 
 GameHost::GameHost(ServerManager* server)
 {
@@ -55,7 +56,7 @@ void GameHost::HostRecievePlayer(Buffer& data, int playerId)
     header.m_phantomCount = 1;
 
     if (phan.GetShot()) {
-        header.m_phenomina[0] = entity->GetPhenominaBuffer()[entity->GetPhenominaCount() - 1];
+        header.m_phenomina[0] = entity->GetPhenomenaBuffer()[entity->GetPhenomenaCount() - 1];
         header.m_phenominaCount = 1;
     }
 
@@ -93,34 +94,6 @@ void GameHost::StartGame()
 
 void GameHost::LoadLevel()
 {
-    // Add static objects to scene graph
-    const int div = 20;
-    StaticObject objs[div + 1];
-    Vector2 right = Vector2(5, 0);
-    HandleObject handle;
-    handle.m_scale[2] = 2;
-    handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 2);
-
-    Transform trans;
-    for (size_t i = 0; i < div; i++)
-    {
-        trans = Transform(right.Rotate(6.28f / div * i), -6.28f / div * i);
-        objs[i] = StaticObject(trans, handle);
-    }
-    handle.SetUniformScale(1);
-    handle.m_collider = ColliderManager::get().GetCircleHandle(.5f);
-    //handle.m_scale[2] = 1;
-
-    trans = Transform(Vector2(), 0);
-    objs[div] = StaticObject(trans, handle);
-
-    m_sceneGraph.Init(16, 100);
-    m_sceneGraph.Init(&objs[0], div + 1);
-
-    handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
-    handle.SetUniformScale(1);
-    Vector2 pos(0, -3);
-
-    // Add player
-    int id = m_sceneGraph.AddEntity(2048, 100);
+    ArenaLevel level;
+    level.LoadScene(m_sceneGraph);
 }

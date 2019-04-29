@@ -7,7 +7,7 @@
 class ClientHelper
 {
 	// Consider removing if refactoring callback system
-	static ClientHelper* CLIENT;
+	static ClientHelper* CLIENTHELPER;
 
 	// Does the heavy lifting for the communication
 	Connection m_server;

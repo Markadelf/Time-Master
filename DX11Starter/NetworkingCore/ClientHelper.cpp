@@ -1,6 +1,6 @@
 #include "ClientHelper.h"
 
-ClientHelper* ClientHelper::CLIENT;
+ClientHelper* ClientHelper::CLIENTHELPER;
 
 ClientHelper::ClientHelper(int port, Address server)
 {
@@ -14,7 +14,7 @@ ClientHelper::ClientHelper(int port, Address server)
 
 	m_socket.Rebind(port);
 
-	CLIENT = this;
+    CLIENTHELPER = this;
 }
 
 ClientHelper::~ClientHelper()
@@ -79,5 +79,5 @@ void ClientHelper::ListenHelper(Address ad, const void* data, const int size)
 
 void ClientHelper::ListenHelperStatic(Address ad, const void* data, const int size)
 {
-	CLIENT->ListenHelper(ad, data, size);
+    CLIENTHELPER->ListenHelper(ad, data, size);
 }
