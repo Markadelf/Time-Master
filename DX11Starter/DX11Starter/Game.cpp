@@ -55,7 +55,7 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
-	LoadUI();
+	//LoadUI();
 	m_renderer.OnResize();
 }
 

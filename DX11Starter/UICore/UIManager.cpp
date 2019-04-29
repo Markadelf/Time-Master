@@ -149,7 +149,7 @@ void UIManager::OnClick(int x, int y)
 
 int UIManager::Bind(UIEvent callback)
 {
-    for (size_t i = 0; i < m_eBindCount; i++)
+    for (int i = 0; i < m_eBindCount; i++)
     {
         if (m_eventBindings[i] == callback) 
         {
