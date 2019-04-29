@@ -73,6 +73,9 @@ public:
     static void OpenUIBack(int graph, int arg);
     static void CloseUI(int graph, int arg);
 
+    // Closes all open graphs and opens the one denoted by args
     static void MoveToUI(int graph, int arg);
+    // Closes the calling UI and opens the one denoted by args
+    static void SwapToUI(int graph, int arg);
 };
 

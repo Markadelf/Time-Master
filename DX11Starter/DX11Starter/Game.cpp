@@ -140,9 +140,50 @@ void Game::LoadUI()
 	element.m_transform.m_pivot = Vector2(.5f, .5f);
 	element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
 
-    element.m_eventBinding = UIManager::get().Bind(UIManager::CloseUI);
+    int close = UIManager::get().Bind(UIManager::CloseUI);
+    element.m_eventBinding = close;
 
     element.m_transform.m_parent = graph.AddItem(element);
+
+    // Second graph
+    int graph2ID = UIManager::get().MakeGraph();
+
+    // Add button for graph 2 to graph one
+    element.m_textureHandle = 1;
+    element.m_transform.m_size = Vector2(.25f, .25f);
+    element.m_transform.m_anchor = Vector2(.5f, .5f);
+    element.m_transform.m_pivot = Vector2(.5f, .5f);
+    element.m_color = DirectX::XMFLOAT4(0, 1, 1, 1);
+    element.m_eventBinding = UIManager::get().Bind(UIManager::CloseUI);
+    element.m_transform.m_parent = -1;
+    element.m_eventArg = graph2ID;
+
+    element.m_transform.m_parent = graph.AddItem(element);
+
+    UIGraph& graph2 = UIManager::get().GetGraph(graph2ID);
+
+    element.m_eventBinding = -1;
+    element.m_transform.m_size = Vector2(1, 1);
+    element.m_transform.m_anchor = Vector2(0, 0);
+    element.m_transform.m_pivot = Vector2(0, 0);
+    element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
+    element.m_textureHandle = 0;
+    element.m_transform.m_parent = graph2.AddItem(element);
+
+    element.m_transform.m_size = Vector2(.08f, .1f);
+    element.m_transform.m_anchor = Vector2(0, 0);
+    element.m_transform.m_pivot = Vector2(0, 0);
+    element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
+    element.m_transform.m_parent = graph2.AddItem(element);
+
+    element.m_textureHandle = 1;
+    element.m_transform.m_size = Vector2(.5f, .5f);
+    element.m_transform.m_anchor = Vector2(.5f, .5f);
+    element.m_transform.m_pivot = Vector2(.5f, .5f);
+    element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
+    element.m_eventBinding = close;
+
+    element.m_transform.m_parent = graph2.AddItem(element);
 }
 
 

@@ -79,7 +79,7 @@ bool UIManager::SetGraphActiveInBack(int graphHandle)
     }
 
     // Move the rest of the list forward
-    memcpy(m_activeGraphs + 1, m_activeGraphs, m_activeCount);
+    memcpy(m_activeGraphs + 1, m_activeGraphs, m_activeCount * sizeof(int));
 
     // Insert at the back
     m_activeGraphs[0] = graphHandle;
@@ -172,5 +172,11 @@ void UIManager::CloseUI(int graph, int arg)
 void UIManager::MoveToUI(int graph, int arg)
 {
     get().m_activeCount = 0;
+    get().SetGraphActiveInFront(arg);
+}
+
+void UIManager::SwapToUI(int graph, int arg)
+{
+    get().SetGraphInactive(graph);
     get().SetGraphActiveInFront(arg);
 }
