@@ -65,7 +65,7 @@ ArenaLevel::ArenaLevel()
     m_entities[0].m_maxPhenomena = 100;
     m_entities[0].m_startingPos = Transform(pos, 0);
     m_entities[0].m_action.m_deploymentTime = .1f;
-    m_entities[0].m_action.m_duration = .3f;
+    m_entities[0].m_action.m_duration = .1f;
     m_entities[0].m_action.m_phenomenaType = 0;
 
 

@@ -75,17 +75,14 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
 	HandleObject handle = entity->GetHandle();
 	Phantom* phantom = entity->StackKeyFrame(keyFrame);
-	if (keyFrame.m_usedAction && phantom != nullptr)
+	if (keyFrame.m_usedAction)
 	{
         ActionInfo action = entity->GetAction();
         float shotTime = keyFrame.m_timeStamp + action.m_deploymentTime;
         PhenomenaPrototype& proto = m_phenomenaTypes[action.m_phenomenaType];
 
         // Stack a keyframe for this action
-        keyFrame.m_timeStamp += action.m_duration;
-        phantom = entity->StackKeyFrame(keyFrame);
-
-        Transform transform = keyFrame.m_transform;
+        Transform transform = phantom->GetTransform().GetTransform(shotTime);
 
         Vector2 finalPos = transform.GetPos() + Vector2(0, proto.m_range).Rotate(-transform.GetRot());
 		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), shotTime, shotTime + proto.m_period, false);
