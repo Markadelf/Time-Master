@@ -23,15 +23,15 @@ void ClientManager::Update(float deltaTime)
 	m_graph.PreventCollision(m_player.GetEntityId(), trans);
 	m_player.SetTransform(trans);
 
-	static int frame = 0;
-	if (frame > 30)
+	static float frame = 0;
+	if (frame > .3f)
 	{
 		m_graph.StackKeyFrame(m_player.GetKeyFrame());
 		frame = 0;
 	}
 	else
 	{
-		frame++;
+		frame += deltaTime;
 	}
 }
 
@@ -201,9 +201,15 @@ void ClientManager::PrepDrawGroup()
                         tEnt.m_transparency = 1 - tEnt.m_transparency;
                     }
                 }
-               /* else if (j == phanCount - 1 || trans.GetReversed()) {
-
-                }*/
+                else if (j == phanCount - 1 || phantoms[j + 1].GetTransform().GetReversed() != reversed) {
+                    TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
+                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
+                    tEnt.m_transparency = trans.GetProgress(time);
+                    if (!reversed)
+                    {
+                        tEnt.m_transparency = 1 - tEnt.m_transparency;
+                    }
+                }
 				else
 				{
 					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
