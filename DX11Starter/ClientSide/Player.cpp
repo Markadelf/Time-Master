@@ -11,47 +11,61 @@ Player::~Player()
 {
 }
 
-void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle)
+void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod)
 {
 	m_transform = startingPos;
 	m_time = initialTime;
 	m_handle = handle;
+    m_keyPeriod = keyPeriod;
+    m_keyFrameTimer = 0;
 }
 
 void Player::Update(float deltaTime)
 {
 	m_time += deltaTime * (m_reversed ? -1 : 1);
 
-	UpdatePosition(deltaTime);
+    if (!m_usedAction)
+    {
+        m_keyFrameTimer -= deltaTime;
+        UpdatePosition(deltaTime);
 
-	// TODO: Replace with other input logic
-	static bool rHeld = false;
-	if (GetAsyncKeyState('R') & 0x8000)
-	{
-		if (!rHeld)
-		{
-			m_reversed = !m_reversed;
-			rHeld = true;
-		}
-	}
-	else
-	{
-		rHeld = false;
-	}
-	static bool held = false;
-	if (GetAsyncKeyState(' ') & 0x8000)
-	{
-		if (!held)
-		{
-			m_lastTimeShot = m_time;
-			m_shot = true;
-			held = true;
-		}
-	}
-	else
-	{
-		held = false;
-	}
+        // TODO: Replace with other input logic
+        static bool rHeld = false;
+        if (GetAsyncKeyState('R') & 0x8000)
+        {
+            if (!rHeld)
+            {
+                m_reversed = !m_reversed;
+                rHeld = true;
+            }
+        }
+        else
+        {
+            rHeld = false;
+        }
+        static bool held = false;
+        if (GetAsyncKeyState(' ') & 0x8000)
+        {
+            if (!held)
+            {
+                m_actionUsedTime = m_time;
+                m_usedAction = true;
+                m_reversed = false;
+                held = true;
+            }
+        }
+        else
+        {
+            held = false;
+        }
+    }
+    else 
+    {
+        if (m_time > m_actionUsedTime + m_action.m_duration)
+        {
+            m_usedAction = false;
+        }
+    }
 }
 
 Transform Player::GetTransform() const
@@ -62,11 +76,6 @@ Transform Player::GetTransform() const
 TimeStamp Player::GetTimeStamp() const
 {
 	return m_time;
-}
-
-TimeStamp Player::GetTimeShot() const
-{
-	return m_lastTimeShot;
 }
 
 bool Player::GetReversed() const
@@ -104,12 +113,25 @@ void Player::SetTransform(Transform trans)
 	m_transform = trans;
 }
 
+void Player::SetAction(ActionInfo action)
+{
+    m_action = action;
+}
+
 KeyFrameData Player::GetKeyFrame()
 {
-	KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_shot, m_lastTimeShot);
-	// Reset shot info
-	m_shot = false;
+    KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_usedAction && m_actionUsedTime == m_time);
 	return key;
+}
+
+bool Player::StackRequested()
+{
+    bool ret = m_usedAction ? m_actionUsedTime == m_time : m_keyFrameTimer <= 0;
+    if (ret)
+    {
+        m_keyFrameTimer = m_keyPeriod;
+    }
+    return ret;
 }
 
 void Player::UpdatePosition(float deltaTime) {

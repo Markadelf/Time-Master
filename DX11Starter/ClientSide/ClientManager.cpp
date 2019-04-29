@@ -2,6 +2,7 @@
 #include "ColliderManager.h"
 #include "AssetManager.h"
 #include "DataNetworkStructs.h"
+#include "ArenaLevel.h"
 
 ClientManager::ClientManager()
 {
@@ -25,13 +26,12 @@ void ClientManager::Update(float deltaTime)
 	m_graph.PreventCollision(m_player.GetEntityId(), trans);
 	m_player.SetTransform(trans);
 
-	static int frame = 0;
-	if (frame > 30)
+	if (m_player.StackRequested())
 	{
         if (m_networkConnection == nullptr)
         {
             // Offline logic
-            m_graph.StackKeyFrame(m_player.GetKeyFrame());
+			m_graph.StackKeyFrame(m_player.GetKeyFrame());
         }
         else 
         {
@@ -40,108 +40,29 @@ void ClientManager::Update(float deltaTime)
             m_player.GetKeyFrame().Serialize(*buffer);
             m_networkConnection->SendToServer();
         }
-        frame = 0;
-	}
-	else
-	{
-		frame++;
 	}
 }
 
 void ClientManager::Init()
 {
 	//TODO: Modify to load either from file or from a preset instead of hard coding it
+    ArenaLevel arena;
+    arena.LoadScene(m_graph);
 
-	int floorMaterial = AssetManager::get().GetMaterialHandle("FLOOR");
-	int woodMaterial  = AssetManager::get().GetMaterialHandle("WOOD");
-	int playerMaterial = AssetManager::get().GetMaterialHandle("PLAYER3");
+    int playerId = 0;
+    EntitySpawnInfo& player = arena.GetSpawnInfo(playerId);
+    m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f);
+    m_player.SetEntityId(playerId);
+    m_player.SetAction(player.m_action);
 
-	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cone.obj");
-	int cubeHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cube.obj");
-	int cylinderHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cylinder.obj");
-	int sphereHandle = AssetManager::get().GetMeshHandle("OBJ_Files/sphere.obj");
-	int duckHandle = AssetManager::get().GetMeshHandle("OBJ_Files/duck.fbx");
+    Light* lights;
+    int lCount;
+    arena.GetLights(&lights, lCount);
 
-	// Add static objects to scene graph
-	const int div = 20;
-	StaticObject objs[div + 2];
-	Vector2 right = Vector2(5, 0);
-	HandleObject handle;
-	handle.m_material = woodMaterial;
-	handle.m_mesh = cubeHandle;
-	handle.m_scale[2] = 2;
-	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 2);
+    memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
+    m_drawInfo.m_lightCount = lCount;
 
-	for (size_t i = 0; i < div; i++)
-	{
-		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
-	}
-	handle.m_material = floorMaterial;
-	handle.m_mesh = cylinderHandle;
-	handle.SetUniformScale(1);
-	handle.m_collider = ColliderManager::get().GetCircleHandle(.5f);
-	//handle.m_scale[2] = 1;
-
-	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
-	
-	// Add floor
-	handle.m_collider = Colliders2D::ColliderHandle();
-	handle.m_yPos = -1;
-	handle.m_scale[0] = 10;
-	handle.m_scale[2] = 10;
-	objs[div + 1] = (StaticObject(Transform(Vector2(), 0), handle));
-
-	m_graph.Init(16, 100);
-	m_graph.Init(&objs[0], div + 2);
-
-	handle.m_yPos = 0;
-	handle.m_material = playerMaterial;
-	handle.m_mesh = cubeHandle;
-	handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
-	handle.SetUniformScale(1);
-	Vector2 pos(0, -3);
-
-	// Add player
-	int id = m_graph.AddEntity(2048, 100);
-	m_player.Initialize(Transform(pos, 0), 0, handle);
-	m_graph.GetEntity(id)->Initialize(Transform(pos, 0), m_player.GetTimeStamp(), handle);
-	m_player.SetEntityId(id);
-
-	PrepDrawGroupStatics();
-
-	//Initiating lighting
-	Light directLight, spotLight, pointLight;
-
-	directLight.Type = LIGHT_TYPE_DIRECTIONAL;
-	directLight.Direction = DirectX::XMFLOAT3(-1, -1, 0);
-	directLight.Color = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
-	directLight.DiffuseIntensity = 1.0f;
-	directLight.AmbientIntensity = 0;//0.4f;
-
-	pointLight.Type = LIGHT_TYPE_POINT;
-	pointLight.Position = DirectX::XMFLOAT3(-3, -3, 0);
-	pointLight.Direction = DirectX::XMFLOAT3(1, 1, 0);
-	pointLight.Range = 20.0f;
-	pointLight.Color = DirectX::XMFLOAT3(1.0f, 0.1f, 0);
-	pointLight.DiffuseIntensity = 1.0f;
-	pointLight.AmbientIntensity = 0.0f;
-
-	spotLight.Type = LIGHT_TYPE_SPOT;
-	spotLight.Position = DirectX::XMFLOAT3(0, 5, 0);
-	spotLight.Direction = DirectX::XMFLOAT3(0, -1, 0);
-
-	spotLight.Range = 20.0f;
-	spotLight.Color = DirectX::XMFLOAT3(1, 0, 1);
-	spotLight.SpotFalloff = 25.0f;
-	spotLight.DiffuseIntensity = 1.0f;
-	spotLight.AmbientIntensity = 0.1f;
-
-	m_drawInfo.m_lightList[0] = directLight;
-	m_drawInfo.m_lightList[1] = pointLight;
-	m_drawInfo.m_lightList[2] = spotLight;
-
-	m_drawInfo.m_lightCount = 3;
+    PrepDrawGroupStatics();
 }
 
 Player& ClientManager::GetPlayer()
@@ -218,13 +139,13 @@ void ClientManager::PrepDrawGroup()
 			}
 		}
 
-		int phenCount = entity->GetPhenominaCount();
-		Phenomina* phenomenas = entity->GetPhenominaBuffer();
+		int phenCount = entity->GetPhenomenaCount();
+		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
 
 		for (size_t j = 0; j < phenCount; j++)
 		{
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
-			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+			if (trans.GetEndTime() > time && trans.GetStartTime() <= time)
 			{
 				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
 			}
