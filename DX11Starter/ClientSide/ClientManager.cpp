@@ -189,6 +189,8 @@ void ClientManager::PrepDrawGroup()
         int rCount = 0;
 
         // Build transparancy map
+        // TODO: Move this code into the TimeInstableEntity to improve frame rate
+        //       No good reason to do this every frame
         pTime[0] = 0;
         pTimeReversed[0] = 0;
         rCount = 1;
@@ -205,6 +207,7 @@ void ClientManager::PrepDrawGroup()
         }
         pTimeReversed[rCount++] = pTime[phanCount - 1] + phantoms[phanCount - 1].GetTransform().GetEndTime() - phantoms[phanCount - 1].GetTransform().GetStartTime();
 
+        // Add phantoms
         const float fadePeriod = .5f;
         int rIndex = 0;
 		for (size_t j = 0; j < phanCount; j++)
