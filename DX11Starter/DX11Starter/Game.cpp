@@ -154,7 +154,7 @@ void Game::LoadUI()
     element.m_transform.m_anchor = Vector2(.5f, .5f);
     element.m_transform.m_pivot = Vector2(.5f, .5f);
     element.m_color = DirectX::XMFLOAT4(0, 1, 1, 1);
-    element.m_eventBinding = UIManager::get().Bind(UIManager::CloseUI);
+    element.m_eventBinding = UIManager::get().Bind(UIManager::OpenUIFront);
     element.m_transform.m_parent = -1;
     element.m_eventArg = graph2ID;
 
@@ -181,7 +181,7 @@ void Game::LoadUI()
     element.m_transform.m_anchor = Vector2(.5f, .5f);
     element.m_transform.m_pivot = Vector2(.5f, .5f);
     element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
-    element.m_eventBinding = close;
+    element.m_eventBinding = UIManager::get().Bind(UIManager::CloseUI);
 
     element.m_transform.m_parent = graph2.AddItem(element);
 }
