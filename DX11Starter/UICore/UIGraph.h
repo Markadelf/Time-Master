@@ -42,6 +42,8 @@ private:
 	// Used to rebake the positions of elements
 	void Recalculate(int width, int height);
 
+    RECT CalculateRect(UITransform& transform, RECT& parent);
+
 	// This allows UIManager to access m_isDirty
 #include "UIManager.h"
 	friend class UIManager;

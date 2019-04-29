@@ -63,29 +63,40 @@ int UIGraph::GetClickEventHandle(int x, int y, int& arg)
 
 void UIGraph::Recalculate(int width, int height)
 {
+    RECT screen;
+    screen.left = 0;
+    screen.top = 0;
+    screen.right = width;
+    screen.bottom = height;
 	for (; m_firstDirty < m_elementCount; m_firstDirty++)
 	{
 		UIElement &element = m_elements[m_firstDirty];
-		if (element.m_transform.m_parent == -1 || element.m_transform.m_parent > m_firstDirty)
+        UITransform& trans = element.m_transform;
+
+        if (trans.m_parent == -1 || trans.m_parent > m_firstDirty)
 		{
 			// There isn't a parent, just calculate the rectangle
-			element.m_rect.left = (long)((element.m_transform.m_anchor.GetX() - element.m_transform.m_pivot.GetX() / 2) * width);
-			element.m_rect.top = (long)((element.m_transform.m_anchor.GetY() - element.m_transform.m_pivot.GetY() / 2) * height);
-			element.m_rect.right = element.m_rect.left + (long)(element.m_transform.m_size.GetX() * width);
-			element.m_rect.bottom = element.m_rect.top + (long)(element.m_transform.m_size.GetY() * height);
+            element.m_rect = CalculateRect(trans, screen);
 		}
 		else
 		{
-			// There is a parent, treat it as the screen
-			RECT parent = m_elements[element.m_transform.m_parent].m_rect;
-			int pWidth = parent.right - parent.left;
-			int pHeight = parent.bottom - parent.top;
-			element.m_rect.left = parent.left + (long)((element.m_transform.m_anchor.GetX() - element.m_transform.m_pivot.GetX() / 2) * pWidth);
-			element.m_rect.top = parent.top + (long)((element.m_transform.m_anchor.GetY() - element.m_transform.m_pivot.GetY() / 2) * pHeight);
-			element.m_rect.right = element.m_rect.left + (long)(element.m_transform.m_size.GetX() * pWidth);
-			element.m_rect.bottom = element.m_rect.top + (long)(element.m_transform.m_size.GetY() * pHeight);
+            // There is a parent, treat it as the screen
+            element.m_rect = CalculateRect(trans, m_elements[element.m_transform.m_parent].m_rect);
 		}
 	}
 	m_firstDirty = -1;
+}
+
+RECT UIGraph::CalculateRect(UITransform& transform, RECT& parent)
+{
+    int width = parent.right - parent.left;
+    int height = parent.bottom - parent.top;
+    RECT ret;
+
+    ret.left = parent.left + (long)((transform.m_anchor.m_x - transform.m_pivot.m_x * transform.m_size.m_x) * width);
+    ret.top = parent.top + (long)((transform.m_anchor.m_y - transform.m_pivot.m_y * transform.m_size.m_y) * height);
+    ret.right = ret.left + (long)(transform.m_size.m_x * width);
+    ret.bottom = ret.top + (long)(transform.m_size.m_y * height);
+    return ret;
 }
 
