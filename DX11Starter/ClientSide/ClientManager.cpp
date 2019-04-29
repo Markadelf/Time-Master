@@ -188,22 +188,29 @@ void ClientManager::PrepDrawGroup()
 		for (size_t j = 0; j < phanCount; j++)
 		{
 			TimeInstableTransform trans = phantoms[j].GetTransform();
-			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+            bool reversed = trans.GetReversed();
+            if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				bool reversed = trans.GetReversed();
 				if (lastReversed != reversed)
 				{
 					TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
-					ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
+                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
 					tEnt.m_transparency = trans.GetProgress(time);
-				}
+                    if (reversed)
+                    {
+                        tEnt.m_transparency = 1 - tEnt.m_transparency;
+                    }
+                }
+               /* else if (j == phanCount - 1 || trans.GetReversed()) {
+
+                }*/
 				else
 				{
 					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
 				}
-                lastReversed = reversed;
 			}
-		}
+            lastReversed = reversed;
+        }
 
 		int phenCount = entity->GetPhenominaCount();
 		Phenomina* phenomenas = entity->GetPhenominaBuffer();
