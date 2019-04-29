@@ -331,7 +331,6 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	
 	// Set the states!
 	context->RSSetState(m_blendRasterizer);
-	context->OMSetDepthStencilState(m_blendDepthState, 0);
 	context->OMSetBlendState(m_blendState, 0, 0xFFFFFFFF);
 	for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
 	{
@@ -342,7 +341,6 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Resetting blender state
 	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
 	context->RSSetState(0);
-	context->OMSetDepthStencilState(0, 0);
 	// Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
 	ID3D11ShaderResourceView* noSRV[16] = {};
