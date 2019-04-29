@@ -15,7 +15,11 @@ class Player
 	bool m_dead;
 	bool m_reversed;				// false if moving forward in time
 	bool m_usedAction;
-	int m_entityId;
+    bool m_reportActionUsed;
+
+    bool m_keyFrameRequested;
+
+    int m_entityId;
 	TimeStamp m_time;
     TimeStamp m_keyPeriod;
 

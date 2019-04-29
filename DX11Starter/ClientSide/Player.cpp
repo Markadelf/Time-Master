@@ -4,6 +4,9 @@
 Player::Player()
 {
 	m_reversed = false;
+    m_keyFrameRequested = true;
+    m_reportActionUsed = false;
+    m_usedAction = false;
 }
 
 
@@ -24,10 +27,15 @@ void Player::Update(float deltaTime)
 {
 	m_time += deltaTime * (m_reversed ? -1 : 1);
 
+    UpdatePosition(deltaTime);
+
     if (!m_usedAction)
     {
         m_keyFrameTimer -= deltaTime;
-        UpdatePosition(deltaTime);
+        if (m_keyFrameTimer <= 0)
+        {
+            m_keyFrameRequested = true;
+        }
 
         // TODO: Replace with other input logic
         static bool rHeld = false;
@@ -37,6 +45,7 @@ void Player::Update(float deltaTime)
             {
                 m_reversed = !m_reversed;
                 rHeld = true;
+                m_keyFrameRequested = true;
             }
         }
         else
@@ -49,6 +58,7 @@ void Player::Update(float deltaTime)
             if (!held)
             {
                 m_actionUsedTime = m_time;
+                m_keyFrameRequested = true;
                 m_usedAction = true;
                 m_reversed = false;
                 held = true;
@@ -64,6 +74,8 @@ void Player::Update(float deltaTime)
         if (m_time > m_actionUsedTime + m_action.m_duration)
         {
             m_usedAction = false;
+            m_keyFrameRequested = true;
+            m_reportActionUsed = true;
         }
     }
 }
@@ -120,7 +132,8 @@ void Player::SetAction(ActionInfo action)
 
 KeyFrameData Player::GetKeyFrame()
 {
-    KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_usedAction && m_actionUsedTime == m_time);
+    KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_reportActionUsed);
+    m_reportActionUsed = false;
 	return key;
 }
 
@@ -130,6 +143,7 @@ bool Player::StackRequested()
     if (ret)
     {
         m_keyFrameTimer = m_keyPeriod;
+        m_keyFrameRequested = false;
     }
     return ret;
 }
