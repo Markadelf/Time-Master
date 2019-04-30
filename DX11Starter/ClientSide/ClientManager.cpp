@@ -12,9 +12,10 @@ ClientManager::ClientManager()
 
 ClientManager::~ClientManager()
 {
+	delete m_drawInfo.emitter;
 }
 
-void ClientManager::Update(float deltaTime)
+void ClientManager::Update(float deltaTime, float totalTime)
 {
 	// Update the first person controller
 	// TODO: Consider permiting more than one fps controller (AI controllers?)
@@ -33,9 +34,10 @@ void ClientManager::Update(float deltaTime)
 	{
 		frame++;
 	}
+	//m_drawInfo.emitter->Update(deltaTime, totalTime);
 }
 
-void ClientManager::Init()
+void ClientManager::Init(ID3D11Device* device)
 {
 	//TODO: Modify to load either from file or from a preset instead of hard coding it
 
@@ -129,6 +131,26 @@ void ClientManager::Init()
 	m_drawInfo.m_lightList[2] = spotLight;
 
 	m_drawInfo.m_lightCount = 3;
+
+	Transform player = m_player.GetTransform();
+
+	// Set up particles
+	m_drawInfo.emitter = new Emitter(
+		110,							// Max particles
+		20,								// Particles per second
+		5,								// Particle lifetime
+		0.1f,							// Start size
+		2.0f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(-2, 2, 0),				// Start velocity
+		XMFLOAT3(0.2f, 0.2f, 0.2f),		// Velocity randomness range
+		XMFLOAT3(player.GetPos().GetX(), 0.0f, player.GetPos().GetY()),		// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),				// Constant acceleration
+		device,
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
 }
 
 Player& ClientManager::GetPlayer()
@@ -161,6 +183,7 @@ void ClientManager::PrepDrawGroupStatics()
 
 void ClientManager::PrepDrawGroup()
 {
+	
 	// Camera
 	DirectX::XMFLOAT3 pos;
 	Transform player = m_player.GetTransform();
@@ -173,6 +196,10 @@ void ClientManager::PrepDrawGroup()
 	// Entities
 	m_drawInfo.m_visibleCount = m_staticCount;
 	TimeStamp time = m_player.GetTimeStamp();
+
+	m_drawInfo.time = time;
+
+
 
 	int eCount = m_graph.GetEntityCount();
 	for (size_t i = 0; i < eCount; i++)

@@ -59,6 +59,13 @@ Renderer::~Renderer()
 
 	m_shadowDSV->Release();
 	m_shadowSRV->Release();
+
+	delete particleVS;
+	delete particlePS;
+
+	particleBlendState->Release();
+	particleDepthState->Release();
+	particleDebugRasterState->Release();
 }
 
 // --------------------------------------------------------
@@ -90,8 +97,41 @@ void Renderer::Init()
 	dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	device->CreateDepthStencilState(&dd, &m_skyDepthState);
+
+	InitializeEmitters();
 }
 
+void Renderer::InitializeEmitters()
+{
+	// A depth state for the particles
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // Turns off depth writing
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	device->CreateDepthStencilState(&dsDesc, &particleDepthState);
+
+
+	// Blend for particles (additive)
+	D3D11_BLEND_DESC blend = {};
+	blend.AlphaToCoverageEnable = false;
+	blend.IndependentBlendEnable = false;
+	blend.RenderTarget[0].BlendEnable = true;
+	blend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; // Still respect pixel shader output alpha
+	blend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	bool check=device->CreateBlendState(&blend, &particleBlendState);
+
+	// Debug rasterizer state for particles
+	D3D11_RASTERIZER_DESC rd = {};
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.DepthClipEnable = true;
+	rd.FillMode = D3D11_FILL_WIREFRAME;
+	device->CreateRasterizerState(&rd, &particleDebugRasterState);
+}
 
 void Renderer::InitializeShaders()
 {
@@ -122,6 +162,12 @@ void Renderer::InitializeShaders()
 
 	m_skyPS = new SimplePixelShader(device, context);
 	m_skyPS->LoadShaderFile(L"SkyPixelShader.cso");
+
+	particleVS = new SimpleVertexShader(device, context);
+	particleVS->LoadShaderFile(L"ParticleVS.cso");
+
+	particlePS = new SimplePixelShader(device, context);
+	particlePS->LoadShaderFile(L"ParticlePS.cso");
 }
 
 void Renderer::InitializeShadowMaps()
@@ -278,6 +324,8 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Draw the sky AFTER all opaque geometry
 	DrawSky(drawGroup.m_camera);
 
+	RenderEmitterSystem(drawGroup.emitter, drawGroup.time, drawGroup.m_camera);
+
 	// Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
 	ID3D11ShaderResourceView* noSRV[16] = {};
@@ -405,4 +453,102 @@ void Renderer::DrawSky(Camera& camera)
 	context->RSSetState(0);
 	context->OMSetDepthStencilState(0, 0);
 
+}
+
+void Renderer::RenderEmitterSystem(Emitter * emitter, float currentTime, Camera& camera)
+{
+	if (currentTime < 0.0f)
+	{
+	//	emitter->emitterAcceleration = XMFLOAT3(0.0f,0.0f,0.0f);
+	//	emitter->firstDeadIndex = emitter->firstDeadIndex-1;
+
+
+			return;
+		
+
+	}
+	// Particle states
+	float blend[4] = { 1,1,1,1 };
+	context->OMSetBlendState(particleBlendState, blend, 0xffffffff);	// Additive blending
+	context->OMSetDepthStencilState(particleDepthState, 0);				// No depth WRITING
+
+	// No wireframe debug
+	particlePS->SetInt("debugWireframe", 0);
+	particlePS->CopyAllBufferData();
+
+	// Draw the emitter
+	//emitter->Draw(context, camera, totalTime);
+	// Do a raw copy of the particle data to the dynamic structured buffer
+	D3D11_MAPPED_SUBRESOURCE mapped = {};
+	context->Map(emitter->particleDataBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	memcpy(mapped.pData, emitter->particles, sizeof(Particle) * emitter->maxParticles);
+	context->Unmap(emitter->particleDataBuffer, 0);
+
+	// Set up buffers
+	UINT stride = 0;
+	UINT offset = 0;
+	ID3D11Buffer* nullBuffer = 0;
+	context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
+	context->IASetIndexBuffer(emitter->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+
+	particleVS->SetMatrix4x4("view", camera.GetView());
+	particleVS->SetMatrix4x4("projection", camera.GetProjection());
+
+	particleVS->SetFloat3("acceleration", emitter->emitterAcceleration);
+	particleVS->SetFloat4("startColor", emitter->startColor);
+	particleVS->SetFloat4("endColor", emitter->endColor);
+	particleVS->SetFloat("startSize", emitter->startSize);
+	particleVS->SetFloat("endSize", emitter->endSize);
+	particleVS->SetFloat("lifetime", emitter->lifetime);
+	particleVS->SetFloat("currentTime", currentTime);
+
+	particleVS->SetShader();
+
+	// Do it manually, as simple shader doesn't currently handle
+	// setting structured buffers for a vertex shader
+	context->VSSetShaderResources(0, 1, &emitter->particleDataSRV);
+
+	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/particle.jpg"));
+	particlePS->SetShader();
+
+
+
+	if (emitter->firstAliveIndex < emitter->firstDeadIndex)
+	{
+
+			// Draw from (firstAliveIndex -> firstDeadIndex)
+			particleVS->SetInt("startIndex", emitter->firstAliveIndex);
+			particleVS->CopyAllBufferData();
+			context->DrawIndexed(emitter->livingParticleCount * 6, 0, 0);
+		
+
+	}
+	else 
+	{
+		//// Draw from (firstAliveIndex -> firstDeadIndex)
+		//particleVS->SetInt("startIndex", emitter->firstAliveIndex);
+		//particleVS->CopyAllBufferData();
+		//context->DrawIndexed(emitter->livingParticleCount * 6, 0, 0);
+
+		//// Draw first half (0 -> dead)
+		particleVS->SetInt("startIndex", 0);
+		particleVS->CopyAllBufferData();
+		context->DrawIndexed(emitter->firstDeadIndex * 6, 0, 0);
+
+		// Draw second half (alive -> max)
+		particleVS->SetInt("startIndex", emitter->firstAliveIndex);
+		particleVS->CopyAllBufferData();
+		context->DrawIndexed((emitter->maxParticles- emitter->firstAliveIndex) * 6, 0, 0);
+	}
+	//if (GetAsyncKeyState('C'))
+	//{
+	//	context->RSSetState(particleDebugRasterState);
+	//	particlePS->SetInt("debugWireframe", 1);
+	//	particlePS->CopyAllBufferData();
+
+	//	//emitter->Draw(context, camera);
+	//	//	emitter2->Draw(context, camera);
+	//		//emitter3->Draw(context, camera);
+	//}
 }

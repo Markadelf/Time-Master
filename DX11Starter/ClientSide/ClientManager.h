@@ -24,11 +24,11 @@ public:
 	~ClientManager();
 
 	// Updates the player and communicates with the scenegraph
-	void Update(float deltaTime);
+	void Update(float deltaTime, float totalTime);
 	
 	// Initializes the game state
 	// TODO: Add apropriate parameters
-	void Init();
+	void Init(ID3D11Device* device);
 
 	// Accessor Functions
 	Player& GetPlayer();

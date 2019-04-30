@@ -43,6 +43,7 @@ public:
 
 	~AssetManager();
 
+
 	// Inlined template functions for taking string and int data types. Avoid duplicacy from other classes and linker problems. Refer ResourceManager.h
 	template <typename T>
 	Mesh* GetMeshPointer(T t);

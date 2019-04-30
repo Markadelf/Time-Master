@@ -74,6 +74,7 @@ void Game::LoadTextures()
 	AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
 }
 
 // --------------------------------------------------------
@@ -110,7 +111,7 @@ void Game::CreateBasicGeometry()
 
 	clientInterface = new ClientManager();
 
-	clientInterface->Init();
+	clientInterface->Init(m_renderer.GetDevice());
 }
 
 void Game::LoadUI()
@@ -152,7 +153,7 @@ void Game::Update(float deltaTime, float totalTime)
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		m_renderer.Quit();
-	clientInterface->Update(deltaTime);
+	clientInterface->Update(deltaTime,totalTime);
 }
 
 void Game::SUpdate(float deltaTime, float totalTime)

@@ -45,6 +45,15 @@ class Renderer
 	ID3D11RasterizerState* m_skyRasterState;
 	ID3D11DepthStencilState* m_skyDepthState;
 
+	//Emitter stuff
+	SimpleVertexShader* particleVS;
+	SimplePixelShader* particlePS;
+	ID3D11DepthStencilState* particleDepthState;
+	ID3D11BlendState* particleBlendState;
+	ID3D11RasterizerState* particleDebugRasterState;
+
+	void InitializeEmitters();
+
 public:
 	Renderer(HINSTANCE hInstance);
 	~Renderer();
@@ -66,6 +75,9 @@ public:
 	void RenderGroup(DrawGroup& drawGroup);
     // Renders the sky
 	void DrawSky(Camera& camera);
+
+	//Emitter System
+	void RenderEmitterSystem(Emitter* emitter, float currentTime, Camera& camera);
 
 	// Render logic
 private:
