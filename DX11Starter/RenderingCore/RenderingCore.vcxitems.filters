@@ -82,5 +82,6 @@
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyVertexShader.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)ParticlePS.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)ParticleVS.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)shaders\BlendingPixelShader.hlsl" />
   </ItemGroup>
 </Project>

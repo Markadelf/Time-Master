@@ -1,6 +1,10 @@
 #include "ClientManager.h"
 #include "ColliderManager.h"
 #include "AssetManager.h"
+#include "MathUtil.h"
+
+#include <algorithm>
+#include "ArenaLevel.h"
 
 ClientManager::ClientManager()
 {
@@ -24,15 +28,9 @@ void ClientManager::Update(float deltaTime, float totalTime)
 	m_graph.PreventCollision(m_player.GetEntityId(), trans);
 	m_player.SetTransform(trans);
 
-	static int frame = 0;
-	if (frame > 30)
+	if (m_player.StackRequested())
 	{
 		m_graph.StackKeyFrame(m_player.GetKeyFrame());
-		frame = 0;
-	}
-	else
-	{
-		frame++;
 	}
 	//m_drawInfo.emitter->Update(deltaTime, totalTime);
 }
@@ -40,37 +38,14 @@ void ClientManager::Update(float deltaTime, float totalTime)
 void ClientManager::Init(ID3D11Device* device)
 {
 	//TODO: Modify to load either from file or from a preset instead of hard coding it
+    ArenaLevel arena;
+    arena.LoadScene(m_graph);
 
-	int floorMaterial = AssetManager::get().GetMaterialHandle("FLOOR");
-	int woodMaterial  = AssetManager::get().GetMaterialHandle("WOOD");
-	int playerMaterial = AssetManager::get().GetMaterialHandle("PLAYER3");
-
-	// Load in the files and get the handles for each from the meshManager
-	int coneHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cone.obj");
-	int cubeHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cube.obj");
-	int cylinderHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cylinder.obj");
-	int sphereHandle = AssetManager::get().GetMeshHandle("OBJ_Files/sphere.obj");
-	int duckHandle = AssetManager::get().GetMeshHandle("OBJ_Files/duck.fbx");
-
-	// Add static objects to scene graph
-	const int div = 20;
-	StaticObject objs[div + 2];
-	Vector2 right = Vector2(5, 0);
-	HandleObject handle;
-	handle.m_material = woodMaterial;
-	handle.m_mesh = cubeHandle;
-	handle.m_scale[2] = 2;
-	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 2);
-
-	for (size_t i = 0; i < div; i++)
-	{
-		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
-	}
-	handle.m_material = floorMaterial;
-	handle.m_mesh = cylinderHandle;
-	handle.SetUniformScale(1);
-	handle.m_collider = ColliderManager::get().GetCircleHandle(.5f);
-	//handle.m_scale[2] = 1;
+    int playerId = 0;
+    EntitySpawnInfo& player = arena.GetSpawnInfo(playerId);
+    m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f);
+    m_player.SetEntityId(playerId);
+    m_player.SetAction(player.m_action);
 
 	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
 	
@@ -151,6 +126,14 @@ void ClientManager::Init(ID3D11Device* device)
 		XMFLOAT3(0, -1, 0),				// Constant acceleration
 		device,
 		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
+    Light* lights;
+    int lCount;
+    arena.GetLights(&lights, lCount);
+
+    memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
+    m_drawInfo.m_lightCount = lCount;
+
+    PrepDrawGroupStatics();
 }
 
 Player& ClientManager::GetPlayer()
@@ -196,6 +179,7 @@ void ClientManager::PrepDrawGroup()
 	// Entities
 	m_drawInfo.m_visibleCount = m_staticCount;
     m_drawInfo.m_emitterCount = 0;
+    m_drawInfo.m_transparentCount = 0;
 	TimeStamp time = m_player.GetTimeStamp();
 
 	m_drawInfo.time = time;
@@ -211,17 +195,60 @@ void ClientManager::PrepDrawGroup()
 		int phanCount = entity->GetImageCount();
 		Phantom* phantoms = entity->GetPhantomBuffer();
 		
+        float* pTimeReversed;
+        int rCount;
+
+        entity->GetReverseBuffer(&pTimeReversed, rCount);
+
+        // Add phantoms
+        const float fadePeriod = .5f;
+        int rIndex = 0;
 		for (size_t j = 0; j < phanCount; j++)
 		{
 			TimeInstableTransform trans = phantoms[j].GetTransform();
-			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+            if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+                float personalTime = phantoms[j].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
+                float opacity = 1;
+                while (personalTime >= pTimeReversed[rIndex + 1])
+                {
+                    rIndex++;
+                }
+                if (personalTime <= pTimeReversed[rIndex] + fadePeriod)
+                {
+                    opacity = (personalTime - pTimeReversed[rIndex]) / fadePeriod;
+                }
+                if (personalTime + fadePeriod >= pTimeReversed[rIndex + 1])
+                {
+                    if (opacity != 1)
+                    {
+                        float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
+                        opacity = opacity < opacity2 ? opacity : opacity2;
+                    }
+                    else
+                    {
+                        opacity = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
+                    }
+                }
+                opacity = opacity * opacity;
+				
+				if(opacity == 1)
+				{
+					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+				}
+                else if(opacity > 0)
+                {
+                    TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
+					
+                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
+                    tEnt.m_transparency = opacity;
+					tEnt.m_distance = mathutil::Distance(m_drawInfo.m_camera.GetPosition(), tEnt.m_entity.GetPosition());
+                }
 			}
-		}
+        }
 
-		int phenCount = entity->GetPhenominaCount();
-		Phenomina* phenomenas = entity->GetPhenominaBuffer();
+		int phenCount = entity->GetPhenomenaCount();
+		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
 
 		for (size_t j = 0; j < phenCount; j++)
 		{
@@ -240,6 +267,15 @@ void ClientManager::PrepDrawGroup()
             }
 		}
 	}
+
+	// sorting transperant entities
+	std::sort(m_drawInfo.m_transparentObjects, m_drawInfo.m_transparentObjects + m_drawInfo.m_transparentCount,
+			//lambda to define the sorting comparision
+			[](TransparentEntity const & first, TransparentEntity const & second)->bool
+			{
+				return first.m_distance < second.m_distance;
+			}	
+	);
 }
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)
