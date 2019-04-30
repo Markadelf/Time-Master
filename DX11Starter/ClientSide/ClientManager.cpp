@@ -47,67 +47,12 @@ void ClientManager::Init(ID3D11Device* device)
     m_player.SetEntityId(playerId);
     m_player.SetAction(player.m_action);
 
-	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
-	
-	// Add floor
-	handle.m_collider = Colliders2D::ColliderHandle();
-	handle.m_yPos = -1;
-	handle.m_scale[0] = 10;
-	handle.m_scale[2] = 10;
-	objs[div + 1] = (StaticObject(Transform(Vector2(), 0), handle));
+    Light* lights;
+    int lCount;
+    arena.GetLights(&lights, lCount);
 
-	m_graph.Init(16, 100);
-	m_graph.Init(&objs[0], div + 2);
-
-	handle.m_yPos = 0;
-	handle.m_material = playerMaterial;
-	handle.m_mesh = cubeHandle;
-	handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
-	handle.SetUniformScale(1);
-	Vector2 pos(0, -3);
-
-	// Add player
-	int id = m_graph.AddEntity(2048, 100);
-	m_player.Initialize(Transform(pos, 0), 0, handle);
-	m_graph.GetEntity(id)->Initialize(Transform(pos, 0), m_player.GetTimeStamp(), handle);
-	m_player.SetEntityId(id);
-
-	PrepDrawGroupStatics();
-
-	//Initiating lighting
-	Light directLight, spotLight, pointLight;
-
-	directLight.Type = LIGHT_TYPE_DIRECTIONAL;
-	directLight.Direction = DirectX::XMFLOAT3(-1, -1, 0);
-	directLight.Color = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
-	directLight.DiffuseIntensity = 1.0f;
-	directLight.AmbientIntensity = 0;//0.4f;
-
-	pointLight.Type = LIGHT_TYPE_POINT;
-	pointLight.Position = DirectX::XMFLOAT3(-3, -3, 0);
-	pointLight.Direction = DirectX::XMFLOAT3(1, 1, 0);
-	pointLight.Range = 20.0f;
-	pointLight.Color = DirectX::XMFLOAT3(1.0f, 0.1f, 0);
-	pointLight.DiffuseIntensity = 1.0f;
-	pointLight.AmbientIntensity = 0.0f;
-
-	spotLight.Type = LIGHT_TYPE_SPOT;
-	spotLight.Position = DirectX::XMFLOAT3(0, 5, 0);
-	spotLight.Direction = DirectX::XMFLOAT3(0, -1, 0);
-
-	spotLight.Range = 20.0f;
-	spotLight.Color = DirectX::XMFLOAT3(1, 0, 1);
-	spotLight.SpotFalloff = 25.0f;
-	spotLight.DiffuseIntensity = 1.0f;
-	spotLight.AmbientIntensity = 0.1f;
-
-	m_drawInfo.m_lightList[0] = directLight;
-	m_drawInfo.m_lightList[1] = pointLight;
-	m_drawInfo.m_lightList[2] = spotLight;
-
-	m_drawInfo.m_lightCount = 3;
-
-	Transform player = m_player.GetTransform();
+    memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
+    m_drawInfo.m_lightCount = lCount;
 
 	// Set up particles
 	m_drawInfo.emitter = new Emitter(
@@ -126,12 +71,6 @@ void ClientManager::Init(ID3D11Device* device)
 		XMFLOAT3(0, -1, 0),				// Constant acceleration
 		device,
 		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
-    Light* lights;
-    int lCount;
-    arena.GetLights(&lights, lCount);
-
-    memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
-    m_drawInfo.m_lightCount = lCount;
 
     PrepDrawGroupStatics();
 }
