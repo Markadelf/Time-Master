@@ -67,6 +67,8 @@ VertexToPixel main(uint id : SV_VertexID)
 	// Calc the age percent
     if (currentTime < startTime + p.SpawnTime || currentTime > endTime)
     {
+        output.uv = float2(0, 0);
+        output.color = float4(0, 0, 0, 0);
         output.position = float4(-1, -1, -1, -1);
         return output;
     }

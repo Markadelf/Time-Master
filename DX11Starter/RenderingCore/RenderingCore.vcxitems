@@ -61,10 +61,12 @@
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyPixelShader.hlsl">
       <FileType>Document</FileType>
       <ShaderType>Pixel</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyVertexShader.hlsl">
       <FileType>Document</FileType>
       <ShaderType>Vertex</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\VertexShader.hlsl">
       <ShaderType>Vertex</ShaderType>
