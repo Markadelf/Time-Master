@@ -129,21 +129,20 @@ void UIManager::Render()
 void UIManager::OnClick(int x, int y)
 {
     int handle = -1;
-    int arg, graphId;
-    // Loop from front to back
-    for (graphId = m_activeCount - 1; graphId >= 0 && handle == -1; graphId--)
+    int arg;
+
+    // Only check the front graph
+    UIGraph& graph = m_graphs[m_activeGraphs[m_activeCount - 1]];
+    // Check if graphs need to be recalculated
+    if (graph.m_firstDirty != -1)
     {
-        UIGraph& graph = m_graphs[m_activeGraphs[graphId]];
-        // Check if graphs need to be recalculated
-        if (graph.m_firstDirty != -1)
-        {
-            graph.Recalculate(m_width, m_height);
-        }
-        handle = graph.GetClickEventHandle(x, y, arg);
+        graph.Recalculate(m_width, m_height);
     }
+    handle = graph.GetClickEventHandle(x, y, arg);
+
     if (handle != -1)
     {
-        m_eventBindings[handle](graphId, arg);
+        m_eventBindings[handle](m_activeCount - 1, arg);
     }
 }
 
@@ -151,7 +150,7 @@ int UIManager::Bind(UIEvent callback)
 {
     for (int i = 0; i < m_eBindCount; i++)
     {
-        if (m_eventBindings[i] == callback) 
+        if (m_eventBindings[i] == callback)
         {
             return i;
         }

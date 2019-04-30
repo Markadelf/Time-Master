@@ -27,7 +27,7 @@ int UIGraph::AddItem(UIElement& element)
 
 void UIGraph::Draw(DirectX::SpriteBatch& sb)
 {
-	for (size_t i = 0; i < m_elementCount; i++)
+	for (int i = 0; i < m_elementCount; i++)
 	{
 		UIElement ele = m_elements[i];
 		if (ele.m_textureHandle != -1)
