@@ -2,6 +2,9 @@
 #include "ColliderManager.h"
 #include "AssetManager.h"
 #include "DataNetworkStructs.h"
+#include "MathUtil.h"
+
+#include <algorithm>
 #include "ArenaLevel.h"
 
 ClientManager::ClientManager()
@@ -118,7 +121,8 @@ void ClientManager::PrepDrawGroup()
 	m_drawInfo.m_camera.SetYaw(player.GetRot());
 
 	// Entities
-	m_drawInfo.m_visibleCount = m_staticCount;
+    m_drawInfo.m_visibleCount = m_staticCount;
+    m_drawInfo.m_transparentCount = 0;
 	TimeStamp time = m_player.GetTimeStamp();
 
 	int eCount = m_graph.GetEntityCount();
@@ -130,14 +134,57 @@ void ClientManager::PrepDrawGroup()
 		int phanCount = entity->GetImageCount();
 		Phantom* phantoms = entity->GetPhantomBuffer();
 		
+        float* pTimeReversed;
+        int rCount;
+
+        entity->GetReverseBuffer(&pTimeReversed, rCount);
+
+        // Add phantoms
+        const float fadePeriod = .5f;
+        int rIndex = 0;
 		for (size_t j = 0; j < phanCount; j++)
 		{
 			TimeInstableTransform trans = phantoms[j].GetTransform();
-			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+            if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+                float personalTime = phantoms[j].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
+                float opacity = 1;
+                while (personalTime >= pTimeReversed[rIndex + 1])
+                {
+                    rIndex++;
+                }
+                if (personalTime <= pTimeReversed[rIndex] + fadePeriod)
+                {
+                    opacity = (personalTime - pTimeReversed[rIndex]) / fadePeriod;
+                }
+                if (personalTime + fadePeriod >= pTimeReversed[rIndex + 1])
+                {
+                    if (opacity != 1)
+                    {
+                        float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
+                        opacity = opacity < opacity2 ? opacity : opacity2;
+                    }
+                    else
+                    {
+                        opacity = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
+                    }
+                }
+                opacity = opacity * opacity;
+				
+				if(opacity == 1)
+				{
+					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+				}
+                else if(opacity > 0)
+                {
+                    TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
+					
+                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
+                    tEnt.m_transparency = opacity;
+					tEnt.m_distance = mathutil::Distance(m_drawInfo.m_camera.GetPosition(), tEnt.m_entity.GetPosition());
+                }
 			}
-		}
+        }
 
 		int phenCount = entity->GetPhenomenaCount();
 		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
@@ -151,6 +198,15 @@ void ClientManager::PrepDrawGroup()
 			}
 		}
 	}
+
+	// sorting transperant entities
+	std::sort(m_drawInfo.m_transparentObjects, m_drawInfo.m_transparentObjects + m_drawInfo.m_transparentCount,
+			//lambda to define the sorting comparision
+			[](TransparentEntity const & first, TransparentEntity const & second)->bool
+			{
+				return first.m_distance < second.m_distance;
+			}	
+	);
 }
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)

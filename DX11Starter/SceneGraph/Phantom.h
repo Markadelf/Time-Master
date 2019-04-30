@@ -6,8 +6,14 @@
 class Phantom
 {
 	TimeInstableTransform m_transform;
-	int m_entityId;
-	bool m_shot;
+    int m_entityId;
+    bool m_shot;
+
+#ifdef CLIENT
+    // NOT SENT OVER NETWORK
+    float m_personalTime;
+#endif // CLIENT
+
 
 public:
 	Phantom();
@@ -26,5 +32,11 @@ public:
 	// Serialization
 	bool Serialize(Buffer& buffer) const;
 	bool Deserialize(Buffer& buffer);
+
+#ifdef CLIENT
+    // NOT SENT OVER NETWORK
+    void SetPersonalTime(float val);
+    float GetPersonalTime();
+#endif // CLIENT
 };
 
