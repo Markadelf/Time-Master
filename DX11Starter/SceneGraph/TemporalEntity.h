@@ -10,6 +10,9 @@ class TemporalEntity
 {
 	// Stack of positions at various times
 	Phantom* m_images;
+    // Stack of times in personal time when time was reversed
+    float* m_timesReversed;
+
 	// Buffer containing indexes of projectiles
 	int* m_phenomenaImages;
 	// Buffer containing the Phenomena
@@ -28,10 +31,12 @@ class TemporalEntity
 	// Buffer Sizes
 	int m_maxImages;
 	int m_maxPhenomena;
+    int m_maxReverses;
 
 	// Current Head of the time stack
 	int m_imageCount;
 	int m_phenomenaCount;
+    int m_reverseCount;
 
 	// Other Variables
 	PhenomenaHandle m_killedBy;		// -1 if alive
@@ -76,5 +81,10 @@ public:
 	void Kill(int imageIndex, TimeStamp time, const PhenomenaHandle& murderHandle, PhenomenaHandle& PhenomenaResetHandle);
 	void Revive();
 	bool CheckRevive(const PhenomenaHandle& resetHandle);
+
+#ifdef CLIENT
+    void GetReverseBuffer(float** buffer, int& count);
+
+#endif // CLIENT
 };
 
