@@ -6,11 +6,14 @@ TemporalEntity::TemporalEntity()
 	m_images = nullptr;
 	m_phenomenaImages = nullptr;
 	m_phenomenaBuffer = nullptr;
+    m_timesReversed = nullptr;
 
 	m_maxImages = 0;
 	m_maxPhenomena = 0;
 	m_entityId = -1;
 	m_lastTimeStamp = -1;
+    m_maxReverses = 0;
+    m_reverseCount = 0;
 
 	m_imageCount = 0;
 	m_phenomenaCount = 0;
@@ -43,6 +46,11 @@ TemporalEntity::~TemporalEntity()
 		delete[] m_phenomenaBuffer;
 		m_phenomenaBuffer = nullptr;
 	}
+    if (m_timesReversed)
+    {
+        delete[] m_timesReversed;
+        m_timesReversed = nullptr;
+    }
 }
 
 void TemporalEntity::Initialize(const Transform& startingPos, float initialTime, HandleObject handles)
@@ -78,19 +86,27 @@ void TemporalEntity::Initialize(int maxImages, int maxPhenomena, int entityId)
 		delete[] m_phenomenaBuffer;
 		m_phenomenaBuffer = nullptr;
 	}
+    if (m_timesReversed)
+    {
+        delete[] m_timesReversed;
+        m_timesReversed = nullptr;
+    }
 
 	m_maxImages = maxImages;
 	m_maxPhenomena = maxPhenomena;
 	m_entityId = entityId;
+    m_maxReverses = maxPhenomena;
 
 	// Initialize Buffers
 	m_images = new Phantom[maxImages];
 	m_phenomenaImages = new int[maxPhenomena];
 	m_phenomenaBuffer = new Phenomenon[maxPhenomena];
+    m_timesReversed = new float[maxPhenomena];
 
 	// Intialize indices
 	m_imageCount = 0;
 	m_phenomenaCount = 0;
+    m_reverseCount = 0;
 }
 
 PhenomenaHandle TemporalEntity::GetKilledBy()
@@ -167,15 +183,28 @@ Phantom* TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
 	}
 
 	TimeStamp timeStamp = keyFrame.m_timeStamp;
-	if (timeStamp < m_lastTimeStamp)
+    bool reversed;
+    reversed = timeStamp < m_lastTimeStamp;
+    if (reversed)
 	{
 		m_images[m_imageCount] = Phantom(TimeInstableTransform(keyFrame.m_transform, m_currentTransform, timeStamp, m_lastTimeStamp, true), keyFrame);
 	}
 	else
 	{
-		m_images[m_imageCount] = Phantom(TimeInstableTransform(m_currentTransform, keyFrame.m_transform, m_lastTimeStamp, timeStamp, false), keyFrame);
+        m_images[m_imageCount] = Phantom(TimeInstableTransform(m_currentTransform, keyFrame.m_transform, m_lastTimeStamp, timeStamp, false), keyFrame);
 	}
-	m_lastTimeStamp = timeStamp;
+#ifdef CLIENT
+    TimeInstableTransform trans = m_images[m_imageCount - 1].GetTransform();
+    float pTime = m_imageCount == 0 ? 0 : m_images[m_imageCount - 1].GetPersonalTime() + trans.GetEndTime() - trans.GetStartTime();
+    if (reversed != m_reversed) {
+        m_timesReversed[m_reverseCount++] = pTime;
+    }
+    m_images[m_imageCount].SetPersonalTime(pTime);
+
+#endif // CLIENT
+	
+    m_reversed = reversed;
+    m_lastTimeStamp = timeStamp;
 	m_currentTransform = keyFrame.m_transform;
 
 	return &m_images[m_imageCount++];
@@ -247,4 +276,12 @@ bool TemporalEntity::CheckRevive(const PhenomenaHandle& resetHandle)
 {
 	return m_killedBy.m_entity == resetHandle.m_entity && resetHandle.m_phenomena != -1 && resetHandle.m_phenomena <= m_killedBy.m_phenomena;
 }
+
+#ifdef CLIENT
+void TemporalEntity::GetReverseBuffer(float** buffer, int& count)
+{
+    *buffer = m_timesReversed;
+    count = m_reverseCount;
+}
+#endif // CLIENT
 
