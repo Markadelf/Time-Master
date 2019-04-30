@@ -61,3 +61,14 @@ bool Phantom::Deserialize(Buffer& buffer)
         Serializer::DeserializeInteger<-1, 14>(buffer, m_entityId) &&
         Serializer::DeserializeBool(buffer, m_shot);
 }
+
+#ifdef CLIENT
+void Phantom::SetPersonalTime(float val)
+{
+    m_personalTime = val;
+}
+float Phantom::GetPersonalTime()
+{
+    return m_personalTime;
+}
+#endif // CLIENT

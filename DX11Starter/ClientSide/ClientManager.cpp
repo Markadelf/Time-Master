@@ -108,28 +108,10 @@ void ClientManager::PrepDrawGroup()
 		int phanCount = entity->GetImageCount();
 		Phantom* phantoms = entity->GetPhantomBuffer();
 		
-        float pTime[1000];
-        float pTimeReversed[100];
-        int rCount = 0;
+        float* pTimeReversed;
+        int rCount;
 
-        // Build transparancy map
-        // TODO: Move this code into the TimeInstableEntity to improve frame rate
-        //       No good reason to do this every frame
-        pTime[0] = 0;
-        pTimeReversed[0] = 0;
-        rCount = 1;
-        bool lastReversed = phantoms[0].GetTransform().GetReversed();
-        for (int j = 0; j < phanCount - 1; j++)
-        {
-            bool reversed = phantoms[j + 1].GetTransform().GetReversed();
-            pTime[j + 1] = pTime[j] + phantoms[j].GetTransform().GetEndTime() - phantoms[j].GetTransform().GetStartTime();
-            if (lastReversed != reversed)
-            {
-                pTimeReversed[rCount++] = pTime[j + 1];
-            }
-            lastReversed = reversed;
-        }
-        pTimeReversed[rCount++] = pTime[phanCount - 1] + phantoms[phanCount - 1].GetTransform().GetEndTime() - phantoms[phanCount - 1].GetTransform().GetStartTime();
+        entity->GetReverseBuffer(&pTimeReversed, rCount);
 
         // Add phantoms
         const float fadePeriod = .5f;
@@ -139,7 +121,7 @@ void ClientManager::PrepDrawGroup()
 			TimeInstableTransform trans = phantoms[j].GetTransform();
             if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-                float personalTime = pTime[j] + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
+                float personalTime = phantoms[j].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
                 float opacity = 1;
                 while (personalTime >= pTimeReversed[rIndex + 1])
                 {
