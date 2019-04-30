@@ -382,7 +382,7 @@ HRESULT DXCore::Run()
 	// the game loop is running
 	__int64 now;
 	QueryPerformanceCounter((LARGE_INTEGER*)&now);
-	startTime = now;
+	emitterStartTime = now;
 	currentTime = now;
 	previousTime = now;
 
@@ -447,7 +447,7 @@ void DXCore::UpdateTimer()
 	deltaTime = max((float)((currentTime - previousTime) * perfCounterSeconds), 0.0f);
 
 	// Calculate the total time from start to now
-	totalTime = (float)((currentTime - startTime) * perfCounterSeconds);
+	totalTime = (float)((currentTime - emitterStartTime) * perfCounterSeconds);
 
 	// Save current time for next frame
 	previousTime = currentTime;

@@ -143,9 +143,9 @@ void ClientManager::Init(ID3D11Device* device)
 		2.0f,							// End size
 		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
 		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
-		XMFLOAT3(-2, 2, 0),				// Start velocity
-		XMFLOAT3(0.2f, 0.2f, 0.2f),		// Velocity randomness range
-		XMFLOAT3(player.GetPos().GetX(), 0.0f, player.GetPos().GetY()),		// Emitter position
+		XMFLOAT3(0, 0, 0),				// Start velocity
+		XMFLOAT3(1, 1, 1),		// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		// Emitter position
 		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
 		XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
 		XMFLOAT3(0, -1, 0),				// Constant acceleration
@@ -195,6 +195,7 @@ void ClientManager::PrepDrawGroup()
 
 	// Entities
 	m_drawInfo.m_visibleCount = m_staticCount;
+    m_drawInfo.m_emitterCount = 0;
 	TimeStamp time = m_player.GetTimeStamp();
 
 	m_drawInfo.time = time;
@@ -227,8 +228,16 @@ void ClientManager::PrepDrawGroup()
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
 			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
-			}
+				//ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+                // Projectiles
+                EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
+                drawInfo.m_handle = 0;
+                drawInfo.startTime = trans.GetStartTime();
+                drawInfo.endTime = trans.GetEndTime();
+
+                Vector2 trans2 = trans.GetPos(time);
+                drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), handle.m_yPos, trans2.GetY());
+            }
 		}
 	}
 }

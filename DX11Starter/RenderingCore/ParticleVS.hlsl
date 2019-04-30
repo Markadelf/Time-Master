@@ -17,6 +17,11 @@ cbuffer externalData : register(b0)
 
 	float lifetime;
 	float currentTime;
+
+    float3 emitterPosition;
+
+    float startTime;
+    float endTime;
 };
 
 struct Particle
@@ -60,15 +65,20 @@ VertexToPixel main(uint id : SV_VertexID)
 	Particle p = ParticleData.Load(particleID + startIndex);
 
 	// Calc the age percent
-	float t = currentTime - p.SpawnTime;
-	float agePercent = t / lifetime; // The "age percent": 0 - 1
-	t = ((t % lifetime) + lifetime) % lifetime;
+    if (currentTime < startTime + p.SpawnTime || currentTime > endTime)
+    {
+        output.position = float4(-1, -1, -1, -1);
+        return output;
+    }
+	float t = currentTime - p.SpawnTime - startTime;
+	t = ((t % lifetime)) % lifetime;
+    float agePercent = t / lifetime; // The "age percent": 0 - 1
 
 	//float agePercent1 = t / lifetime;
 	
 
 	// Calc anything based on time
-	float3 pos = acceleration * t * t / 2.0f + p.StartVelocity * t + p.StartPosition;
+	float3 pos = acceleration * t * t / 2.0f + p.StartVelocity * t + p.StartPosition + emitterPosition;
 	float4 color = lerp(startColor, endColor, agePercent);
 	float size = lerp(startSize, endSize, agePercent);
 	float rotation = lerp(p.RotationStart, p.RotationEnd, agePercent);

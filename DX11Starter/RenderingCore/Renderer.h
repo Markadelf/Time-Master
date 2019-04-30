@@ -77,7 +77,7 @@ public:
 	void DrawSky(Camera& camera);
 
 	//Emitter System
-	void RenderEmitterSystem(Emitter* emitter, float currentTime, Camera& camera);
+	void RenderEmitterSystem(EmitterDrawInfo info, Emitter* emitter, float currentTime, Camera& camera);
 
 	// Render logic
 private:

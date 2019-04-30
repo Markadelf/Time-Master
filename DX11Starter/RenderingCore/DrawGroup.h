@@ -9,6 +9,14 @@ struct TransparentEntity {
 	float m_transparency;
 };
 
+struct EmitterDrawInfo {
+    DirectX::XMFLOAT3 pos;
+    int m_handle;
+    float startTime;
+    float endTime;
+};
+
+
 
 // Used to communicate Draw Info to the Renderer
 struct DrawGroup
@@ -23,6 +31,8 @@ struct DrawGroup
 	DrawItem m_opaqueObjects[100];
 	TransparentEntity m_transparentObjects[100];
 
+    EmitterDrawInfo m_emitters[100];
+
 	Emitter* emitter=NULL;
 
 	float time;
@@ -30,6 +40,7 @@ struct DrawGroup
 	int m_visibleCount = 0;
 	int m_transparentCount = 0;
 	int m_lightCount = 0;
+    int m_emitterCount = 0;
 
 	inline void PushVisible(DrawItem& item) {
 		m_opaqueObjects[m_visibleCount++] = item;

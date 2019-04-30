@@ -321,10 +321,14 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	{
 		RenderVisibleEntity(drawGroup.m_opaqueObjects[i], drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount);
 	}
+
 	// Draw the sky AFTER all opaque geometry
 	DrawSky(drawGroup.m_camera);
 
-	RenderEmitterSystem(drawGroup.emitter, drawGroup.time, drawGroup.m_camera);
+    for (size_t i = 0; i < drawGroup.m_emitterCount; i++)
+    {
+        RenderEmitterSystem(drawGroup.m_emitters[i], drawGroup.emitter, drawGroup.time, drawGroup.m_camera);
+    }
 
 	// Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
@@ -455,18 +459,8 @@ void Renderer::DrawSky(Camera& camera)
 
 }
 
-void Renderer::RenderEmitterSystem(Emitter * emitter, float currentTime, Camera& camera)
+void Renderer::RenderEmitterSystem(EmitterDrawInfo info, Emitter* emitter, float currentTime, Camera& camera)
 {
-	if (currentTime < 0.0f)
-	{
-	//	emitter->emitterAcceleration = XMFLOAT3(0.0f,0.0f,0.0f);
-	//	emitter->firstDeadIndex = emitter->firstDeadIndex-1;
-
-
-			return;
-		
-
-	}
 	// Particle states
 	float blend[4] = { 1,1,1,1 };
 	context->OMSetBlendState(particleBlendState, blend, 0xffffffff);	// Additive blending
@@ -501,7 +495,10 @@ void Renderer::RenderEmitterSystem(Emitter * emitter, float currentTime, Camera&
 	particleVS->SetFloat("startSize", emitter->startSize);
 	particleVS->SetFloat("endSize", emitter->endSize);
 	particleVS->SetFloat("lifetime", emitter->lifetime);
-	particleVS->SetFloat("currentTime", currentTime);
+    particleVS->SetFloat("currentTime", currentTime);
+    particleVS->SetFloat("startTime", info.startTime);
+    particleVS->SetFloat("endTime", info.endTime);
+    particleVS->SetFloat3("emitterPosition", info.pos);
 
 	particleVS->SetShader();
 
