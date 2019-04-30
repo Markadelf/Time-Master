@@ -113,6 +113,9 @@ int GameUI::InitializeInGameUI()
 
 int GameUI::InitializeCreditsUI()
 {
+    AssetManager::get().LoadTexture(L"Textures/Credits.png", device, context);
+    int creditsBackground = AssetManager::get().GetTextureHandle("Textures/Credits.png");
+
     creditsHandle = UIManager::get().MakeGraph();
     UIGraph& credits = UIManager::get().GetGraph(creditsHandle);
 
@@ -120,27 +123,14 @@ int GameUI::InitializeCreditsUI()
     root.m_transform.m_size = Vector2(.5f, .5f);
     root.m_transform.m_anchor = Vector2(.5f, .5f);
     root.m_transform.m_pivot = Vector2(.5f, .5f);
-    root.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
-    root.m_textureHandle = 0;
+    root.m_textureHandle = creditsBackground;
 
     UIElement element;
-    element.m_transform.m_parent = credits.AddItem(root);
-
-    element.m_textureHandle = 0;
-    element.m_transform.m_size = Vector2(.08f, .1f);
-    element.m_transform.m_anchor = Vector2(0, 0);
-    element.m_transform.m_pivot = Vector2(0, 0);
-    element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
-    element.m_transform.m_parent = credits.AddItem(element);
-
-    element.m_textureHandle = 1;
-    element.m_transform.m_size = Vector2(.5f, .5f);
-    element.m_transform.m_anchor = Vector2(.5f, .5f);
-    element.m_transform.m_pivot = Vector2(.5f, .5f);
-    element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
+    element.m_transform.m_size = Vector2(1, 1);
     element.m_eventBinding = UIManager::get().Bind(UIManager::CloseUI);
 
-    element.m_transform.m_parent = credits.AddItem(element);
+    credits.AddItem(root);
+    credits.AddItem(element);
 
     return creditsHandle;
 }
