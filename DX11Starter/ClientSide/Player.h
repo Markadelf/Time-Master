@@ -14,23 +14,32 @@ class Player
 	// Other Variables
 	bool m_dead;
 	bool m_reversed;				// false if moving forward in time
-	bool m_shot;
-	int m_entityId;
-	TimeStamp m_time;
+	bool m_usedAction;
+    bool m_reportActionUsed;
 
-	TimeStamp m_lastTimeShot;
+    bool m_keyFrameRequested;
+
+    int m_entityId;
+	TimeStamp m_time;
+    TimeStamp m_keyPeriod;
+
+    // Timer
+    TimeStamp m_keyFrameTimer;
+
+    // Action tracking
+	TimeStamp m_actionUsedTime;
+    ActionInfo m_action;
 
 public:
 	Player();
 	~Player();
 
-	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle);
+	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod);
 	void Update(float deltaTime);
 
 	// Accessor functions
 	Transform GetTransform() const;
 	TimeStamp GetTimeStamp() const;
-	TimeStamp GetTimeShot() const;
 	bool GetReversed() const;
 	int GetEntityId() const;
 
@@ -41,9 +50,12 @@ public:
 	void Rotate(float amount);
 	void SetEntityId(int id);
 	void SetTransform(Transform trans);
+    void SetAction(ActionInfo action);
 
 	// Getting the keyframe, modifies the last time shot property
 	KeyFrameData GetKeyFrame();
+
+    bool StackRequested();
 
 private:
 	void UpdatePosition(float deltaTime);
