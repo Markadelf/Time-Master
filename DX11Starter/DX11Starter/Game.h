@@ -4,6 +4,11 @@
 #include "UIManager.h"
 #include "ClientManager.h"
 
+enum GameState {
+    MenuOnly,
+    InGame
+};
+
 // Handles the game engine level a the highest level of abstraction
 // Manages most of the other core components
 class Game 
@@ -43,12 +48,9 @@ private:
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
 
-	float time = 0;
-	bool reversed = false;
-
-	float timeShot = -1;
-
 	ClientManager* clientInterface;
+
+    GameState m_state;
 
 	// static callbacks for the Function Pointers
 	static void SUpdate(float deltaTime, float totalTime);
@@ -58,5 +60,7 @@ private:
 	static void SOnMouseUp(WPARAM buttonState, int x, int y);
 	static void SOnMouseMove(WPARAM buttonState, int x, int y);
 	static void SOnMouseWheel(float wheelDelta, int x, int y);
+public:
+    static void UpdateGameState(GameState arg);
 };
 
