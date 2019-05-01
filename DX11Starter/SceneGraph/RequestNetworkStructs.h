@@ -19,8 +19,8 @@ struct ClientRequest
 
 enum HostRequestType {
 	Prepare,				// Requests the game prepares to start a session
+	DeclareVictor,			// Declares a victor
 	Kick,					// Informs the player they have been kicked
-	DeclareVictor			// Declares a victor
 };
 
 struct HostRequest

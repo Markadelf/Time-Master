@@ -128,7 +128,7 @@ void Game::InitializeConnection()
 	int ipAddr[4];
 	JsonParser ipParser(FilePathHelper::GetPath(std::string("config.json")).c_str());
 	ipParser.GetIpAddr(ipAddr);
-	Address serverAddress(ipAddr[0], ipAddr[0], ipAddr[0], ipAddr[0], 30000);
+	Address serverAddress(ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3], 30000);
     networkConnection = new ClientHelper(30001, serverAddress);
     networkConnection->SetActiveCallBack(SUserCallback);
     networkConnection->SetClientCallBack(SClientCallback);
@@ -315,7 +315,8 @@ void Game::SClientCallback(Buffer& bitBuffer)
 		UpdateGameState(GameState::InGame);
 		break;
 	case HostRequestType::DeclareVictor:
-		GameUI::Get().ExitToResults(0);
+		GameUI::Get().ExitToResults(request.m_arg == GameInstance->clientInterface->GetPlayer().GetEntityId() ? 0 : 1);
+		GameInstance->networkConnection->ResetAcks();
 		break;
 	default:
 

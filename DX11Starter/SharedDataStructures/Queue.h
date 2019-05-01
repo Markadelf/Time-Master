@@ -14,9 +14,17 @@ public:
 		m_count = 0;
 	}
 
-	// Pushes a va
+	// Pushes a value
 	bool Push(const T& dataIn) {
 		if (m_count < max) {
+			for (size_t i = 0; i < m_count; i++)
+			{
+				if (dataIn == m_data[(m_head + i) % max])
+				{
+					return true;
+				}
+			}
+
 			m_data[m_tail] = dataIn;
 			m_tail = (m_tail + 1) % max;
 			m_count++;
