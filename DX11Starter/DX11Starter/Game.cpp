@@ -62,7 +62,7 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
-    //InitializeNetwork();
+    InitializeNetwork();
 	LoadUI();
 	m_renderer.OnResize();
 }
@@ -124,7 +124,9 @@ void Game::CreateBasicGeometry()
 void Game::InitializeNetwork()
 {
     // Local host is 127.0.0.1
-    Address serverAddress(127, 0, 0, 1, 30000);
+	// 129.21.29.156
+	//Address serverAddress(127, 0, 0, 1, 30000);
+	Address serverAddress(129, 21, 29, 156, 30000);
     networkConnection = new ClientHelper(30001, serverAddress);
     networkConnection->SetActiveCallBack(SUserCallback);
     networkConnection->SetClientCallBack(SClientCallback);

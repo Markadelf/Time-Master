@@ -7,6 +7,7 @@
 
 enum GameState {
     MenuOnly,
+	WaitingForNetwork,
     InGame
 };
 

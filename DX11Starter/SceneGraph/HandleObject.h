@@ -51,7 +51,7 @@ namespace Colliders2D {
 			bool ret = Serializer::DeserializeInteger<-1, 100>(buffer, m_layer) &&
 				Serializer::DeserializeInteger<ColliderType::None, ColliderType::Rectangle>(buffer, colType) &&
 				Serializer::DeserializeInteger<-1, 100>(buffer, m_handle);
-			m_type = (ColliderType) colType;
+			m_type = (ColliderType)colType;
 			return ret;
 		}
 	};
@@ -68,12 +68,12 @@ struct HandleObject
 	int m_material = -1;
 
 	// X, Y, Z
-	float m_scale[3] = {1, 1, 1};
+	float m_scale[3] = { 1, 1, 1 };
 
 	float m_yPos = 0;
 
 	// Convenience method
-	void SetUniformScale(float val) 
+	void SetUniformScale(float val)
 	{
 		m_scale[0] = val;
 		m_scale[1] = val;
@@ -83,13 +83,21 @@ struct HandleObject
 	bool Serialize(Buffer& buffer) const {
 		return m_collider.Serialize(buffer) &&
 			Serializer::SerializeInteger<-1, 100>(buffer, m_mesh) &&
-			Serializer::SerializeInteger<-1, 100>(buffer, m_material);
+			Serializer::SerializeInteger<-1, 100>(buffer, m_material) &&
+			Serializer::SerializeFloatFP(buffer, m_scale[0]) &&
+			Serializer::SerializeFloatFP(buffer, m_scale[1]) &&
+			Serializer::SerializeFloatFP(buffer, m_scale[2]) &&
+			Serializer::SerializeFloatFP(buffer, m_yPos);
 	}
 
 	bool Deserialize(Buffer& buffer) {
 		return m_collider.Deserialize(buffer) &&
 			Serializer::DeserializeInteger<-1, 100>(buffer, m_mesh) &&
-			Serializer::DeserializeInteger<-1, 100>(buffer, m_material);
+			Serializer::DeserializeInteger<-1, 100>(buffer, m_material) &&
+			Serializer::DeserializeFloatFP(buffer, m_scale[0]) &&
+			Serializer::DeserializeFloatFP(buffer, m_scale[1]) &&
+			Serializer::DeserializeFloatFP(buffer, m_scale[2]) &&
+			Serializer::DeserializeFloatFP(buffer, m_yPos);
 	}
 
 };
