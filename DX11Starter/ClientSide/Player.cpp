@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "ColliderManager.h"
+#include "GameUI.h"
 
 Player::Player()
 {
@@ -21,6 +22,7 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
 	m_handle = handle;
     m_keyPeriod = keyPeriod;
     m_keyFrameTimer = 0;
+    m_dead = false;
 }
 
 void Player::Update(float deltaTime)
@@ -79,6 +81,8 @@ void Player::Update(float deltaTime)
             m_reportActionUsed = true;
         }
     }
+
+    GameUI::Get().UpdateGameUI(m_dead, m_time);
 }
 
 Transform Player::GetTransform() const
