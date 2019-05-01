@@ -128,6 +128,11 @@ void UIManager::Render()
 
 void UIManager::OnClick(int x, int y)
 {
+    if (m_activeCount <= 0)
+    {
+        return;
+    }
+
     int handle = -1;
     int arg;
 
