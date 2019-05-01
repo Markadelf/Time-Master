@@ -18,6 +18,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Address.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ClientHelper.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Connection.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)JsonParser.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)PacketBuffer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ServerManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SocketWrapper.cpp" />
@@ -27,6 +28,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Address.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ClientHelper.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Connection.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)JsonParser.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MessageHeader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ServerManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)PacketBuffer.h" />

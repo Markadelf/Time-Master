@@ -5,7 +5,7 @@
 #include "Vertex.h"
 #include "GameUI.h"
 #include "RequestNetworkStructs.h"
-
+#include "JsonParser.h"
 Game* Game::GameInstance;
 
 // For the DirectX Math library
@@ -125,7 +125,10 @@ void Game::InitializeConnection()
     // Local host is 127.0.0.1
 	// 129.21.29.156
 	//Address serverAddress(127, 0, 0, 1, 30000);
-	Address serverAddress(129, 21, 29, 156, 30000);
+	int ipAddr[4];
+	JsonParser ipParser(FilePathHelper::GetPath(std::string("config.json")).c_str());
+	ipParser.GetIpAddr(ipAddr);
+	Address serverAddress(ipAddr[0], ipAddr[0], ipAddr[0], ipAddr[0], 30000);
     networkConnection = new ClientHelper(30001, serverAddress);
     networkConnection->SetActiveCallBack(SUserCallback);
     networkConnection->SetClientCallBack(SClientCallback);
