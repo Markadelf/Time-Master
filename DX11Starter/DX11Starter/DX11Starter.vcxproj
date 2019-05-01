@@ -62,13 +62,13 @@
     <Import Project="..\SceneGraph\SceneGraph.vcxitems" Label="Shared" />
     <Import Project="..\SharedDataStructures\SharedDataStructures.vcxitems" Label="Shared" />
     <Import Project="..\JobSystem\JobSystem.vcxitems" Label="Shared" />
-    <Import Project="..\UICore\UICore.vcxitems" Label="Shared" />
     <Import Project="..\RenderingCore\RenderingCore.vcxitems" Label="Shared" />
     <Import Project="..\AssetManager\AssetManager.vcxitems" Label="Shared" />
     <Import Project="..\AudioCore\AudioCore.vcxitems" Label="Shared" />
     <Import Project="..\ClientSide\ClientSide.vcxitems" Label="Shared" />
     <Import Project="..\Logger\Logger.vcxitems" Label="Shared" />
     <Import Project="..\GameSpecificLogic\GameSpecificLogic.vcxitems" Label="Shared" />
+    <Import Project="..\UICore\UICore.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -113,7 +113,7 @@ xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\li
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\UICore\..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\UICore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
