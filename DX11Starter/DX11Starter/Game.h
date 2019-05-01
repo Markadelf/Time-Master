@@ -42,8 +42,9 @@ private:
 	void LoadTextures();
 	void LoadShaders();
 	void CreateBasicGeometry();
-    void InitializeNetwork();
+    void InitializeConnection();
 	void LoadUI();
+	void JoinGame();
 
 	Renderer m_renderer;
 

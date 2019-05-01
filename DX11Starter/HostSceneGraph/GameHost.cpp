@@ -6,7 +6,7 @@
 
 GameHost::GameHost(ServerManager* server)
 {
-    m_inactive = true;
+    m_ingame = false;
     m_serverPointer = server;
 }
 
@@ -23,7 +23,7 @@ void GameHost::HostRecieveClient(Buffer& data, int clientId)
     {
     case ClientRequestType::Join:
         m_clientQueue.Push(clientId);
-        if (m_clientQueue.GetCount() >= PLAYERS_PER_SESSION && m_inactive)
+        if (m_clientQueue.GetCount() >= PLAYERS_PER_SESSION && !m_ingame)
         {
             StartGame();
         }
@@ -60,14 +60,17 @@ void GameHost::HostRecievePlayer(Buffer& data, int playerId)
         header.m_phenominaCount = 1;
     }
 
-    Buffer* outData = m_serverPointer->GetNextBufferActiveUser(MessageType::GameData, playerId);
-    header.Serialize(*outData);
-    m_serverPointer->SendToActiveUser(playerId);
+	for (size_t i = 0; i < PLAYERS_PER_SESSION; i++)
+	{
+		Buffer* outData = m_serverPointer->GetNextBufferActiveUser(MessageType::GameData, i);
+		header.Serialize(*outData);
+		m_serverPointer->SendToActiveUser(i);
+	}
 }
 
 void GameHost::StartGame()
 {
-    m_inactive = true;
+    m_ingame = true;
     for (int i = 0; i < PLAYERS_PER_SESSION; i++)
     {
         int client;
@@ -76,15 +79,15 @@ void GameHost::StartGame()
         Buffer* buffer = m_serverPointer->GetNextBufferClient(MessageType::GameRequest, client);
 
         // Prepare request
-        HostRequest request;
-        request.m_request = HostRequestType::Prepare;
+        //HostRequest request;
+        //request.m_request = HostRequestType::Prepare;
         //request.m_time = ...
 
         GamePreparationRequest prepare;
         prepare.m_playerEntityId = i;
         prepare.m_scene = 0;
 
-        request.Serialize(*buffer);
+        //request.Serialize(*buffer);
         prepare.Serialize(*buffer);
 
         m_serverPointer->SendToClient(client);

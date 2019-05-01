@@ -149,6 +149,8 @@ void GameUI::InitializeInGameUI()
     death.m_transform.m_size = Vector2(.75f, .75f);
 
     deathEle = inGameUI.AddItem(death);
+
+	UpdateGameUI(false, 0);
 }
 
 void GameUI::InitializeCreditsUI()
@@ -241,5 +243,5 @@ void GameUI::ExitToMenu(int graph, int args)
 void GameUI::StartGame(int graph, int args)
 {
     UIManager::MoveToUI(graph, Get().ingameUIHandle);
-    Game::UpdateGameState(GameState::InGame);
+    Game::UpdateGameState(GameState::WaitingForNetwork);
 }

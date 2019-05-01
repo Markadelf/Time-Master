@@ -32,7 +32,7 @@ public:
 	
 	// Initializes the game state
 	// TODO: Add apropriate parameters
-	void Init();
+	void Init(int entityId);
 
 	// Accessor Functions
 	Player& GetPlayer();

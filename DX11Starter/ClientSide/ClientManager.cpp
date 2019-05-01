@@ -46,16 +46,15 @@ void ClientManager::Update(float deltaTime)
 	}
 }
 
-void ClientManager::Init()
+void ClientManager::Init(int entityId)
 {
 	//TODO: Modify to load either from file or from a preset instead of hard coding it
     ArenaLevel arena;
     arena.LoadScene(m_graph);
 
-    int playerId = 0;
-    EntitySpawnInfo& player = arena.GetSpawnInfo(playerId);
+    EntitySpawnInfo& player = arena.GetSpawnInfo(entityId);
     m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f);
-    m_player.SetEntityId(playerId);
+    m_player.SetEntityId(entityId);
     m_player.SetAction(player.m_action);
 
     Light* lights;

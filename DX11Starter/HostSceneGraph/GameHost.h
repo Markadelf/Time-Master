@@ -10,7 +10,7 @@ class GameHost
 	Queue<int, 20> m_clientQueue;
 	SceneGraph m_sceneGraph;
 	ServerManager* m_serverPointer;
-	bool m_inactive;
+	bool m_ingame;
 
 public:
 	GameHost(ServerManager* server);

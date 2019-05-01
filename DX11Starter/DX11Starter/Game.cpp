@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "GameUI.h"
+#include "RequestNetworkStructs.h"
 
 Game* Game::GameInstance;
 
@@ -62,7 +63,7 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
-    InitializeNetwork();
+    InitializeConnection();
 	LoadUI();
 	m_renderer.OnResize();
 }
@@ -117,11 +118,9 @@ void Game::CreateBasicGeometry()
 	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
 
 	clientInterface = new ClientManager();
-
-	clientInterface->Init();
 }
 
-void Game::InitializeNetwork()
+void Game::InitializeConnection()
 {
     // Local host is 127.0.0.1
 	// 129.21.29.156
@@ -131,8 +130,7 @@ void Game::InitializeNetwork()
     networkConnection->SetActiveCallBack(SUserCallback);
     networkConnection->SetClientCallBack(SClientCallback);
     clientInterface->SetNetworkPointer(networkConnection);
-    networkConnection->GetNextBuffer(MessageType::GameRequest);
-    networkConnection->SendToServer();
+    
 }
 
 void Game::LoadUI()
@@ -143,7 +141,14 @@ void Game::LoadUI()
     GameUI::Get().InitializeUI();
 }
 
-
+void Game::JoinGame()
+{
+	Buffer* buff = networkConnection->GetNextBuffer(MessageType::GameRequest);
+	ClientRequest joinRequest;
+	joinRequest.m_request = ClientRequestType::Join;
+	joinRequest.Serialize(*buff);
+	networkConnection->SendToServer();
+}
 
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
@@ -291,21 +296,32 @@ void Game::SOnMouseWheel(float wheelDelta, int x, int y)
 {
 	GameInstance->OnMouseWheel(wheelDelta, x, y);
 }
+
+// Network callbacks
 void Game::SClientCallback(Buffer& bitBuffer)
 {
+	GamePreparationRequest request;
+	request.Deserialize(bitBuffer);
+
+	GameInstance->clientInterface->Init(request.m_playerEntityId);
+	UpdateGameState(GameState::InGame);
 }
+
 void Game::SUserCallback(Buffer& bitBuffer)
 {
     GameInstance->clientInterface->RecieveData(bitBuffer);
 }
 
+// State Machine
 void Game::UpdateGameState(GameState arg)
 {
     switch (arg)
     {
     case GameState::InGame:
-        GameInstance->clientInterface->Init();
         break;
+	case GameState::WaitingForNetwork:
+		GameInstance->JoinGame();
+		break;
     default:
         break;
     }
