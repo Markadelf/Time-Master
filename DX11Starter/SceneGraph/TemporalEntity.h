@@ -55,6 +55,7 @@ public:
 
 	// Accessor functions
 	PhenomenaHandle GetKilledBy();
+	bool GetDead();
 	Phantom Head();
 	int GetImageCount() const;
 	int GetPhenomenaCount() const;

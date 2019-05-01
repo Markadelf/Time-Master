@@ -42,6 +42,8 @@ public:
 	// Listens for incoming data
 	void Listen();
 
+	void ResetAcks();
+
 private:
 	// Internal functions for interfacing with SocketWrapper
 	void ListenHelper(Address ad, const void* data, const int size);

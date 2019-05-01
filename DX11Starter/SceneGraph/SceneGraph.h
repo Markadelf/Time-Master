@@ -42,7 +42,7 @@ public:
 
 
 	// Use keyframe data to modify an entity by adding actions to the top of its stack
-	void StackKeyFrame(KeyFrameData phantom);
+	void StackKeyFrame(KeyFrameData phantom, DeathInfo* deathBuffer = nullptr, int* deathCount = nullptr);
 
 	// Modifies the transform to avoid collisions with static objects
 	bool PreventCollision(int entityId, Transform& position);

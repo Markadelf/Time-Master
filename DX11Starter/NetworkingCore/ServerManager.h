@@ -67,6 +67,7 @@ public:
 
 	// Code begins to treat the client as a user with the given Id
 	void SetUser(int clientId, int userId);
+	void ClearUsers();
 
 	// Checks if any new data is present
 	void Listen();

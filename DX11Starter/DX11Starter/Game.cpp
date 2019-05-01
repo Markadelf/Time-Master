@@ -143,6 +143,8 @@ void Game::LoadUI()
 
 void Game::JoinGame()
 {
+	networkConnection->ResetAcks();
+
 	Buffer* buff = networkConnection->GetNextBuffer(MessageType::GameRequest);
 	ClientRequest joinRequest;
 	joinRequest.m_request = ClientRequestType::Join;
@@ -300,11 +302,24 @@ void Game::SOnMouseWheel(float wheelDelta, int x, int y)
 // Network callbacks
 void Game::SClientCallback(Buffer& bitBuffer)
 {
-	GamePreparationRequest request;
+	HostRequest request;
 	request.Deserialize(bitBuffer);
 
-	GameInstance->clientInterface->Init(request.m_playerEntityId);
-	UpdateGameState(GameState::InGame);
+	switch (request.m_request)
+	{
+	case HostRequestType::Prepare:
+		GameInstance->clientInterface->Init(request.m_arg);
+		UpdateGameState(GameState::InGame);
+		break;
+	case HostRequestType::DeclareVictor:
+		GameUI::Get().ExitToResults(0);
+		break;
+	default:
+
+		break;
+	}
+
+	
 }
 
 void Game::SUserCallback(Buffer& bitBuffer)
@@ -318,6 +333,7 @@ void Game::UpdateGameState(GameState arg)
     switch (arg)
     {
     case GameState::InGame:
+		GameUI::Get().DisplayHUD();
         break;
 	case GameState::WaitingForNetwork:
 		GameInstance->JoinGame();

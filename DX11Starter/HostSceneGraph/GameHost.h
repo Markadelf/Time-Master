@@ -5,8 +5,6 @@
 
 class GameHost
 {
-	static const int PLAYERS_PER_SESSION = 2;
-
 	Queue<int, 20> m_clientQueue;
 	SceneGraph m_sceneGraph;
 	ServerManager* m_serverPointer;
@@ -19,9 +17,11 @@ public:
 	void HostRecieveClient(Buffer& data, int clientId);
 	void HostRecievePlayer(Buffer& data, int playerId);
 
-//private:
+private:
+	void CheckStartGame();
 	void StartGame();
     void LoadLevel();
 
+	void CheckVictory();
 };
 

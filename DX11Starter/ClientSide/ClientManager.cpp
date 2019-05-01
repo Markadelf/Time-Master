@@ -94,6 +94,13 @@ void ClientManager::RecieveData(Buffer& data)
     
     header.Deserialize(data);
     m_graph.AuthoritativeStack(header);
+
+	TemporalEntity& player = *m_graph.GetEntity(m_player.GetEntityId());
+	bool playerDied = player.GetKilledBy().m_entity != -1;
+	m_player.SetDead(playerDied);
+	if (playerDied) {
+		m_player.Reposition(player.GetTransform(), player.GetTimeStamp());
+	}
 }
 
 void ClientManager::PrepDrawGroupStatics()

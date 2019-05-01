@@ -89,6 +89,18 @@ void ServerManager::SetUser(int clientId, int userId)
 	m_activeUserBuffer[userId].Init(m_clients[clientId]);
 }
 
+void ServerManager::ClearUsers()
+{
+	for (int i = 0; i < m_maxActiveUsers; i++)
+	{
+		if (m_activeUsers[i] != -1)
+		{
+			m_clients[m_activeUsers[i]].m_activeBuffer = -1;
+			m_activeUsers[i] = -1;
+		}
+	}
+}
+
 void ServerManager::Listen() {
 	m_socket.Recieve(ListenHelperStatic);
 }

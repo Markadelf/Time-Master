@@ -3,6 +3,10 @@
 #include "MessageHeader.h"
 #include "SocketWrapper.h"
 
+enum ConnectionErrorCodes {
+	LostConnection
+};
+
 // Holds info about a connection
 struct ConnectionInfo {
 	Address m_address;						// IP Address
@@ -46,6 +50,8 @@ public:
 	// Reads in the ack, checks the ack, sends data that is ready via callback
 	void AckAndProcess(SocketWrapper& sock, Buffer& landing, void(*callback)(Buffer& data));
 	void AckAndProcess(SocketWrapper& sock, Buffer& landing, void(*callback)(Buffer& data, int userId));
+
+	void ResetAcks();
 
 private:
 	// Reads in the ack, checks the ack, makes any neccesary `Resend` calls

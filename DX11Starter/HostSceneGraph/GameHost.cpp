@@ -8,6 +8,8 @@ GameHost::GameHost(ServerManager* server)
 {
     m_ingame = false;
     m_serverPointer = server;
+	ColliderManager::get().Reinit(16, 16);
+	LoadLevel();
 }
 
 GameHost::~GameHost()
@@ -23,10 +25,7 @@ void GameHost::HostRecieveClient(Buffer& data, int clientId)
     {
     case ClientRequestType::Join:
         m_clientQueue.Push(clientId);
-        if (m_clientQueue.GetCount() >= PLAYERS_PER_SESSION && !m_ingame)
-        {
-            StartGame();
-        }
+		CheckStartGame();
         break;
     case ClientRequestType::Confirm:
 
@@ -45,33 +44,47 @@ void GameHost::HostRecievePlayer(Buffer& data, int playerId)
     KeyFrameData key;
     key.Deserialize(data);
 
-    m_sceneGraph.StackKeyFrame(key);
-    TemporalEntity* entity = m_sceneGraph.GetEntity(key.m_entityId);
-
-    Phantom phan = entity->Head();
-
-    // Send
-    HostDataHeader header;
-    header.m_phantoms[0] = phan;
-    header.m_phantomCount = 1;
-
-    if (phan.GetShot()) {
-        header.m_phenomina[0] = entity->GetPhenomenaBuffer()[entity->GetPhenomenaCount() - 1];
-        header.m_phenominaCount = 1;
-    }
-
-	for (size_t i = 0; i < PLAYERS_PER_SESSION; i++)
+	if (m_sceneGraph.GetEntity(playerId)->GetKilledBy().m_entity == -1)
 	{
-		Buffer* outData = m_serverPointer->GetNextBufferActiveUser(MessageType::GameData, i);
-		header.Serialize(*outData);
-		m_serverPointer->SendToActiveUser(i);
+
+		HostDataHeader header;
+		m_sceneGraph.StackKeyFrame(key, header.m_deaths, &header.m_deathCount);
+		TemporalEntity* entity = m_sceneGraph.GetEntity(key.m_entityId);
+
+		Phantom phan = entity->Head();
+
+		// Send
+		header.m_phantoms[0] = phan;
+		header.m_phantomCount = 1;
+
+		if (phan.GetShot()) {
+			header.m_phenomina[0] = entity->GetPhenomenaBuffer()[entity->GetPhenomenaCount() - 1];
+			header.m_phenominaCount = 1;
+		}
+
+		for (size_t i = 0; i < m_sceneGraph.GetEntityCount(); i++)
+		{
+			Buffer* outData = m_serverPointer->GetNextBufferActiveUser(MessageType::GameData, i);
+			header.Serialize(*outData);
+			m_serverPointer->SendToActiveUser(i);
+		}
+		CheckVictory();
+	}
+}
+
+void GameHost::CheckStartGame()
+{
+	if (m_clientQueue.GetCount() >= m_sceneGraph.GetEntityCount() && !m_ingame)
+	{
+		StartGame();
 	}
 }
 
 void GameHost::StartGame()
 {
     m_ingame = true;
-    for (int i = 0; i < PLAYERS_PER_SESSION; i++)
+	LoadLevel();
+	for (int i = 0; i < m_sceneGraph.GetEntityCount(); i++)
     {
         int client;
         m_clientQueue.Pop(client);
@@ -79,20 +92,15 @@ void GameHost::StartGame()
         Buffer* buffer = m_serverPointer->GetNextBufferClient(MessageType::GameRequest, client);
 
         // Prepare request
-        //HostRequest request;
-        //request.m_request = HostRequestType::Prepare;
-        //request.m_time = ...
+        HostRequest request;
+        request.m_request = HostRequestType::Prepare;
 
-        GamePreparationRequest prepare;
-        prepare.m_playerEntityId = i;
-        prepare.m_scene = 0;
+		request.m_arg = i;
 
-        //request.Serialize(*buffer);
-        prepare.Serialize(*buffer);
+        request.Serialize(*buffer);
 
         m_serverPointer->SendToClient(client);
     }
-    LoadLevel();
 }
 
 void GameHost::LoadLevel()
@@ -100,3 +108,41 @@ void GameHost::LoadLevel()
     ArenaLevel level;
     level.LoadScene(m_sceneGraph);
 }
+
+void GameHost::CheckVictory()
+{
+	int eCount;
+	TemporalEntity* entities;
+	m_sceneGraph.GetEntities(&entities, eCount);
+	int live = 0;
+	int liveIndex = 0;
+	for (int i = 0; i < eCount; i++)
+	{
+		if (!entities[i].GetDead())
+		{
+			live++;
+			liveIndex = i;
+		}
+	}
+	if (live == 1)
+	{
+		for (size_t i = 0; i < eCount; i++)
+		{
+			Buffer* buffer = m_serverPointer->GetNextBufferActiveUser(MessageType::GameRequest, i);
+
+			// Prepare request
+			HostRequest request;
+			request.m_request = HostRequestType::DeclareVictor;
+
+			request.m_arg = liveIndex;
+
+			request.Serialize(*buffer);
+
+			m_serverPointer->SendToActiveUser(i);
+		}
+		m_ingame = false;
+		m_serverPointer->ClearUsers();
+		CheckStartGame();
+	}
+}
+

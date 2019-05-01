@@ -10,6 +10,7 @@ class GameUI
     int controlsHandle;
     int ingameUIHandle;
     int resultScreenHandle;
+	int waitingHandle;
 
     int resultImages[4];
     int resultEle;
@@ -18,6 +19,7 @@ class GameUI
     float barScale;
     
     int deathEle;
+
 
     GameUI();
     ~GameUI();
@@ -35,6 +37,10 @@ public:
 
     void UpdateGameUI(bool dead, float time);
 
+	void WaitForNetwork();
+
+	void DisplayHUD();
+
 private:
     void InitializeMainMenu();
 
@@ -44,10 +50,12 @@ private:
 
     void InitializeControlsUI();
 
-    void InitializeResultScreen();
+	void InitializeResultScreen();
+
+	void InitializeWaitScreen();
 
     static void ExitToMenu(int graph, int args);
 
-    static void StartGame(int graph, int args);
+    static void JoinGame(int graph, int args);
 };
 

@@ -47,6 +47,11 @@ void ClientHelper::Listen()
 	m_socket.Recieve(ListenHelperStatic);
 }
 
+void ClientHelper::ResetAcks()
+{
+	m_server.ResetAcks();
+}
+
 void ClientHelper::ListenHelper(Address ad, const void* data, const int size)
 {
 	// Write to the landing buffer

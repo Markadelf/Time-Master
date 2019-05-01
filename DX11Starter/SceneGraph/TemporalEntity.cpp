@@ -114,6 +114,11 @@ PhenomenaHandle TemporalEntity::GetKilledBy()
 	return m_killedBy;
 }
 
+bool TemporalEntity::GetDead()
+{
+	return m_killedBy.m_entity != -1;
+}
+
 Phantom TemporalEntity::Head()
 {
 	return m_images[m_imageCount - 1];

@@ -20,27 +20,30 @@ bool ClientRequest::Deserialize(Buffer& buffer)
 bool HostRequest::Serialize(Buffer& buffer) const
 {
 	return Serializer::SerializeInteger<HostRequestType::Prepare, HostRequestType::Kick>(buffer, m_request)
-		&& Serializer::SerializeFloatFP(buffer, m_timeArgument);
+		&& Serializer::SerializeFloatFP(buffer, m_timeArgument)
+		&& Serializer::SerializeInteger<0, 16>(buffer, m_arg);
 }
 
 bool HostRequest::Deserialize(Buffer& buffer)
 {
 	int val;
 	bool ret = Serializer::DeserializeInteger<HostRequestType::Prepare, HostRequestType::Kick>(buffer, val)
-		&& Serializer::DeserializeFloatFP(buffer, m_timeArgument);
+		&& Serializer::DeserializeFloatFP(buffer, m_timeArgument)
+		&& Serializer::DeserializeInteger<0, 16>(buffer, m_arg);
+
 	m_request = (HostRequestType)val;
 
 	return ret;
 }
-
-bool GamePreparationRequest::Serialize(Buffer& buffer) const
-{
-	return Serializer::SerializeInteger<0, 1>(buffer, m_scene) &&
-		Serializer::SerializeInteger<0, 10>(buffer, m_playerEntityId);
-}
-
-bool GamePreparationRequest::Deserialize(Buffer& buffer)
-{
-	return Serializer::DeserializeInteger<0, 1>(buffer, m_scene) &&
-		Serializer::DeserializeInteger<0, 10>(buffer, m_playerEntityId);
-}
+//
+//bool GamePreparationRequest::Serialize(Buffer& buffer) const
+//{
+//	return Serializer::SerializeInteger<0, 1>(buffer, m_scene) &&
+//		Serializer::SerializeInteger<0, 10>(buffer, m_playerEntityId);
+//}
+//
+//bool GamePreparationRequest::Deserialize(Buffer& buffer)
+//{
+//	return Serializer::DeserializeInteger<0, 1>(buffer, m_scene) &&
+//		Serializer::DeserializeInteger<0, 10>(buffer, m_playerEntityId);
+//}

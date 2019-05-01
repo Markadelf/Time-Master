@@ -70,7 +70,7 @@ void SceneGraph::Init(PhenomenaPrototype* phenomenaTypes, int count)
     m_phenomenaTypeCount = count;
 }
 
-void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
+void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, int* deathCount)
 {
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
 	HandleObject handle = entity->GetHandle();
@@ -103,6 +103,7 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 		}
 		traj.Trim(firstTimeStamp);
 
+		int dCount = 0;
 		// TODO: Consider refactoring for more generic logic
 		// Check for collisions between the projectile and other entities
 		for (size_t i = 0; i < m_entityCount; i++)
@@ -119,9 +120,17 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			{
 				if (ColliderManager::get().CheckCollision(traj, proto.m_handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
 				{
+					PhenomenaHandle dHandle = PhenomenaHandle(keyFrame.m_entityId, entity->GetPhenomenaCount());
+					if (deathBuffer != nullptr) {
+						deathBuffer[dCount].m_entityId = i;
+						deathBuffer[dCount].m_image = j;
+						deathBuffer[dCount].m_deathTime = timeStamp;
+						deathBuffer[dCount].m_killedBy = dHandle;
+						dCount++;
+					}
 					// We hit, let everyone know we died
 					PhenomenaHandle reset;
-					m_entities[i].Kill((int)j, timeStamp, PhenomenaHandle(keyFrame.m_entityId, entity->GetPhenomenaCount()), reset);
+					m_entities[i].Kill((int)j, timeStamp, dHandle, reset);
 					for (size_t k = 0; k < m_entityCount; k++)
 					{
 						if (m_entities[k].CheckRevive(reset))
@@ -131,6 +140,10 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 					}
 				}
 			}
+		}
+		if (deathCount != nullptr)
+		{
+			*deathCount = dCount;
 		}
 
 		entity->TrackPhenomena(Phenomenon(traj, proto.m_handle));
@@ -201,11 +214,18 @@ void SceneGraph::AuthoritativeStack(HostDataHeader& authoritativeHeader)
         }
     }
     // Kill anyone the server said to kill
-    PhenomenaHandle placeHolder;
+    PhenomenaHandle reset;
     for (size_t i = 0; i < authoritativeHeader.m_deathCount; i++)
     {
         DeathInfo death = authoritativeHeader.m_deaths[0];
-        m_entities[death.m_entityId].Kill(death.m_image, death.m_deathTime, death.m_killedBy, placeHolder);
+        m_entities[death.m_entityId].Kill(death.m_image, death.m_deathTime, death.m_killedBy, reset);
+		for (size_t k = 0; k < m_entityCount; k++)
+		{
+			if (m_entities[k].CheckRevive(reset))
+			{
+				m_entities[k].Revive();
+			}
+		}
     }
 }
 

@@ -11,8 +11,7 @@ Connection::~Connection()
 void Connection::Init(ConnectionInfo remote)
 {
 	m_remote = remote;
-	m_outBuffer.Reset();
-	m_inBuffer.Reset();
+	ResetAcks();
 }
 
 Buffer* Connection::GetNextBuffer(MessageType messageType)
@@ -101,6 +100,16 @@ void Connection::AckAndProcess(SocketWrapper& sock, Buffer& landing, void(*callb
 	}
 }
 
+void Connection::ResetAcks()
+{
+	m_outBuffer.Reset();
+	m_inBuffer.Reset();
+
+	m_remote.m_nextEvaluate = 0;
+	m_remote.m_nextSend = 0;
+	m_remote.m_unconfirmed = 0;
+}
+
 void Connection::Ack(SocketWrapper& sock, Buffer& landing)
 {
 	// Need to figure out where to put the data
@@ -151,6 +160,10 @@ bool Connection::Resend(SocketWrapper& sock, unsigned __int32 packetId)
 	{
         sock.Send(m_remote.m_address, buffer->GetBuffer(), (int)buffer->Size());
         return true;
+	}
+	if (packetId < m_remote.m_nextSend)
+	{
+		throw ConnectionErrorCodes::LostConnection;
 	}
     return false;
 }
