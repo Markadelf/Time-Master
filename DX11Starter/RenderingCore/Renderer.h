@@ -28,6 +28,12 @@ class Renderer
 	// Rasterizer states
 	ID3D11RasterizerState* m_shadowRasterizer;
 
+	//Blend variables
+	SimplePixelShader* m_blendPS;
+	ID3D11RasterizerState* m_blendRasterizer;
+	ID3D11BlendState* m_blendState;
+	ID3D11DepthStencilState* m_blendDepthState;
+
 	int shadowMapSize;
 
 	// Items neccesary to use a single shadow map
@@ -66,13 +72,19 @@ public:
 	void RenderGroup(DrawGroup& drawGroup);
     // Renders the sky
 	void DrawSky(Camera& camera);
+	
+	//Rendering transperant objects
+
 
 	// Render logic
 private:
     // Renders a draw item without concern for opacity
 	void RenderVisibleEntity(DrawItem& entity, Camera& camera, Light* lights, int lightCount);
+	//Renders a transperant entity
+	void RenderTransperentEntity(DrawItem& entity, Camera& camera, Light* lights, int lightCount,float transparency);
+
     // Renders an object with the given parameters
-	void Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount);
+	void Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount, float transparency=1);
 	// Renders a mesh to a shadow map
     void RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh);
 
