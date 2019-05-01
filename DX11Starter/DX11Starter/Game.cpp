@@ -3,6 +3,7 @@
 #include "FilePathHelper.h"
 #include "Game.h"
 #include "Vertex.h"
+#include "GameUI.h"
 
 Game* Game::GameInstance;
 
@@ -24,6 +25,7 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 	m_renderer.SetUpdate(SUpdate);
 	m_renderer.SetControls(SOnMouseDown, SOnMouseUp, SOnMouseMove, SOnMouseWheel);
     networkConnection = nullptr;
+    m_state = GameState::MenuOnly;
 }
 
 // --------------------------------------------------------
@@ -133,31 +135,10 @@ void Game::InitializeNetwork()
 
 void Game::LoadUI()
 {
-	UIManager::get().SetContext(m_renderer.GetContext());
-	int graphID = UIManager::get().MakeGraph();
-	UIGraph& graph = UIManager::get().GetGraph(graphID);
-	UIManager::get().SetGraphActiveInFront(graphID);
-	
-	UIElement element;
-	element.m_transform.m_size = Vector2(.25f, .25f);
-	element.m_transform.m_anchor = Vector2(0, 0);
-	element.m_transform.m_pivot = Vector2(0, 0);
-	element.m_color = DirectX::XMFLOAT4(1, 1, 1, .5f);
-	element.m_textureHandle = 0;
-	element.m_transform.m_parent = graph.AddItem(element);
-	element.m_transform.m_size = Vector2(.5f, .5f);
-	element.m_transform.m_anchor = Vector2(0, 0);
-	element.m_transform.m_pivot = Vector2(0, 0);
-	element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
-	element.m_transform.m_parent = graph.AddItem(element);
-	element.m_transform.m_anchor = Vector2(1, 1);
-	element.m_transform.m_pivot = Vector2(1, 1);
-	element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
-	element.m_transform.m_parent = graph.AddItem(element);
-	element.m_transform.m_anchor = Vector2(0, 0);
-	element.m_transform.m_pivot = Vector2(0, 0);
-	element.m_color = DirectX::XMFLOAT4(0, 0, 1, 1);
-	element.m_transform.m_parent = graph.AddItem(element);
+    UIManager::get().SetContext(m_renderer.GetContext());
+    
+    GameUI::Get().GivePointers(m_renderer.GetDevice(), m_renderer.GetContext());
+    GameUI::Get().InitializeUI();
 }
 
 
@@ -170,10 +151,13 @@ void Game::Update(float deltaTime, float totalTime)
 	// Quit if the escape key is pressed
 	if (GetAsyncKeyState(VK_ESCAPE))
 		m_renderer.Quit();
-	clientInterface->Update(deltaTime);
     if (networkConnection != nullptr)
     {
         networkConnection->Listen();
+	}
+    if (m_state == GameState::InGame)
+    {
+        clientInterface->Update(deltaTime);
     }
 }
 
@@ -189,7 +173,10 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	m_renderer.Begin();
 
-	m_renderer.RenderGroup(clientInterface->GetDrawGroup());
+    if (m_state == GameState::InGame)
+    {
+        m_renderer.RenderGroup(clientInterface->GetDrawGroup());
+    }
 	UIManager::get().Render();
 
 	m_renderer.End();
@@ -221,6 +208,8 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
 	SetCapture(m_renderer.GethWnd());
+
+    UIManager::get().OnClick(x, y);
 }
 
 // --------------------------------------------------------
@@ -306,5 +295,18 @@ void Game::SClientCallback(Buffer& bitBuffer)
 void Game::SUserCallback(Buffer& bitBuffer)
 {
     GameInstance->clientInterface->RecieveData(bitBuffer);
+}
+
+void Game::UpdateGameState(GameState arg)
+{
+    switch (arg)
+    {
+    case GameState::InGame:
+        GameInstance->clientInterface->Init();
+        break;
+    default:
+        break;
+    }
+    GameInstance->m_state = arg;
 }
 #pragma endregion

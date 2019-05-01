@@ -5,6 +5,11 @@
 #include "ClientManager.h"
 #include "ClientHelper.h"
 
+enum GameState {
+    MenuOnly,
+    InGame
+};
+
 // Handles the game engine level a the highest level of abstraction
 // Manages most of the other core components
 class Game 
@@ -45,13 +50,10 @@ private:
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
 
-	float time = 0;
-	bool reversed = false;
-
-	float timeShot = -1;
-
 	ClientManager* clientInterface;
     ClientHelper* networkConnection;
+
+    GameState m_state;
 
 	// static callbacks for the Function Pointers
 	static void SUpdate(float deltaTime, float totalTime);
@@ -64,5 +66,7 @@ private:
 
     static void SClientCallback(Buffer& bitBuffer);
     static void SUserCallback(Buffer& bitBuffer);
+public:
+    static void UpdateGameState(GameState arg);
 };
 
