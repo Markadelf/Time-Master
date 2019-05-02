@@ -62,7 +62,7 @@ void GameHost::HostRecievePlayer(Buffer& data, int playerId)
 			header.m_phenominaCount = 1;
 		}
 
-		for (size_t i = 0; i < m_sceneGraph.GetEntityCount(); i++)
+		for (int i = 0; i < m_sceneGraph.GetEntityCount(); i++)
 		{
 			Buffer* outData = m_serverPointer->GetNextBufferActiveUser(MessageType::GameData, i);
 			header.Serialize(*outData);
@@ -126,7 +126,7 @@ void GameHost::CheckVictory()
 	}
 	if (live == 1)
 	{
-		for (size_t i = 0; i < eCount; i++)
+		for (int i = 0; i < eCount; i++)
 		{
 			Buffer* buffer = m_serverPointer->GetNextBufferActiveUser(MessageType::GameRequest, i);
 
