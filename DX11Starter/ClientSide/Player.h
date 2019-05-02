@@ -3,6 +3,7 @@
 #include "HandleObject.h"
 #include "StaticObject.h"
 #include "PlayerKeyFrameData.h"
+#include "AudioEngine.h"
 
 class Player
 {
@@ -29,6 +30,9 @@ class Player
     // Action tracking
 	TimeStamp m_actionUsedTime;
     ActionInfo m_action;
+
+	//Player Sound
+	CAudioEngine PlayerSound;
 
 public:
 	Player();
