@@ -36,8 +36,8 @@ namespace input
 		keyMap.clear();
 
 		// clear active key map
-		for (auto x : activeKeyMap)
-			delete x.second;
+		/*for (auto x : activeKeyMap)
+			delete x.second;*/
 		activeKeyMap.clear();
 
 		//util::ServiceLocator::getFileLogger()->print<util::SeverityType::info>("The input manager was shutdown successfully.");

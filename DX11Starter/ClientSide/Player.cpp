@@ -30,7 +30,6 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
 
 void Player::acquireAction()
 {
-	PlayerInput->acquireInput();
 	// act on user input for player actions
 		for (auto x : PlayerInput->activeKeyMap)
 		{
@@ -54,7 +53,6 @@ void Player::acquireAction()
 
 void Player::acquirePosition(float deltaTime)
 {
-	PlayerInput->acquireInput();
 	Vector2 vel;
 	// act on user input for player position
 	for (auto x : PlayerInput->activeKeyMap)
@@ -78,6 +76,11 @@ void Player::acquirePosition(float deltaTime)
 			vel = vel + Vector2(1, 0);
 			break;
 		}
+	}
+
+	if (vel.m_x != 0 || vel.m_y != 0)
+	{
+		vel = vel.Normalized();
 		vel = vel.Rotate(-m_transform.GetRot());
 		m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
 	}
@@ -85,6 +88,7 @@ void Player::acquirePosition(float deltaTime)
 
 void Player::Update(float deltaTime)
 {
+	PlayerInput->acquireInput();
 	m_time += deltaTime * (m_reversed ? -1 : 1);
 	UpdatePosition(deltaTime);
 	if (!m_usedAction)
