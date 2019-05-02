@@ -56,6 +56,27 @@ void AssetManager::ReleaseAllAssetResource()
 	materialManager.Release();
 	textureManager.ReleaseDXPointers();
 }
+void AssetManager::LoadEmitter(int maxParticles, int pPerSec, float pLifetime, float pStartSize, float pEndSize, XMFLOAT4 pStartColor, XMFLOAT4 pEndColor, XMFLOAT3 pStartVelocity, XMFLOAT4 pVelocityRandRange, XMFLOAT4 emitterPos, XMFLOAT4 emitterPosRandRange, XMFLOAT4 emitterRotRandRange, XMFLOAT4 pConstAccel, ID3D11Device * device, int pTextureHandle)
+{
+	// Parameters- Max particles, Device, pos, pos rand range, start color, end color, 
+	m_drawInfo.emitter = new Emitter(
+		10,							// Max particles
+		20,								// Particles per second
+		.5f,							// Particle lifetime
+		0.1f,							// Start size
+		2.0f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(0, 0, 0),				// Start velocity
+		XMFLOAT3(1, 1, 1),		        // Velocity randomness range
+		XMFLOAT3(0, 0, 0),		        // Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),				// Constant acceleration
+		device,
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
+
+}
 AssetManager::~AssetManager()
 {
 

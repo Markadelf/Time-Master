@@ -64,22 +64,41 @@ void ClientManager::Init(ID3D11Device* device)
 		m_drawInfo.emitter = nullptr;
 	}
 	// Set up particles
-	m_drawInfo.emitter = new Emitter(
-		10,							// Max particles
-		20,								// Particles per second
-		.5f,							// Particle lifetime
-		0.1f,							// Start size
-		2.0f,							// End size
-		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
-		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
-		XMFLOAT3(0, 0, 0),				// Start velocity
-		XMFLOAT3(1, 1, 1),		        // Velocity randomness range
-		XMFLOAT3(0, 0, 0),		        // Emitter position
-		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
-		XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
-		XMFLOAT3(0, -1, 0),				// Constant acceleration
-		device,
-		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
+	// Parameters- Max particles, Device, pos, pos rand range, start color, end color, 
+	AssetManager::get().LoadEmitter(10,											// Max Particles
+		20,																		// Particles per second
+		.5f,																	// Particle lifetime
+		0.1f,																	// Start size
+		2.0f,																	// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+
+
+	
+	//m_drawInfo.emitter = new Emitter(
+	//	10,							// Max particles
+	//	20,								// Particles per second
+	//	.5f,							// Particle lifetime
+	//	0.1f,							// Start size
+	//	2.0f,							// End size
+	//	XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
+	//	XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+	//	XMFLOAT3(0, 0, 0),				// Start velocity
+	//	XMFLOAT3(1, 1, 1),		        // Velocity randomness range
+	//	XMFLOAT3(0, 0, 0),		        // Emitter position
+	//	XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
+	//	XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
+	//	XMFLOAT3(0, -1, 0),				// Constant acceleration
+	//	device,
+	//	AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
 
     PrepDrawGroupStatics();
 }

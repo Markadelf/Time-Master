@@ -41,6 +41,9 @@ public:
 
 	void ReleaseAllAssetResource();
 
+	void LoadEmitter(int maxParticles, int pPerSec, float pLifetime, float pStartSize, float pEndSize, XMFLOAT4 pStartColor, XMFLOAT4 pEndColor, XMFLOAT3 pStartVelocity, XMFLOAT4 pVelocityRandRange
+		,XMFLOAT4 emitterPos, XMFLOAT4 emitterPosRandRange, XMFLOAT4 emitterRotRandRange, XMFLOAT4 pConstAccel, ID3D11Device* device, int pTextureHandle);
+
 	~AssetManager();
 
 
