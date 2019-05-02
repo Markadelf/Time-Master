@@ -6,7 +6,6 @@
 struct TransparentEntity {
 	DrawItem m_entity;
 	float m_transparency;
-	float m_distance;
 };
 
 // Used to communicate Draw Info to the Renderer

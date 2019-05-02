@@ -63,7 +63,6 @@
     <Import Project="..\SerializerCore\SerializerCore.vcxitems" Label="Shared" />
     <Import Project="..\SharedDataStructures\SharedDataStructures.vcxitems" Label="Shared" />
     <Import Project="..\HostSceneGraph\HostSceneGraph.vcxitems" Label="Shared" />
-    <Import Project="..\GameSpecificLogic\GameSpecificLogic.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -117,7 +116,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\GameSpecificLogic\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,7 +158,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\GameSpecificLogic\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -15,12 +15,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ClientManager.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)GameUI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Player.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ClientManager.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)GameUI.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Player.cpp" />
   </ItemGroup>
 </Project>

@@ -33,8 +33,6 @@ public:
 	
 	void GetBounds(float* min, float* max) const;
 
-	float GetProgress(float time) const;
-
 	// Modifiers
 	void Trim(TimeStamp time);
 

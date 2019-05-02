@@ -38,11 +38,6 @@
     <None Include="$(MSBuildThisFileDirectory)shaders\lighting.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="$(MSBuildThisFileDirectory)shaders\BlendingPixelShader.hlsl">
-      <DeploymentContent>true</DeploymentContent>
-      <ShaderType>Pixel</ShaderType>
-      <ShaderModel>5.0</ShaderModel>
-    </FxCompile>
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\PixelShader.hlsl">
       <ShaderType>Pixel</ShaderType>
       <ShaderModel>5.0</ShaderModel>

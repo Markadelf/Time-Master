@@ -74,6 +74,5 @@
     <FxCompile Include="$(MSBuildThisFileDirectory)ShadowVS.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyPixelShader.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyVertexShader.hlsl" />
-    <FxCompile Include="$(MSBuildThisFileDirectory)shaders\BlendingPixelShader.hlsl" />
   </ItemGroup>
 </Project>

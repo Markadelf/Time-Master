@@ -1,10 +1,6 @@
 #include "ClientManager.h"
 #include "ColliderManager.h"
 #include "AssetManager.h"
-#include "MathUtil.h"
-
-#include <algorithm>
-#include "ArenaLevel.h"
 
 ClientManager::ClientManager()
 {
@@ -27,32 +23,112 @@ void ClientManager::Update(float deltaTime)
 	m_graph.PreventCollision(m_player.GetEntityId(), trans);
 	m_player.SetTransform(trans);
 
-	if (m_player.StackRequested())
+	static int frame = 0;
+	if (frame > 30)
 	{
 		m_graph.StackKeyFrame(m_player.GetKeyFrame());
+		frame = 0;
+	}
+	else
+	{
+		frame++;
 	}
 }
 
 void ClientManager::Init()
 {
 	//TODO: Modify to load either from file or from a preset instead of hard coding it
-    ArenaLevel arena;
-    arena.LoadScene(m_graph);
 
-    int playerId = 0;
-    EntitySpawnInfo& player = arena.GetSpawnInfo(playerId);
-    m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f);
-    m_player.SetEntityId(playerId);
-    m_player.SetAction(player.m_action);
+	int floorMaterial = AssetManager::get().GetMaterialHandle("FLOOR");
+	int woodMaterial  = AssetManager::get().GetMaterialHandle("WOOD");
+	int playerMaterial = AssetManager::get().GetMaterialHandle("PLAYER3");
 
-    Light* lights;
-    int lCount;
-    arena.GetLights(&lights, lCount);
+	// Load in the files and get the handles for each from the meshManager
+	int coneHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cone.obj");
+	int cubeHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cube.obj");
+	int cylinderHandle = AssetManager::get().GetMeshHandle("OBJ_Files/cylinder.obj");
+	int sphereHandle = AssetManager::get().GetMeshHandle("OBJ_Files/sphere.obj");
+	int duckHandle = AssetManager::get().GetMeshHandle("OBJ_Files/duck.fbx");
 
-    memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
-    m_drawInfo.m_lightCount = lCount;
+	// Add static objects to scene graph
+	const int div = 20;
+	StaticObject objs[div + 2];
+	Vector2 right = Vector2(5, 0);
+	HandleObject handle;
+	handle.m_material = woodMaterial;
+	handle.m_mesh = cubeHandle;
+	handle.m_scale[2] = 2;
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 2);
 
-    PrepDrawGroupStatics();
+	for (size_t i = 0; i < div; i++)
+	{
+		objs[i] = (StaticObject(Transform(right.Rotate(6.28f / div * i), -6.28f / div * i), handle));
+	}
+	handle.m_material = floorMaterial;
+	handle.m_mesh = cylinderHandle;
+	handle.SetUniformScale(1);
+	handle.m_collider = ColliderManager::get().GetCircleHandle(.5f);
+	//handle.m_scale[2] = 1;
+
+	objs[div] = (StaticObject(Transform(Vector2(), 0), handle));
+	
+	// Add floor
+	handle.m_collider = Colliders2D::ColliderHandle();
+	handle.m_yPos = -1;
+	handle.m_scale[0] = 10;
+	handle.m_scale[2] = 10;
+	objs[div + 1] = (StaticObject(Transform(Vector2(), 0), handle));
+
+	m_graph.Init(16, 100);
+	m_graph.Init(&objs[0], div + 2);
+
+	handle.m_yPos = 0;
+	handle.m_material = playerMaterial;
+	handle.m_mesh = cubeHandle;
+	handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
+	handle.SetUniformScale(1);
+	Vector2 pos(0, -3);
+
+	// Add player
+	int id = m_graph.AddEntity(2048, 100);
+	m_player.Initialize(Transform(pos, 0), 0, handle);
+	m_graph.GetEntity(id)->Initialize(Transform(pos, 0), m_player.GetTimeStamp(), handle);
+	m_player.SetEntityId(id);
+
+	PrepDrawGroupStatics();
+
+	//Initiating lighting
+	Light directLight, spotLight, pointLight;
+
+	directLight.Type = LIGHT_TYPE_DIRECTIONAL;
+	directLight.Direction = DirectX::XMFLOAT3(-1, -1, 0);
+	directLight.Color = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
+	directLight.DiffuseIntensity = 1.0f;
+	directLight.AmbientIntensity = 0;//0.4f;
+
+	pointLight.Type = LIGHT_TYPE_POINT;
+	pointLight.Position = DirectX::XMFLOAT3(-3, -3, 0);
+	pointLight.Direction = DirectX::XMFLOAT3(1, 1, 0);
+	pointLight.Range = 20.0f;
+	pointLight.Color = DirectX::XMFLOAT3(1.0f, 0.1f, 0);
+	pointLight.DiffuseIntensity = 1.0f;
+	pointLight.AmbientIntensity = 0.0f;
+
+	spotLight.Type = LIGHT_TYPE_SPOT;
+	spotLight.Position = DirectX::XMFLOAT3(0, 5, 0);
+	spotLight.Direction = DirectX::XMFLOAT3(0, -1, 0);
+
+	spotLight.Range = 20.0f;
+	spotLight.Color = DirectX::XMFLOAT3(1, 0, 1);
+	spotLight.SpotFalloff = 25.0f;
+	spotLight.DiffuseIntensity = 1.0f;
+	spotLight.AmbientIntensity = 0.1f;
+
+	m_drawInfo.m_lightList[0] = directLight;
+	m_drawInfo.m_lightList[1] = pointLight;
+	m_drawInfo.m_lightList[2] = spotLight;
+
+	m_drawInfo.m_lightCount = 3;
 }
 
 Player& ClientManager::GetPlayer()
@@ -95,8 +171,7 @@ void ClientManager::PrepDrawGroup()
 	m_drawInfo.m_camera.SetYaw(player.GetRot());
 
 	// Entities
-    m_drawInfo.m_visibleCount = m_staticCount;
-    m_drawInfo.m_transparentCount = 0;
+	m_drawInfo.m_visibleCount = m_staticCount;
 	TimeStamp time = m_player.GetTimeStamp();
 
 	int eCount = m_graph.GetEntityCount();
@@ -108,60 +183,17 @@ void ClientManager::PrepDrawGroup()
 		int phanCount = entity->GetImageCount();
 		Phantom* phantoms = entity->GetPhantomBuffer();
 		
-        float* pTimeReversed;
-        int rCount;
-
-        entity->GetReverseBuffer(&pTimeReversed, rCount);
-
-        // Add phantoms
-        const float fadePeriod = .5f;
-        int rIndex = 0;
 		for (size_t j = 0; j < phanCount; j++)
 		{
 			TimeInstableTransform trans = phantoms[j].GetTransform();
-            if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-                float personalTime = phantoms[j].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
-                float opacity = 1;
-                while (personalTime >= pTimeReversed[rIndex + 1])
-                {
-                    rIndex++;
-                }
-                if (personalTime <= pTimeReversed[rIndex] + fadePeriod)
-                {
-                    opacity = (personalTime - pTimeReversed[rIndex]) / fadePeriod;
-                }
-                if (personalTime + fadePeriod >= pTimeReversed[rIndex + 1])
-                {
-                    if (opacity != 1)
-                    {
-                        float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
-                        opacity = opacity < opacity2 ? opacity : opacity2;
-                    }
-                    else
-                    {
-                        opacity = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
-                    }
-                }
-                opacity = opacity * opacity;
-				
-				if(opacity == 1)
-				{
-					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
-				}
-                else if(opacity > 0)
-                {
-                    TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
-					
-                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
-                    tEnt.m_transparency = opacity;
-					tEnt.m_distance = mathutil::Distance(m_drawInfo.m_camera.GetPosition(), tEnt.m_entity.GetPosition());
-                }
+				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
 			}
-        }
+		}
 
-		int phenCount = entity->GetPhenomenaCount();
-		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
+		int phenCount = entity->GetPhenominaCount();
+		Phenomina* phenomenas = entity->GetPhenominaBuffer();
 
 		for (size_t j = 0; j < phenCount; j++)
 		{
@@ -172,15 +204,6 @@ void ClientManager::PrepDrawGroup()
 			}
 		}
 	}
-
-	// sorting transperant entities
-	std::sort(m_drawInfo.m_transparentObjects, m_drawInfo.m_transparentObjects + m_drawInfo.m_transparentCount,
-			//lambda to define the sorting comparision
-			[](TransparentEntity const & first, TransparentEntity const & second)->bool
-			{
-				return first.m_distance < second.m_distance;
-			}	
-	);
 }
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)

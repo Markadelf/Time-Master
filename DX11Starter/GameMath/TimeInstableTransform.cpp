@@ -88,16 +88,6 @@ void TimeInstableTransform::GetBounds(float* min, float* max) const
 	max[2] = m_endTime;
 }
 
-float TimeInstableTransform::GetProgress(float time) const
-{
-	float prog = (time - m_startTime) / (m_endTime - m_startTime);
-	if (m_reversed)
-	{
-		prog = 1 - prog;
-	}
-	return prog;
-}
-
 
 void TimeInstableTransform::Trim(TimeStamp time)
 {

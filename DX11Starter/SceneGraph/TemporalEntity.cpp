@@ -4,27 +4,24 @@
 TemporalEntity::TemporalEntity()
 {
 	m_images = nullptr;
-	m_phenomenaImages = nullptr;
-	m_phenomenaBuffer = nullptr;
-    m_timesReversed = nullptr;
+	m_phenominaHandles = nullptr;
+	m_phenominaBuffer = nullptr;
 
 	m_maxImages = 0;
-	m_maxPhenomena = 0;
+	m_maxPhenomina = 0;
 	m_entityId = -1;
 	m_lastTimeStamp = -1;
-    m_maxReverses = 0;
-    m_reverseCount = 0;
 
 	m_imageCount = 0;
-	m_phenomenaCount = 0;
+	m_phenominaCount = 0;
 
 	// Initialize variables
 	m_reversed = false;
 }
 
-TemporalEntity::TemporalEntity(int maxImages, int maxPhenomena, const Transform& startingPos, float initialTime, HandleObject handles, int entityId): TemporalEntity()
+TemporalEntity::TemporalEntity(int maxImages, int maxPhenomina, const Transform& startingPos, float initialTime, HandleObject handles, int entityId): TemporalEntity()
 {
-	Initialize(maxImages, maxPhenomena, entityId);
+	Initialize(maxImages, maxPhenomina, entityId);
 	Initialize(startingPos, initialTime, handles);
 }
 
@@ -36,21 +33,16 @@ TemporalEntity::~TemporalEntity()
 		delete[] m_images;
 		m_images = nullptr;
 	}
-	if (m_phenomenaImages) 
+	if (m_phenominaHandles) 
 	{
-		delete[] m_phenomenaImages;
-		m_phenomenaImages = nullptr;
+		delete[] m_phenominaHandles;
+		m_phenominaHandles = nullptr;
 	}
-	if (m_phenomenaBuffer)
+	if (m_phenominaBuffer)
 	{
-		delete[] m_phenomenaBuffer;
-		m_phenomenaBuffer = nullptr;
+		delete[] m_phenominaBuffer;
+		m_phenominaBuffer = nullptr;
 	}
-    if (m_timesReversed)
-    {
-        delete[] m_timesReversed;
-        m_timesReversed = nullptr;
-    }
 }
 
 void TemporalEntity::Initialize(const Transform& startingPos, float initialTime, HandleObject handles)
@@ -60,56 +52,48 @@ void TemporalEntity::Initialize(const Transform& startingPos, float initialTime,
 
 	// Intialize indices
 	m_imageCount = 0;
-	m_phenomenaCount = 0;
+	m_phenominaCount = 0;
 
 	m_handle = handles;
 
 	// Initialize variables
-	m_killedBy = PhenomenaHandle();
+	m_killedBy = PhenominaHandle();
 	m_reversed = false;
 }
 
-void TemporalEntity::Initialize(int maxImages, int maxPhenomena, int entityId)
+void TemporalEntity::Initialize(int maxImages, int maxPhenomina, int entityId)
 {
 	if (m_images)
 	{
 		delete[] m_images;
 		m_images = nullptr;
 	}
-	if (m_phenomenaImages)
+	if (m_phenominaHandles)
 	{
-		delete[] m_phenomenaImages;
-		m_phenomenaImages = nullptr;
+		delete[] m_phenominaHandles;
+		m_phenominaHandles = nullptr;
 	}
-	if (m_phenomenaBuffer)
+	if (m_phenominaBuffer)
 	{
-		delete[] m_phenomenaBuffer;
-		m_phenomenaBuffer = nullptr;
+		delete[] m_phenominaBuffer;
+		m_phenominaBuffer = nullptr;
 	}
-    if (m_timesReversed)
-    {
-        delete[] m_timesReversed;
-        m_timesReversed = nullptr;
-    }
 
 	m_maxImages = maxImages;
-	m_maxPhenomena = maxPhenomena;
+	m_maxPhenomina = maxPhenomina;
 	m_entityId = entityId;
-    m_maxReverses = maxPhenomena;
 
 	// Initialize Buffers
 	m_images = new Phantom[maxImages];
-	m_phenomenaImages = new int[maxPhenomena];
-	m_phenomenaBuffer = new Phenomenon[maxPhenomena];
-    m_timesReversed = new float[maxPhenomena];
+	m_phenominaHandles = new PhenominaCreationInfo[maxPhenomina];
+	m_phenominaBuffer = new Phenomina[maxPhenomina];
 
 	// Intialize indices
 	m_imageCount = 0;
-	m_phenomenaCount = 0;
-    m_reverseCount = 0;
+	m_phenominaCount = 0;
 }
 
-PhenomenaHandle TemporalEntity::GetKilledBy()
+PhenominaHandle TemporalEntity::GetKilledBy()
 {
 	return m_killedBy;
 }
@@ -124,9 +108,9 @@ int TemporalEntity::GetImageCount() const
 	return m_imageCount;
 }
 
-int TemporalEntity::GetPhenomenaCount() const
+int TemporalEntity::GetPhenominaCount() const
 {
-	return m_phenomenaCount;
+	return m_phenominaCount;
 }
 
 Phantom* TemporalEntity::GetPhantomBuffer() const
@@ -134,9 +118,9 @@ Phantom* TemporalEntity::GetPhantomBuffer() const
 	return m_images;
 }
 
-Phenomenon* TemporalEntity::GetPhenomenaBuffer() const
+Phenomina* TemporalEntity::GetPhenominaBuffer() const
 {
-	return m_phenomenaBuffer;
+	return m_phenominaBuffer;
 }
 
 Transform TemporalEntity::GetTransform() const
@@ -154,11 +138,6 @@ bool TemporalEntity::GetReversed() const
 	return m_reversed;
 }
 
-ActionInfo TemporalEntity::GetAction() const
-{
-    return m_action;
-}
-
 HandleObject TemporalEntity::GetHandle() const 
 {
 	return m_handle;
@@ -167,11 +146,6 @@ HandleObject TemporalEntity::GetHandle() const
 void TemporalEntity::SetHandle(HandleObject& obj)
 {
 	m_handle = obj;
-}
-
-void TemporalEntity::SetAction(ActionInfo& action)
-{
-    m_action = action;
 }
 
 
@@ -183,42 +157,29 @@ Phantom* TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
 	}
 
 	TimeStamp timeStamp = keyFrame.m_timeStamp;
-    bool reversed;
-    reversed = timeStamp < m_lastTimeStamp;
-    if (reversed)
+	if (timeStamp < m_lastTimeStamp)
 	{
 		m_images[m_imageCount] = Phantom(TimeInstableTransform(keyFrame.m_transform, m_currentTransform, timeStamp, m_lastTimeStamp, true), keyFrame);
 	}
 	else
 	{
-        m_images[m_imageCount] = Phantom(TimeInstableTransform(m_currentTransform, keyFrame.m_transform, m_lastTimeStamp, timeStamp, false), keyFrame);
+		m_images[m_imageCount] = Phantom(TimeInstableTransform(m_currentTransform, keyFrame.m_transform, m_lastTimeStamp, timeStamp, false), keyFrame);
 	}
-#ifdef CLIENT
-    TimeInstableTransform trans = m_images[m_imageCount - 1].GetTransform();
-    float pTime = m_imageCount == 0 ? 0 : m_images[m_imageCount - 1].GetPersonalTime() + trans.GetEndTime() - trans.GetStartTime();
-    if (reversed != m_reversed) {
-        m_timesReversed[m_reverseCount++] = pTime;
-    }
-    m_images[m_imageCount].SetPersonalTime(pTime);
-
-#endif // CLIENT
-	
-    m_reversed = reversed;
-    m_lastTimeStamp = timeStamp;
+	m_lastTimeStamp = timeStamp;
 	m_currentTransform = keyFrame.m_transform;
 
 	return &m_images[m_imageCount++];
 }
 
-void TemporalEntity::TrackPhenomena(Phenomenon phenomena)
+void TemporalEntity::TrackPhenomina(Phenomina phenomina, TimeStamp time)
 {
-	m_phenomenaImages[m_phenomenaCount] = m_imageCount;
-	m_phenomenaBuffer[m_phenomenaCount] = phenomena;
-	m_phenomenaCount++;
+	m_phenominaHandles[m_phenominaCount] = PhenominaCreationInfo(m_imageCount, time);
+	m_phenominaBuffer[m_phenominaCount] = phenomina;
+	m_phenominaCount++;
 }
 
 
-void TemporalEntity::Kill(int imageIndex, TimeStamp time, const PhenomenaHandle& murderHandle, PhenomenaHandle& phenomenaResetHandle)
+void TemporalEntity::Kill(int imageIndex, TimeStamp time, const PhenominaHandle& murderHandle, PhenominaHandle& phenominaResetHandle)
 {
 	if (imageIndex > m_imageCount)
 	{
@@ -234,54 +195,46 @@ void TemporalEntity::Kill(int imageIndex, TimeStamp time, const PhenomenaHandle&
 	m_reversed = m_images[imageIndex].GetTransform().GetReversed();
 
 	// Get the bullet handle to reset to
-    phenomenaResetHandle = PhenomenaHandle(m_entityId, -1);
-	for (int i = m_phenomenaCount - 1; i >= 0; i--)
+	phenominaResetHandle = PhenominaHandle(m_entityId, -1);
+	for (int i = m_phenominaCount - 1; i >= 0; i--)
 	{
-		if (m_phenomenaImages[i] < imageIndex)
+		if (m_phenominaHandles[i].m_imageIndex < imageIndex)
 		{
 			break;
 		}
-        phenomenaResetHandle.m_phenomena = i;
+		phenominaResetHandle.m_phenomina = i;
 	}
 	// Don't cut a bullet from a timestamp on the image if the death is after it
-	if (phenomenaResetHandle.m_phenomena != -1 && m_phenomenaImages[phenomenaResetHandle.m_phenomena] == imageIndex)
+	if (phenominaResetHandle.m_phenomina != -1 && m_phenominaHandles[phenominaResetHandle.m_phenomina].m_imageIndex == imageIndex)
 	{
 		if (m_reversed) {
-			if (m_images[m_phenomenaImages[phenomenaResetHandle.m_phenomena]].GetTransform().GetEndTime() - m_action.m_deploymentTime > time)
+			if (m_phenominaHandles[phenominaResetHandle.m_phenomina].m_timeStamp > time)
 			{
-                phenomenaResetHandle.m_phenomena++;
+				phenominaResetHandle.m_phenomina++;
 			}
 		}
 		else
 		{
-			if (m_images[m_phenomenaImages[phenomenaResetHandle.m_phenomena]].GetTransform().GetStartTime() + m_action.m_deploymentTime < time)
+			if (m_phenominaHandles[phenominaResetHandle.m_phenomina].m_timeStamp < time)
 			{
-                phenomenaResetHandle.m_phenomena++;
+				phenominaResetHandle.m_phenomina++;
 			}
 		}
 	}
-	if (phenomenaResetHandle.m_phenomena != -1)
+	if (phenominaResetHandle.m_phenomina != -1)
 	{
-		m_phenomenaCount = phenomenaResetHandle.m_phenomena;
+		m_phenominaCount = phenominaResetHandle.m_phenomina;
 	}
 }
 
 void TemporalEntity::Revive()
 {
 	// Most of the work was done by the kill function
-	m_killedBy = PhenomenaHandle();
+	m_killedBy = PhenominaHandle();
 }
 
-bool TemporalEntity::CheckRevive(const PhenomenaHandle& resetHandle)
+bool TemporalEntity::CheckRevive(const PhenominaHandle& resetHandle)
 {
-	return m_killedBy.m_entity == resetHandle.m_entity && resetHandle.m_phenomena != -1 && resetHandle.m_phenomena <= m_killedBy.m_phenomena;
+	return m_killedBy.m_entity == resetHandle.m_entity && resetHandle.m_phenomina != -1 && resetHandle.m_phenomina <= m_killedBy.m_phenomina;
 }
-
-#ifdef CLIENT
-void TemporalEntity::GetReverseBuffer(float** buffer, int& count)
-{
-    *buffer = m_timesReversed;
-    count = m_reverseCount;
-}
-#endif // CLIENT
 

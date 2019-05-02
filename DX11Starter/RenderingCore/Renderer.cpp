@@ -34,9 +34,6 @@ Renderer::Renderer(HINSTANCE hInstance)
 	m_ps = nullptr;
 	m_vs = nullptr;
 	m_sampler = nullptr;
-	m_blendPS = nullptr;
-	m_skyPS = nullptr;
-	m_skyVS = nullptr;
 }
 
 // --------------------------------------------------------
@@ -51,24 +48,17 @@ Renderer::~Renderer()
 	delete m_shadowVS;
 	delete m_skyPS;
 	delete m_skyVS;
-	delete m_blendPS;
 
 	m_skySRV->Release();
 	m_skyRasterState->Release();
 	m_skyDepthState->Release();
 	m_sampler->Release();
 
-
 	m_shadowSampler->Release();
 	m_shadowRasterizer->Release();
 
 	m_shadowDSV->Release();
 	m_shadowSRV->Release();
-
-	m_blendState->Release();
-	m_blendDepthState->Release();
-	m_blendRasterizer->Release();
-
 }
 
 // --------------------------------------------------------
@@ -100,43 +90,6 @@ void Renderer::Init()
 	dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	device->CreateDepthStencilState(&dd, &m_skyDepthState);
-
-
-
-	//Setting up blender state
-
-	// Create a rasterizer description and then state
-	D3D11_RASTERIZER_DESC blendRasterizerDesc = {};
-	blendRasterizerDesc.CullMode = D3D11_CULL_NONE;
-	blendRasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	device->CreateRasterizerState(&blendRasterizerDesc, &m_blendRasterizer);
-
-	// Depth state off?
-	D3D11_DEPTH_STENCIL_DESC blendDepthStencilDesc = {};
-	blendDepthStencilDesc.DepthEnable = false;
-	device->CreateDepthStencilState(&blendDepthStencilDesc, &m_blendDepthState);
-	
-	//context->OMSetDepthStencilState(depthState, 0);
-
-	//Setup blendstate for the transperant group
-	D3D11_BLEND_DESC bd = {};
-	bd.RenderTarget[0].BlendEnable = true;
-
-	// Settings for blending RGB channels
-	bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-
-	// Settings for blending alpha channel
-	bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-
-	// Setting for masking out individual color channels
-	bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	// Create the state
-	device->CreateBlendState(&bd, &m_blendState);
-
 }
 
 
@@ -169,10 +122,6 @@ void Renderer::InitializeShaders()
 
 	m_skyPS = new SimplePixelShader(device, context);
 	m_skyPS->LoadShaderFile(L"SkyPixelShader.cso");
-
-
-	m_blendPS = new SimplePixelShader(device, context);
-	m_blendPS->LoadShaderFile(L"BlendingPixelShader.cso");
 }
 
 void Renderer::InitializeShadowMaps()
@@ -253,7 +202,7 @@ void Renderer::Begin()
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
-	context->ClearRenderTargetView(backBufferRTV, color);
+//	context->ClearRenderTargetView(backBufferRTV, color);
 	context->ClearDepthStencilView(
 		depthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
@@ -328,26 +277,14 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	}
 	// Draw the sky AFTER all opaque geometry
 	DrawSky(drawGroup.m_camera);
-	
-	// Set the states!
-	context->RSSetState(m_blendRasterizer);
-	context->OMSetBlendState(m_blendState, 0, 0xFFFFFFFF);
-	for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
-	{
-		//Render transperant obj
-		RenderTransperentEntity(drawGroup.m_transparentObjects[i].m_entity, drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount, drawGroup.m_transparentObjects[i].m_transparency);
-	}
-	
-	// Resetting blender state
-	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
-	context->RSSetState(0);
+
 	// Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
 	ID3D11ShaderResourceView* noSRV[16] = {};
 	context->PSSetShaderResources(0, 16, noSRV);
 }
 
-void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount, float transparency)
+void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount)
 {
 	// Send data to shader variables
 	//  - Do this ONCE PER OBJECT you're drawing
@@ -367,9 +304,6 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 
 	ps->SetInt("lightCount", (int)lightCount);
 	ps->SetData("lights", (void*)(lights), sizeof(Light) * MAX_LIGHTS);
-	if (ps == m_blendPS) {
-		ps->SetFloat("transparency", transparency);
-	}
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
 	ps->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()));
 	ps->SetShaderResourceView("roughnessTexture", *AssetManager::get().GetTexturePointer(mat->GetRoughnessTextureHandle()));
@@ -427,20 +361,11 @@ void Renderer::RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh)
 	context->DrawIndexed(mesh->GetIndexCount(), 0, 0);
 }
 
-void Renderer::RenderTransperentEntity(DrawItem& entity, Camera& camera, Light* lights, int lightCount,float transperency)
-{
-	Material* mat = AssetManager::get().GetMaterialPointer(entity.GetMaterialHandle());
-	Mesh* mesh = AssetManager::get().GetMeshPointer(entity.GetMeshHandle());
-	
-	Render(m_blendPS, m_vs, mat, m_sampler, entity.GetTransform(), mesh, camera, lights, lightCount,transperency);
-}
-
-
 void Renderer::RenderVisibleEntity(DrawItem& entity, Camera& camera, Light* lights, int lightCount)
 {
 	Material* mat = AssetManager::get().GetMaterialPointer(entity.GetMaterialHandle());
 	Mesh* mesh = AssetManager::get().GetMeshPointer(entity.GetMeshHandle());
-
+	
 	Render(m_ps, m_vs, mat, m_sampler, entity.GetTransform(), mesh, camera, lights, lightCount);
 }
 
