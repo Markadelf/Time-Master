@@ -234,7 +234,8 @@ bool TemporalEntity::TrackPhantom(Phantom key)
 		return false;
 	}
 	m_images[m_imageCount] = key;
-	if (key.GetTransform().GetReversed())
+	bool reversed = key.GetTransform().GetReversed();
+	if (reversed)
 	{
 		m_lastTimeStamp = key.GetTransform().GetStartTime();
 	}
@@ -243,6 +244,17 @@ bool TemporalEntity::TrackPhantom(Phantom key)
 		m_lastTimeStamp = key.GetTransform().GetEndTime();
 	}
 
+#ifdef CLIENT
+	TimeInstableTransform trans = m_images[m_imageCount - 1].GetTransform();
+	float pTime = m_imageCount == 0 ? 0 : m_images[m_imageCount - 1].GetPersonalTime() + trans.GetEndTime() - trans.GetStartTime();
+	if (reversed != m_reversed) {
+		m_timesReversed[m_reverseCount++] = pTime;
+	}
+	m_images[m_imageCount].SetPersonalTime(pTime);
+
+#endif // CLIENT
+
+	m_reversed = reversed;
 	m_currentTransform = key.GetTransform().GetTransform(m_lastTimeStamp);
 	m_imageCount++;
 	return true;
