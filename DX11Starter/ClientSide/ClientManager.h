@@ -24,7 +24,7 @@ public:
 	~ClientManager();
 
 	// Updates the player and communicates with the scenegraph
-	void Update(float deltaTime, float totalTime);
+	void Update(float deltaTime);
 	
 	// Initializes the game state
 	// TODO: Add apropriate parameters

@@ -16,10 +16,14 @@ ClientManager::ClientManager()
 
 ClientManager::~ClientManager()
 {
-	delete m_drawInfo.emitter;
+	if (m_drawInfo.emitter != nullptr)
+	{
+		delete m_drawInfo.emitter;
+		m_drawInfo.emitter = nullptr;
+	}
 }
 
-void ClientManager::Update(float deltaTime, float totalTime)
+void ClientManager::Update(float deltaTime)
 {
 	// Update the first person controller
 	// TODO: Consider permiting more than one fps controller (AI controllers?)
@@ -54,6 +58,11 @@ void ClientManager::Init(ID3D11Device* device)
     memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
     m_drawInfo.m_lightCount = lCount;
 
+	if (m_drawInfo.emitter != nullptr)
+	{
+		delete m_drawInfo.emitter;
+		m_drawInfo.emitter = nullptr;
+	}
 	// Set up particles
 	m_drawInfo.emitter = new Emitter(
 		10,							// Max particles

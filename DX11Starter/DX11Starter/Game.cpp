@@ -278,10 +278,12 @@ void Game::SOnMouseWheel(float wheelDelta, int x, int y)
 
 void Game::UpdateGameState(GameState arg)
 {
-    switch (arg)
+	ID3D11Device* device = GameInstance->m_renderer.GetDevice();
+	switch (arg)
     {
     case GameState::InGame:
-        GameInstance->clientInterface->Init();
+
+		GameInstance->clientInterface->Init(device);
         break;
     default:
         break;
