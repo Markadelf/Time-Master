@@ -72,6 +72,8 @@ public:
 	// Checks if any new data is present
 	void Listen();
 
+	bool CheckDisconnected(int user);
+
 private:
 	// Internal functions for interfacing with SocketWrapper
 	void ListenHelper(Address ad, const void* data, const int size);

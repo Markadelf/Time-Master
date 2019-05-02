@@ -53,6 +53,10 @@ Buffer* Connection::GetNextBuffer(MessageType messageType)
 
 bool Connection::Send(SocketWrapper& sock)
 {
+	if (m_remote.m_unconfirmed + 32 < m_remote.m_nextSend)
+	{
+		m_disconnected = true;
+	}
 	// Get the apropriate buffer
 	Buffer* buffer = m_outBuffer.GetPacketBuffer(m_remote.m_nextSend);
 	switch (m_nextType)
@@ -108,6 +112,12 @@ void Connection::ResetAcks()
 	m_remote.m_nextEvaluate = 0;
 	m_remote.m_nextSend = 0;
 	m_remote.m_unconfirmed = 0;
+	m_disconnected = false;
+}
+
+bool Connection::CheckDisconnected()
+{
+	return m_disconnected;
 }
 
 void Connection::Ack(SocketWrapper& sock, Buffer& landing)
@@ -163,7 +173,7 @@ bool Connection::Resend(SocketWrapper& sock, unsigned __int32 packetId)
 	}
 	if (packetId < m_remote.m_nextSend)
 	{
-		throw ConnectionErrorCodes::LostConnection;
+		m_disconnected = true;
 	}
     return false;
 }

@@ -44,6 +44,8 @@ public:
 
 	void ResetAcks();
 
+	bool CheckDisconnected();
+
 private:
 	// Internal functions for interfacing with SocketWrapper
 	void ListenHelper(Address ad, const void* data, const int size);

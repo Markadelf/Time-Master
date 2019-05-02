@@ -31,6 +31,8 @@ class Connection
 	// Keeps track of the last message type we prepped
 	MessageType m_nextType = MessageType::Ping;
 
+	bool m_disconnected = false;
+
 public:
 	Connection();
 	~Connection();
@@ -52,6 +54,8 @@ public:
 	void AckAndProcess(SocketWrapper& sock, Buffer& landing, void(*callback)(Buffer& data, int userId));
 
 	void ResetAcks();
+
+	bool CheckDisconnected();
 
 private:
 	// Reads in the ack, checks the ack, makes any neccesary `Resend` calls

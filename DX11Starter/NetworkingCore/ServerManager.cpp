@@ -105,6 +105,11 @@ void ServerManager::Listen() {
 	m_socket.Recieve(ListenHelperStatic);
 }
 
+bool ServerManager::CheckDisconnected(int user)
+{
+	return m_activeUsers[user] == -1 || m_activeUserBuffer[user].CheckDisconnected();
+}
+
 void ServerManager::ListenHelper(Address ad, const void* data, const int size) {
 	// Figure out which client this is
 	int clientId = GetClientId(ad);

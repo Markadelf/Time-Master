@@ -72,6 +72,23 @@ void GameHost::HostRecievePlayer(Buffer& data, int playerId)
 	}
 }
 
+void GameHost::ValidateGameState()
+{
+	if (!m_ingame) {
+		return;
+	}
+	for (size_t i = 0; i < m_sceneGraph.GetEntityCount(); i++)
+	{
+		Buffer* outData = m_serverPointer->GetNextBufferActiveUser(MessageType::Ping, i);
+		m_serverPointer->SendToActiveUser(i);
+		if (m_serverPointer->CheckDisconnected(i))
+		{
+			EndGame();
+			break;
+		}
+	}
+}
+
 void GameHost::CheckStartGame()
 {
 	if (m_clientQueue.GetCount() >= m_sceneGraph.GetEntityCount() && !m_ingame)
@@ -140,9 +157,14 @@ void GameHost::CheckVictory()
 
 			m_serverPointer->SendToActiveUser(i);
 		}
-		m_ingame = false;
-		m_serverPointer->ClearUsers();
-		CheckStartGame();
+		EndGame();
 	}
+}
+
+void GameHost::EndGame()
+{
+	m_ingame = false;
+	m_serverPointer->ClearUsers();
+	CheckStartGame();
 }
 

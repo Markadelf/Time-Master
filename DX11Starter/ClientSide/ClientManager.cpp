@@ -46,7 +46,8 @@ void ClientManager::Update(float deltaTime)
 		}
 	}
 
-	if (!m_graph.CheckValid())
+	m_timeSinceRecieve += deltaTime;
+	if (!m_graph.CheckValid() || m_timeSinceRecieve > 5)
 	{
 		GameUI::Get().ExitToResults(3);
 	}
@@ -71,6 +72,7 @@ void ClientManager::Init(int entityId)
 	m_drawInfo.m_lightCount = lCount;
 
 	PrepDrawGroupStatics();
+	m_timeSinceRecieve = 0;
 }
 
 Player& ClientManager::GetPlayer()
@@ -107,6 +109,8 @@ void ClientManager::RecieveData(Buffer& data)
 	if (playerDied) {
 		m_player.Reposition(player.GetTransform(), player.GetTimeStamp());
 	}
+	
+	m_timeSinceRecieve = 0;
 }
 
 void ClientManager::PrepDrawGroupStatics()

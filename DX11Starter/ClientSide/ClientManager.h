@@ -23,6 +23,9 @@ class ClientManager
     // Nullptr if not communicating over the network
     ClientHelper* m_networkConnection;
 
+	// Time since the server updated us
+	float m_timeSinceRecieve;
+
 public:
 	ClientManager();
 	~ClientManager();

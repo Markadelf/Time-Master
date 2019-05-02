@@ -52,6 +52,11 @@ void ClientHelper::ResetAcks()
 	m_server.ResetAcks();
 }
 
+bool ClientHelper::CheckDisconnected()
+{
+	return m_server.CheckDisconnected();
+}
+
 void ClientHelper::ListenHelper(Address ad, const void* data, const int size)
 {
 	// Write to the landing buffer

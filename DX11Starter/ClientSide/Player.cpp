@@ -22,6 +22,7 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
 	m_handle = handle;
     m_keyPeriod = keyPeriod;
     m_keyFrameTimer = 0;
+	m_reversed = false;
     m_dead = false;
 }
 

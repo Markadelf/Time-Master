@@ -17,11 +17,15 @@ public:
 	void HostRecieveClient(Buffer& data, int clientId);
 	void HostRecievePlayer(Buffer& data, int playerId);
 
+	void ValidateGameState();
+
 private:
 	void CheckStartGame();
 	void StartGame();
     void LoadLevel();
 
+
 	void CheckVictory();
+	void EndGame();
 };
 
