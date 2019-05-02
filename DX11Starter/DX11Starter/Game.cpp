@@ -6,6 +6,7 @@
 #include "GameUI.h"
 #include "RequestNetworkStructs.h"
 #include "JsonParser.h"
+
 Game* Game::GameInstance;
 
 // For the DirectX Math library
@@ -49,6 +50,16 @@ Game::~Game()
         delete networkConnection;
         networkConnection = nullptr;
     }
+	// Release any (and all!) DirectX objects
+	// we've made in the Game class	
+	//AssetManager::get().~AssetManager();
+	// Delete our simple shader objects, which
+	// will clean up their own internal DirectX stuff
+	AssetManager::get().ReleaseAllAssetResource();
+
+	Sound.UnLoadSound("../../Assets/Sounds/Bullet.wav");
+	Sound.Shutdown();
+	
 }
 
 // --------------------------------------------------------
@@ -64,6 +75,10 @@ void Game::Init()
 	LoadShaders();
 	CreateBasicGeometry();
     InitializeConnection();
+	//Initialize the Audio Engine
+	Sound.Init();
+	Sound.LoadSound("../../Assets/Sounds/Bullet.wav", false, false,false);
+
 	LoadUI();
 	m_renderer.OnResize();
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "AudioEngine.h"
 #include "UIManager.h"
 #include "ClientManager.h"
 #include "ClientHelper.h"
@@ -33,6 +34,9 @@ public:
 	void OnMouseUp	 (WPARAM buttonState, int x, int y);
 	void OnMouseMove (WPARAM buttonState, int x, int y);
 	void OnMouseWheel(float wheelDelta,   int x, int y);
+
+	//Audio Engine
+	CAudioEngine Sound;
 
 	Renderer* GetRenderer();
 

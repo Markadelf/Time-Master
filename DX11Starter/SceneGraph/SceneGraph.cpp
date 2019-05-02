@@ -38,6 +38,7 @@ void SceneGraph::Init(int entityCount)
 	m_entityCount = entityCount;
 
 	m_entities = new TemporalEntity[entityCount];
+	m_valid = true;
 }
 
 void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
@@ -73,8 +74,16 @@ void SceneGraph::Init(PhenomenaPrototype* phenomenaTypes, int count)
 void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, int* deathCount)
 {
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
+	if (entity->GetKilledBy().m_entity != -1) {
+		return;
+	}
 	HandleObject handle = entity->GetHandle();
 	Phantom* phantom = entity->StackKeyFrame(keyFrame);
+	if (phantom == nullptr)
+	{
+		m_valid = false;
+		return;
+	}
 	if (keyFrame.m_usedAction)
 	{
         ActionInfo action = entity->GetAction();
@@ -106,7 +115,7 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 		int dCount = 0;
 		// TODO: Consider refactoring for more generic logic
 		// Check for collisions between the projectile and other entities
-		for (size_t i = 0; i < m_entityCount; i++)
+		for (int i = 0; i < m_entityCount; i++)
 		{
 			// Bullets don't collide with shooter
 			if (i == keyFrame.m_entityId)
@@ -116,7 +125,7 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 			Phantom* pBuffer = m_entities[i].GetPhantomBuffer();
 			int pCount = m_entities[i].GetImageCount();
 			// For each entity, check each image
-			for (size_t j = 0; j < pCount; j++)
+			for (int j = 0; j < pCount; j++)
 			{
 				if (ColliderManager::get().CheckCollision(traj, proto.m_handle.m_collider, pBuffer[j].GetTransform(), m_entities[i].GetHandle().m_collider, timeStamp))
 				{
@@ -146,7 +155,9 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 			*deathCount = dCount;
 		}
 
-		entity->TrackPhenomena(Phenomenon(traj, proto.m_handle));
+		if (!entity->TrackPhenomena(Phenomenon(traj, proto.m_handle))) {
+			m_valid = false;
+		}
 	}
 }
 
@@ -180,6 +191,11 @@ void SceneGraph::GetEntities(TemporalEntity** ents, int& count)
     count = m_entityCount;
 }
 
+bool SceneGraph::CheckValid()
+{
+	return m_valid;
+}
+
 TemporalEntity* SceneGraph::GetEntity(int index)
 {
 	return &m_entities[index];
@@ -206,10 +222,14 @@ void SceneGraph::AuthoritativeStack(HostDataHeader& authoritativeHeader)
         TemporalEntity& entity = m_entities[phantom.GetEntityId()];
 
         // If there is a phenomina for this keyframe, track it
-        entity.TrackPhantom(phantom);
+		if (!entity.TrackPhantom(phantom)) {
+			m_valid = false;
+		}
         if (phantom.GetShot())
         {
-            entity.TrackPhenomena(authoritativeHeader.m_phenomina[phenominaIndex]);
+			if (!entity.TrackPhenomena(authoritativeHeader.m_phenomina[phenominaIndex])) {
+				m_valid = false;
+			}
             phenominaIndex++;
         }
     }

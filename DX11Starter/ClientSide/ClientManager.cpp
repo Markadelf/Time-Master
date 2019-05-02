@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include "ArenaLevel.h"
+#include "GameUI.h"
 
 ClientManager::ClientManager()
 {
@@ -43,6 +44,11 @@ void ClientManager::Update(float deltaTime)
             m_player.GetKeyFrame().Serialize(*buffer);
             m_networkConnection->SendToServer();
         }
+	}
+
+	if (!m_graph.CheckValid())
+	{
+		GameUI::Get().ExitToResults(3);
 	}
 }
 
@@ -153,9 +159,9 @@ void ClientManager::PrepDrawGroup()
 			TimeInstableTransform trans = phantoms[j].GetTransform();
             if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
-                float personalTime = phantoms[j].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
+				float personalTime = phantoms[j].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
                 float opacity = 1;
-                while (personalTime >= pTimeReversed[rIndex + 1])
+                while (rIndex < rCount - 1 && personalTime >= pTimeReversed[rIndex + 1])
                 {
                     rIndex++;
                 }
@@ -177,11 +183,11 @@ void ClientManager::PrepDrawGroup()
                 }
                 opacity = opacity * opacity;
 				
-				if(opacity == 1)
+				if(opacity == 1 && m_drawInfo.m_visibleCount < MAX_OBJS)
 				{
 					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
 				}
-                else if(opacity > 0)
+                else if(opacity > 0 && m_drawInfo.m_transparentCount < MAX_OBJS)
                 {
                     TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
 					
@@ -195,7 +201,7 @@ void ClientManager::PrepDrawGroup()
 		int phenCount = entity->GetPhenomenaCount();
 		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
 
-		for (size_t j = 0; j < phenCount; j++)
+		for (size_t j = 0; j < phenCount && m_drawInfo.m_visibleCount < MAX_OBJS; j++)
 		{
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
 			if (trans.GetEndTime() > time && trans.GetStartTime() <= time)
