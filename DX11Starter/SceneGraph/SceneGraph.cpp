@@ -84,6 +84,7 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 		m_valid = false;
 		return;
 	}
+	int dCount = 0;
 	if (keyFrame.m_usedAction)
 	{
         ActionInfo action = entity->GetAction();
@@ -112,7 +113,6 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 		}
 		traj.Trim(firstTimeStamp);
 
-		int dCount = 0;
 		// TODO: Consider refactoring for more generic logic
 		// Check for collisions between the projectile and other entities
 		for (int i = 0; i < m_entityCount; i++)
@@ -137,27 +137,56 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 						deathBuffer[dCount].m_killedBy = dHandle;
 						dCount++;
 					}
+
 					// We hit, let everyone know we died
-					PhenomenaHandle reset;
-					m_entities[i].Kill((int)j, timeStamp, dHandle, reset);
-					for (size_t k = 0; k < m_entityCount; k++)
-					{
-						if (m_entities[k].CheckRevive(reset))
-						{
-							m_entities[k].Revive();
-						}
-					}
+					Kill(m_entities[i], j, timeStamp, dHandle);
 				}
 			}
 		}
+
+
+		if (!entity->TrackPhenomena(Phenomenon(traj, proto.m_handle))) {
+			m_valid = false;
+		}
+	}
+	TimeInstableTransform trans = phantom->GetTransform();
+
+	// Check if we ran into any bullets
+	for (int i = 0; i < m_entityCount; i++)
+	{
+		// Bullets don't collide with shooter
+		if (i == keyFrame.m_entityId)
+		{
+			continue;
+		}
+		Phenomenon* pBuffer = m_entities[i].GetPhenomenaBuffer();
+		int pCount = m_entities[i].GetPhenomenaCount();
+		// For each entity, check each projectile
+		for (int j = 0; j < pCount; j++)
+		{
+			TimeStamp timeStamp;
+			TimeStamp firstTimeStamp = trans.GetReversed() ? trans.GetStartTime() : trans.GetEndTime();
+			if (ColliderManager::get().CheckCollision(pBuffer[j].GetTransform(), pBuffer[j].GetHandle().m_collider, trans, entity->GetHandle().m_collider, timeStamp))
+			{
+				PhenomenaHandle dHandle = PhenomenaHandle(i, j);
+				if (deathBuffer != nullptr) {
+					deathBuffer[dCount].m_entityId = keyFrame.m_entityId;
+					deathBuffer[dCount].m_image = entity->GetImageCount() - 1;
+					deathBuffer[dCount].m_deathTime = timeStamp;
+					deathBuffer[dCount].m_killedBy = dHandle;
+					dCount++;
+				}
+				// We hit, let everyone know we died
+				Kill(*entity, entity->GetImageCount() - 1, timeStamp, dHandle);
+			}
+		}
+
+		// If someone is tracking deaths, give them the info
 		if (deathCount != nullptr)
 		{
 			*deathCount = dCount;
 		}
 
-		if (!entity->TrackPhenomena(Phenomenon(traj, proto.m_handle))) {
-			m_valid = false;
-		}
 	}
 }
 
@@ -206,6 +235,19 @@ int SceneGraph::GetEntityCount() const
 	return m_entityCount;
 }
 
+void SceneGraph::Kill(TemporalEntity& entity, int image, float timeStamp, PhenomenaHandle dHandle)
+{
+	PhenomenaHandle reset;
+	entity.Kill(image, timeStamp, dHandle, reset);
+	for (size_t k = 0; k < m_entityCount; k++)
+	{
+		if (m_entities[k].CheckRevive(reset))
+		{
+			m_entities[k].Revive();
+		}
+	}
+}
+
 int SceneGraph::AddEntity(int maxImages, int maxPhenomina)
 {
 	m_entities[m_entityCount].Initialize(maxImages, maxPhenomina, m_entityCount);
@@ -234,18 +276,10 @@ void SceneGraph::AuthoritativeStack(HostDataHeader& authoritativeHeader)
         }
     }
     // Kill anyone the server said to kill
-    PhenomenaHandle reset;
     for (size_t i = 0; i < authoritativeHeader.m_deathCount; i++)
     {
-        DeathInfo death = authoritativeHeader.m_deaths[0];
-        m_entities[death.m_entityId].Kill(death.m_image, death.m_deathTime, death.m_killedBy, reset);
-		for (size_t k = 0; k < m_entityCount; k++)
-		{
-			if (m_entities[k].CheckRevive(reset))
-			{
-				m_entities[k].Revive();
-			}
-		}
+        DeathInfo death = authoritativeHeader.m_deaths[i];
+		Kill(m_entities[death.m_entityId], death.m_image, death.m_deathTime, death.m_killedBy);
     }
 }
 

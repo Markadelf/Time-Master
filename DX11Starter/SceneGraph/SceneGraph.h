@@ -64,5 +64,8 @@ public:
     TemporalEntity* GetEntity(int index);
 	
     int GetEntityCount() const;
+private:
+	void Kill(TemporalEntity& entity, int image, float timeStamp, PhenomenaHandle dHandle);
+
 };
 
