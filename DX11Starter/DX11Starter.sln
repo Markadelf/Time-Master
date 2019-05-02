@@ -28,6 +28,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AssetManager", "AssetManager\AssetManager.vcxitems", "{1F23AAB9-7FE8-4F1C-8490-900FC96AA843}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputCore", "InputCore\InputCore.vcxitems", "{33A98CE0-3DC4-4AAE-A083-D88762493DFC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioCore", "AudioCore\AudioCore.vcxitems", "{AE3BA312-48EA-4ED0-AF5D-D8C56770502C}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameSpecificLogic", "GameSpecificLogic\GameSpecificLogic.vcxitems", "{9948CAD7-73D5-461B-BA6C-A67EEBEFE9C2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClientSide", "ClientSide\ClientSide.vcxitems", "{068F8FF8-107D-4211-BF8A-88ADD530EF88}"
@@ -41,6 +43,7 @@ Global
 		AssetManager\AssetManager.vcxitems*{1f23aab9-7fe8-4f1c-8490-900fc96aa843}*SharedItemsImports = 9
 		NetworkingCore\NetworkingCore.vcxitems*{2506268c-e545-4dc8-8c64-cf6363bddd89}*SharedItemsImports = 9
 		GameMath\GameMath.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
+		GameSpecificLogic\GameSpecificLogic.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		HostSceneGraph\HostSceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		NetworkingCore\NetworkingCore.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
 		SceneGraph\SceneGraph.vcxitems*{2ed3cd59-e001-455f-9148-cf5205b9d937}*SharedItemsImports = 4
@@ -54,12 +57,15 @@ Global
 		UICore\UICore.vcxitems*{89956e3c-feb7-4d31-b1fb-f2021077ead1}*SharedItemsImports = 9
 		SerializerCore\SerializerCore.vcxitems*{955e7972-cca6-4857-9c70-b9175bace62a}*SharedItemsImports = 9
 		GameSpecificLogic\GameSpecificLogic.vcxitems*{9948cad7-73d5-461b-ba6c-a67eebefe9c2}*SharedItemsImports = 9
+		AudioCore\AudioCore.vcxitems*{ae3ba312-48ea-4ed0-af5d-d8c56770502c}*SharedItemsImports = 9
 		SceneGraph\SceneGraph.vcxitems*{bd8944e3-18b2-42ef-9f4c-57e0997ad5a8}*SharedItemsImports = 9
 		AssetManager\AssetManager.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		AudioCore\AudioCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		ClientSide\ClientSide.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		GameMath\GameMath.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		HostSceneGraph\HostSceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		InputCore\InputCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		GameSpecificLogic\GameSpecificLogic.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		JobSystem\JobSystem.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		Logger\Logger.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		NetworkingCore\NetworkingCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4

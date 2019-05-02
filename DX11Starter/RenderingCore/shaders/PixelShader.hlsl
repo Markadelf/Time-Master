@@ -67,6 +67,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// it does the comparison of the interpolated pixels for us!
 	float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, depthFromLight);
 
+
 	float3 finalColor = float3(0,0,0);
 	for (int i = 0; i < lightCount; i++)
 	{
@@ -84,6 +85,6 @@ float4 main(VertexToPixel input) : SV_TARGET
 		}
 	}
 
-	return float4(finalColor, 0);
+	return float4(finalColor,0);
 
 }

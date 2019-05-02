@@ -35,9 +35,14 @@ public:
 	// Returns a reference to the requested item
 	UIElement& GetElement(int handle);
 
+    // Returns the event handle for a given click
+    int GetClickEventHandle(int x, int y, int& arg);
+
 private:
 	// Used to rebake the positions of elements
 	void Recalculate(int width, int height);
+
+    RECT CalculateRect(UITransform& transform, RECT& parent);
 
 	// This allows UIManager to access m_isDirty
 #include "UIManager.h"
