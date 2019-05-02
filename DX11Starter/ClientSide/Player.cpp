@@ -28,104 +28,73 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
     m_dead = false;
 }
 
-void Player::acquireInput(float deltaTime)
+void Player::acquireAction()
 {
 	PlayerInput->acquireInput();
-	Vector2 vel;
-		// act on user input
+	// act on user input for player actions
 		for (auto x : PlayerInput->activeKeyMap)
 		{
 			switch (x.first)
 			{
-			//case input::GameCommands::Quit:
-			//	m_renderer.Quit();
-			//	break;
-
-			//case input::GameCommands::showFPS:
-			//	printf("TEST FPS");
-			//	break;
-
 			case input::GameCommands::Shoot:
 				printf("SHOOTING");
-				m_lastTimeShot = m_time;
-				m_shot = true;
-				break;
-
-			case input::GameCommands::PlayerMoveForward:
-				printf("W");
-				vel = vel + Vector2(0, 1);
-				break;
-
-			case input::GameCommands::PlayerMoveBack:
-				printf("S");
-				vel = vel + Vector2(0, -1);
-				break;
-			case input::GameCommands::PlayerMoveLeft:
-				printf("A");
-				vel = vel + Vector2(-1, 0);
-				break;
-			case input::GameCommands::PlayerMoveRight:
-				printf("D");
-				vel = vel + Vector2(1, 0);
-				break;
+				m_actionUsedTime = m_time;
+				m_keyFrameRequested = true;
+				m_usedAction = true;
+				m_reversed = false;
+				PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
+				break;			
 			case input::GameCommands::ReverseTime:
 				m_reversed = !m_reversed;
-				break;
-							
-			}
-
-			vel = vel.Rotate(-m_transform.GetRot());
-			m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
+				m_keyFrameRequested = true;
+				break;							
+			}		
 		}	
+}
+
+void Player::acquirePosition(float deltaTime)
+{
+	PlayerInput->acquireInput();
+	Vector2 vel;
+	// act on user input for player position
+	for (auto x : PlayerInput->activeKeyMap)
+	{
+		switch (x.first)
+		{
+		case input::GameCommands::PlayerMoveForward:
+			printf("W");
+			vel = vel + Vector2(0, 1);
+			break;
+		case input::GameCommands::PlayerMoveBack:
+			printf("S");
+			vel = vel + Vector2(0, -1);
+			break;
+		case input::GameCommands::PlayerMoveLeft:
+			printf("A");
+			vel = vel + Vector2(-1, 0);
+			break;
+		case input::GameCommands::PlayerMoveRight:
+			printf("D");
+			vel = vel + Vector2(1, 0);
+			break;
+		}
+		vel = vel.Rotate(-m_transform.GetRot());
+		m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
+	}
 }
 
 void Player::Update(float deltaTime)
 {
 	m_time += deltaTime * (m_reversed ? -1 : 1);
-
-	acquireInput(deltaTime);
-    UpdatePosition(deltaTime);
-
-    if (!m_usedAction)
+	UpdatePosition(deltaTime);
+	if (!m_usedAction)
     {
         m_keyFrameTimer -= deltaTime;
         if (m_keyFrameTimer <= 0)
         {
-            m_keyFrameRequested = true;
-        }
-
-        // TODO: Replace with other input logic
-        static bool rHeld = false;
-        if (GetAsyncKeyState('R') & 0x8000)
-        {
-            if (!rHeld)
-            {
-                m_reversed = !m_reversed;
-                rHeld = true;
-                m_keyFrameRequested = true;
-            }
-        }
-        else
-        {
-            rHeld = false;
-        }
-        static bool held = false;
-        if (GetAsyncKeyState(' ') & 0x8000)
-        {
-            if (!held)
-            {
-                m_actionUsedTime = m_time;
-                m_keyFrameRequested = true;
-                m_usedAction = true;
-                m_reversed = false;
-                held = true;
-				PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
-            }
-        }
-        else
-        {
-            held = false;
-        }
+            m_keyFrameRequested = true; 
+        }		
+		acquireAction();
     }
     else 
     {
@@ -136,7 +105,7 @@ void Player::Update(float deltaTime)
             m_reportActionUsed = true;
         }
     }
-
+	
     GameUI::Get().UpdateGameUI(m_dead, m_time);
 }
 
@@ -208,6 +177,7 @@ bool Player::StackRequested()
     return ret;
 }
 
-void Player::UpdatePosition(float deltaTime) {
-	acquireInput(deltaTime);
+void Player::UpdatePosition(float deltaTime) 
+{
+	acquirePosition(deltaTime);
 }

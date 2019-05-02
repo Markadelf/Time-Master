@@ -28,6 +28,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AssetManager", "AssetManager\AssetManager.vcxitems", "{1F23AAB9-7FE8-4F1C-8490-900FC96AA843}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputCore", "InputCore\InputCore.vcxitems", "{33A98CE0-3DC4-4AAE-A083-D88762493DFC}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioCore", "AudioCore\AudioCore.vcxitems", "{AE3BA312-48EA-4ED0-AF5D-D8C56770502C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameSpecificLogic", "GameSpecificLogic\GameSpecificLogic.vcxitems", "{9948CAD7-73D5-461B-BA6C-A67EEBEFE9C2}"
@@ -63,9 +64,8 @@ Global
 		AudioCore\AudioCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		ClientSide\ClientSide.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		GameMath\GameMath.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
-		HostSceneGraph\HostSceneGraph.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
-		InputCore\InputCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		GameSpecificLogic\GameSpecificLogic.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
+		InputCore\InputCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		JobSystem\JobSystem.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		Logger\Logger.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4
 		NetworkingCore\NetworkingCore.vcxitems*{ee668f6a-773c-44fd-acee-26f997af51e2}*SharedItemsImports = 4

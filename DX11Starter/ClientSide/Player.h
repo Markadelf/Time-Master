@@ -62,7 +62,8 @@ public:
 
 	// Player Input
 	GameInput *PlayerInput;
-	void acquireInput(float deltaTime);
+	void acquireAction();
+	void acquirePosition(float deltaTime);
     bool StackRequested();
 
 private:
