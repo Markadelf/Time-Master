@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include "ArenaLevel.h"
+#include "GameUI.h"
 
 ClientManager::ClientManager()
 {
@@ -30,6 +31,11 @@ void ClientManager::Update(float deltaTime)
 	if (m_player.StackRequested())
 	{
 		m_graph.StackKeyFrame(m_player.GetKeyFrame());
+	}
+
+	if (!m_graph.CheckValid())
+	{
+		GameUI::Get().ExitToResults(3);
 	}
 }
 
@@ -145,11 +151,11 @@ void ClientManager::PrepDrawGroup()
                 }
                 opacity = opacity * opacity;
 				
-				if(opacity == 1)
+				if(opacity == 1)// && m_drawInfo.m_visibleCount < DrawGroup::MAX_OBJECTS)
 				{
 					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
 				}
-                else if(opacity > 0)
+                else if(opacity > 0)// && m_drawInfo.m_transparentCount < DrawGroup::MAX_OBJECTS)
                 {
                     TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
 					
@@ -163,7 +169,7 @@ void ClientManager::PrepDrawGroup()
 		int phenCount = entity->GetPhenomenaCount();
 		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
 
-		for (size_t j = 0; j < phenCount; j++)
+		for (size_t j = 0; j < phenCount;j++)// && m_drawInfo.m_visibleCount < DrawGroup::MAX_OBJECTS; j++)
 		{
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
 			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
