@@ -13,7 +13,7 @@ ClientManager::ClientManager()
 	// This is where we currently initialize the collider manager
 	// Eventually we will want to do this when loading the scene
 	ColliderManager::get().Reinit(16, 16);
-    m_networkConnection = nullptr;
+	m_networkConnection = nullptr;
 }
 
 
@@ -32,18 +32,18 @@ void ClientManager::Update(float deltaTime)
 
 	if (m_player.StackRequested())
 	{
-        if (m_networkConnection == nullptr)
-        {
-            // Offline logic
+		if (m_networkConnection == nullptr)
+		{
+			// Offline logic
 			m_graph.StackKeyFrame(m_player.GetKeyFrame());
-        }
-        else 
-        {
-            // Online logic
-            Buffer* buffer = m_networkConnection->GetNextBuffer(MessageType::GameData);
-            m_player.GetKeyFrame().Serialize(*buffer);
-            m_networkConnection->SendToServer();
-        }
+		}
+		else
+		{
+			// Online logic
+			Buffer* buffer = m_networkConnection->GetNextBuffer(MessageType::GameData);
+			m_player.GetKeyFrame().Serialize(*buffer);
+			m_networkConnection->SendToServer();
+		}
 	}
 
 	if (!m_graph.CheckValid())
@@ -55,22 +55,22 @@ void ClientManager::Update(float deltaTime)
 void ClientManager::Init(int entityId)
 {
 	//TODO: Modify to load either from file or from a preset instead of hard coding it
-    ArenaLevel arena;
-    arena.LoadScene(m_graph);
+	ArenaLevel arena;
+	arena.LoadScene(m_graph);
 
-    EntitySpawnInfo& player = arena.GetSpawnInfo(entityId);
-    m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f);
-    m_player.SetEntityId(entityId);
-    m_player.SetAction(player.m_action);
+	EntitySpawnInfo& player = arena.GetSpawnInfo(entityId);
+	m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f);
+	m_player.SetEntityId(entityId);
+	m_player.SetAction(player.m_action);
 
-    Light* lights;
-    int lCount;
-    arena.GetLights(&lights, lCount);
+	Light* lights;
+	int lCount;
+	arena.GetLights(&lights, lCount);
 
-    memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
-    m_drawInfo.m_lightCount = lCount;
+	memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
+	m_drawInfo.m_lightCount = lCount;
 
-    PrepDrawGroupStatics();
+	PrepDrawGroupStatics();
 }
 
 Player& ClientManager::GetPlayer()
@@ -91,15 +91,15 @@ DrawGroup& ClientManager::GetDrawGroup()
 
 void ClientManager::SetNetworkPointer(ClientHelper* connection)
 {
-    m_networkConnection = connection;
+	m_networkConnection = connection;
 }
 
 void ClientManager::RecieveData(Buffer& data)
 {
-    HostDataHeader header;
-    
-    header.Deserialize(data);
-    m_graph.AuthoritativeStack(header);
+	HostDataHeader header;
+
+	header.Deserialize(data);
+	m_graph.AuthoritativeStack(header);
 
 	TemporalEntity& player = *m_graph.GetEntity(m_player.GetEntityId());
 	bool playerDied = player.GetKilledBy().m_entity != -1;
@@ -133,70 +133,71 @@ void ClientManager::PrepDrawGroup()
 	m_drawInfo.m_camera.SetYaw(player.GetRot());
 
 	// Entities
-    m_drawInfo.m_visibleCount = m_staticCount;
-    m_drawInfo.m_transparentCount = 0;
+	m_drawInfo.m_visibleCount = m_staticCount;
+	m_drawInfo.m_transparentCount = 0;
 	TimeStamp time = m_player.GetTimeStamp();
 
 	int eCount = m_graph.GetEntityCount();
-	for (size_t i = 0; i < eCount; i++)
+	for (int i = 0; i < eCount; i++)
 	{
 		TemporalEntity* entity = m_graph.GetEntity((int)i);
 		HandleObject handle = entity->GetHandle();
 
 		int phanCount = entity->GetImageCount();
 		Phantom* phantoms = entity->GetPhantomBuffer();
-		
-        float* pTimeReversed;
-        int rCount;
 
-        entity->GetReverseBuffer(&pTimeReversed, rCount);
+		float* pTimeReversed;
+		int rCount;
 
-        // Add phantoms
-        const float fadePeriod = .5f;
-        int rIndex = 0;
+		entity->GetReverseBuffer(&pTimeReversed, rCount);
+
+		// Add phantoms
+		int rIndex = 0;
 		for (size_t j = 0; j < phanCount; j++)
 		{
 			TimeInstableTransform trans = phantoms[j].GetTransform();
-            if (trans.GetEndTime() > time && trans.GetStartTime() < time)
+			if (trans.GetEndTime() > time && trans.GetStartTime() < time)
 			{
+				const float fadePeriod = .5f;
 				float personalTime = phantoms[j].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
-                float opacity = 1;
-                while (rIndex < rCount - 1 && personalTime >= pTimeReversed[rIndex + 1])
-                {
-                    rIndex++;
-                }
-                if (personalTime <= pTimeReversed[rIndex] + fadePeriod)
-                {
-                    opacity = (personalTime - pTimeReversed[rIndex]) / fadePeriod;
-                }
-                if (personalTime + fadePeriod >= pTimeReversed[rIndex + 1])
-                {
-                    if (opacity != 1)
-                    {
-                        float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
-                        opacity = opacity < opacity2 ? opacity : opacity2;
-                    }
-                    else
-                    {
-                        opacity = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
-                    }
-                }
-                opacity = opacity * opacity;
-				
-				if(opacity == 1 && m_drawInfo.m_visibleCount < MAX_OBJS)
+				// reset this every frame
+				float opacity = 1;
+				while (rIndex < rCount - 1 && personalTime >= pTimeReversed[rIndex + 1])
 				{
-					ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+					rIndex++;
 				}
-                else if(opacity > 0 && m_drawInfo.m_transparentCount < MAX_OBJS)
-                {
-                    TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
-					
-                    ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
-                    tEnt.m_transparency = opacity;
-					tEnt.m_distance = mathutil::Distance(m_drawInfo.m_camera.GetPosition(), tEnt.m_entity.GetPosition());
-                }
+				if (personalTime <= pTimeReversed[rIndex] + fadePeriod)
+				{
+					opacity = (personalTime - pTimeReversed[rIndex]) / fadePeriod;
+				}
+				// Don't fade the end until the prediction
+				if (personalTime + fadePeriod >= pTimeReversed[rIndex + 1] && rIndex < rCount - 1)
+				{
+					float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
+					opacity = opacity < opacity2 ? opacity : opacity2;
+				}
+				opacity *= opacity;
+				DrawPhantom(handle, trans, time, opacity);
 			}
-        }
+		}
+
+		if (i != m_player.GetEntityId()) {
+			TimeInstableTransform trans = phantoms[phanCount - 1].GetTransform();
+			float predictPeriod = trans.GetEndTime() - trans.GetStartTime();
+			if (trans.GetEndTime() + predictPeriod * (trans.GetReversed() ? -1 : 1.5f) > time && trans.GetStartTime() + predictPeriod * (trans.GetReversed() ? -1.5f : 1 < time))
+			{
+				float opacity = 1;
+				float personalTime = phantoms[phanCount - 1].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
+				if (personalTime <= pTimeReversed[rCount - 2] + predictPeriod)
+				{
+					opacity = (personalTime - pTimeReversed[rIndex]) / predictPeriod;
+				}
+				float opacity2 = (personalTime - pTimeReversed[rIndex]) / predictPeriod;
+				opacity = opacity < opacity2 ? opacity : opacity2;
+				opacity *= opacity;
+				DrawPhantom(handle, trans, time, opacity);
+			}
+		}
 
 		int phenCount = entity->GetPhenomenaCount();
 		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
@@ -213,12 +214,28 @@ void ClientManager::PrepDrawGroup()
 
 	// sorting transperant entities
 	std::sort(m_drawInfo.m_transparentObjects, m_drawInfo.m_transparentObjects + m_drawInfo.m_transparentCount,
-			//lambda to define the sorting comparision
-			[](TransparentEntity const & first, TransparentEntity const & second)->bool
-			{
-				return first.m_distance < second.m_distance;
-			}	
+		//lambda to define the sorting comparision
+		[](TransparentEntity const & first, TransparentEntity const & second)->bool
+	{
+		return first.m_distance < second.m_distance;
+	}
 	);
+}
+
+void ClientManager::DrawPhantom(HandleObject& handle, TimeInstableTransform trans, float time, float opacity)
+{
+	if (opacity == 1 && m_drawInfo.m_visibleCount < MAX_OBJS)
+	{
+		ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), handle);
+	}
+	else if (opacity > 0 && m_drawInfo.m_transparentCount < MAX_OBJS)
+	{
+		TransparentEntity& tEnt = m_drawInfo.m_transparentObjects[m_drawInfo.m_transparentCount++];
+
+		ItemFromTransHandle(tEnt.m_entity, trans.GetTransform(time), handle);
+		tEnt.m_transparency = opacity;
+		tEnt.m_distance = mathutil::Distance(m_drawInfo.m_camera.GetPosition(), tEnt.m_entity.GetPosition());
+	}
 }
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)
@@ -226,7 +243,7 @@ void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleO
 	DirectX::XMFLOAT3 pos(trans.GetPos().GetX(), handle.m_yPos, trans.GetPos().GetY());
 	DirectX::XMFLOAT3 scale(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
 	DirectX::XMFLOAT3 rot(0, trans.GetRot(), 0);
-	
+
 	item.SetPosition(pos);
 	item.SetScale(scale);
 	item.SetRotation(rot);

@@ -52,6 +52,8 @@ private:
 	// Currently only partitions based on time
 	void PrepDrawGroup();
 
+	void DrawPhantom(HandleObject& handle, TimeInstableTransform trans, float time, float opacity);
+
 	// Helper function that builds a draw item from a transform and a handle
 	void ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle);
 };
