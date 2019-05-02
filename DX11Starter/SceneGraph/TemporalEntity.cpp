@@ -177,7 +177,7 @@ void TemporalEntity::SetAction(ActionInfo& action)
 
 Phantom* TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
 {
-	if (m_killedBy.m_entity != -1)
+	if (m_killedBy.m_entity != -1 || m_imageCount == m_maxImages)
 	{
 		return nullptr;
 	}
@@ -210,11 +210,16 @@ Phantom* TemporalEntity::StackKeyFrame(KeyFrameData keyFrame)
 	return &m_images[m_imageCount++];
 }
 
-void TemporalEntity::TrackPhenomena(Phenomenon phenomena)
+bool TemporalEntity::TrackPhenomena(Phenomenon phenomena)
 {
-	m_phenomenaImages[m_phenomenaCount] = m_imageCount;
-	m_phenomenaBuffer[m_phenomenaCount] = phenomena;
-	m_phenomenaCount++;
+	if (m_phenomenaCount < m_maxPhenomena)
+	{
+		m_phenomenaImages[m_phenomenaCount] = m_imageCount;
+		m_phenomenaBuffer[m_phenomenaCount] = phenomena;
+		m_phenomenaCount++;
+		return true;
+	}
+	return false;
 }
 
 

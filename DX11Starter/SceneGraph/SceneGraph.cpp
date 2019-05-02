@@ -38,6 +38,7 @@ void SceneGraph::Init(int entityCount)
 	m_entityCount = entityCount;
 
 	m_entities = new TemporalEntity[entityCount];
+	m_valid = true;
 }
 
 void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
@@ -73,8 +74,16 @@ void SceneGraph::Init(PhenomenaPrototype* phenomenaTypes, int count)
 void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 {
 	TemporalEntity* entity = &m_entities[keyFrame.m_entityId];
+	if (entity->GetKilledBy().m_entity != -1) {
+		return;
+	}
 	HandleObject handle = entity->GetHandle();
 	Phantom* phantom = entity->StackKeyFrame(keyFrame);
+	if (phantom == nullptr)
+	{
+		m_valid = false;
+		return;
+	}
 	if (keyFrame.m_usedAction)
 	{
         ActionInfo action = entity->GetAction();
@@ -133,7 +142,9 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame)
 			}
 		}
 
-		entity->TrackPhenomena(Phenomenon(traj, proto.m_handle));
+		if (!entity->TrackPhenomena(Phenomenon(traj, proto.m_handle))) {
+			m_valid = false;
+		}
 	}
 }
 
@@ -165,6 +176,11 @@ void SceneGraph::GetEntities(TemporalEntity** ents, int& count)
 {
     *ents = m_entities;
     count = m_entityCount;
+}
+
+bool SceneGraph::CheckValid()
+{
+	return m_valid;
 }
 
 TemporalEntity* SceneGraph::GetEntity(int index)
