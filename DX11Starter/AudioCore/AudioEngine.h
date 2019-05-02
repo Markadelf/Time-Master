@@ -12,13 +12,17 @@
 #include <cmath>
 
 using namespace std;
-
+//Vector3 struct to place sound in 3D space.
 struct Vector3 {
 	float x;
 	float y;
 	float z;
 };
 
+//Implementation struct to make calls to the FMOD API. 
+//Contains code to initialize and shut down FMOD Engine and hold instances of both Studio and Low-level system objects for FMOD.
+//Holds the map of all sounds and events played.
+//Calls Update to FMOD.
 struct Implementation {
 	Implementation();
 	~Implementation();
@@ -40,8 +44,8 @@ struct Implementation {
 	ChannelMap mChannels;
 };
 
-
-
+//Engine class handles calls to Implementation to start, stop and update FMOD.
+//Handles loading, playing, stopping and updating info on sounds and events.
 class CAudioEngine {
 
 public:
@@ -62,6 +66,12 @@ public:
 	float dbToVolume(float dB);
 	float VolumeTodB(float volume);
 	FMOD_VECTOR VectorToFmod(const Vector3& vPosition);
+
+	/*ToDo
+	ReOrganize:
+	void CAudioEngine::GetEventParameter(const string &strEventName, const string &strParameterName, float* parameter);
+	void CAudioEngine::SetEventParameter(const string &strEventName, const string &strParameterName, float fValue);	
+	*/
 };
 
 #endif
