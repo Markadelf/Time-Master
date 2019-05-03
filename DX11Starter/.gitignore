@@ -5,9 +5,11 @@ x64/*
 */x64
 !x64/Debug
 x64/Debug/*
+!x64/Debug/Assets
 **.pdb
 !x64/Release
 x64/Release/*
+!x64/Release/Assets
 
 !x64/Debug/assimp-vc140-mt.dll
 !x64/Release/assimp-vc140-mt.dll

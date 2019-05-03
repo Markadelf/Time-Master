@@ -93,22 +93,30 @@ ArenaLevel::ArenaLevel()
 		m_entities[i].m_startingPos = Transform(pos.Rotate(i * 6.28f / m_entityCount), -i * 6.28f / m_entityCount);
 		m_entities[i].m_action.m_deploymentTime = .1f;
 		m_entities[i].m_action.m_duration = .1f;
-		m_entities[i].m_action.m_phenomenaType = 0;
+		m_entities[i].m_action.m_phenomenaType = i;
 	}
     
 
     // Initialize phenomena
-    m_phenomenaTypes = new PhenomenaPrototype[1];
+    m_phenomenaTypes = new PhenomenaPrototype[3];
     HandleObject bulletHandle;
     bulletHandle.m_material = 1;
-    bulletHandle.m_mesh = 3;
-    bulletHandle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
+    bulletHandle.m_mesh = 0;
+    bulletHandle.m_collider = ColliderManager::get().GetCircleHandle(.125f);
     bulletHandle.SetUniformScale(.5f);
     m_phenomenaTypes[0].m_handle = bulletHandle;
     m_phenomenaTypes[0].m_period = 1;
     m_phenomenaTypes[0].m_range = 10;
+	bulletHandle.m_mesh = 1;
+	m_phenomenaTypes[1].m_handle = bulletHandle;
+	m_phenomenaTypes[1].m_period = 1;
+	m_phenomenaTypes[1].m_range = 10;
+	bulletHandle.m_mesh = 2;
+	m_phenomenaTypes[2].m_handle = bulletHandle;
+	m_phenomenaTypes[2].m_period = 1;
+	m_phenomenaTypes[2].m_range = 10;
 
-    m_pTypeCount = 1;
+    m_pTypeCount = 3;
 
     //Initiating lighting
 #ifdef CLIENT
@@ -120,7 +128,7 @@ ArenaLevel::ArenaLevel()
     directLight.Direction = DirectX::XMFLOAT3(-1, -1, 0);
     directLight.Color = DirectX::XMFLOAT3(0.8f, 0.8f, 0.8f);
     directLight.DiffuseIntensity = 1.0f;
-    directLight.AmbientIntensity = 0;//0.4f;
+    directLight.AmbientIntensity = .3f;//0.4f;
 
     pointLight.Type = LIGHT_TYPE_POINT;
     pointLight.Position = DirectX::XMFLOAT3(-3, -3, 0);

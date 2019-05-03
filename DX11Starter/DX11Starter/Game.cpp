@@ -185,9 +185,9 @@ void Game::InitEmitters()
 	AssetManager::get().LoadEmitter("Emitter1",									//Name of the emitter													// Pointer to the emitter
 		10,																		// Max Particles
 		20,																		// Particles per second
-		.5f,																	// Particle lifetime
-		0.1f,																	// Start size
-		2.0f,																	// End size
+		.25f,																	// Particle lifetime
+		0.05f,																	// Start size
+		1.5f,																	// End size
 		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
 		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
 		XMFLOAT3(0, 0, 0),														// Start velocity
@@ -203,11 +203,28 @@ void Game::InitEmitters()
 	AssetManager::get().LoadEmitter("Emitter2",									//Name of the emitter												// Pointer to the emitter
 		10,																		// Max Particles
 		20,																		// Particles per second
-		.5f,																	// Particle lifetime
-		0.1f,																	// Start size
-		2.0f,																	// End size
-		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
-		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
+		.25f,																	// Particle lifetime
+		0.05f,																	// Start size
+		1.5f,																		// End size
+		XMFLOAT4(0, 0.8f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(0, 1.f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+
+	AssetManager::get().LoadEmitter("Emitter3",									//Name of the emitter												// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.25f,																	// Particle lifetime
+		0.05f,																	// Start size
+		1.5f,																			// End size
+		XMFLOAT4(.5f, 0.1f, 1.0f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, .8f, 0),												// End color
 		XMFLOAT3(0, 0, 0),														// Start velocity
 		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
 		XMFLOAT3(0, 0, 0),		       											// Emitter position

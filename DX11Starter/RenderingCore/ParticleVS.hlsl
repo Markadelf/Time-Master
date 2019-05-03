@@ -65,7 +65,9 @@ VertexToPixel main(uint id : SV_VertexID)
 	Particle p = ParticleData.Load(particleID + startIndex);
 
 	// Calc the age percent
-    if (currentTime < startTime + p.SpawnTime || currentTime > endTime)
+	float excess = (currentTime - (startTime + p.SpawnTime)) % lifetime;
+	int version = excess / lifetime;
+	if (currentTime < startTime + p.SpawnTime || currentTime - excess > endTime - lifetime)
     {
         output.uv = float2(0, 0);
         output.color = float4(0, 0, 0, 0);

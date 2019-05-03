@@ -152,8 +152,6 @@ void ClientManager::PrepDrawGroup()
 
 	m_drawInfo.time = time;
 
-	int emitterHandleOne = AssetManager::get().GetEmitterHandle("Emitter1");
-
 	int eCount = m_graph.GetEntityCount();
 	for (int i = 0; i < eCount; i++)
 	{
@@ -232,7 +230,7 @@ void ClientManager::PrepDrawGroup()
 				//ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
                 // Projectiles
                 EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
-                drawInfo.m_handle = emitterHandleOne;
+                drawInfo.m_handle = phenomenas[j].GetHandle().m_mesh;
 				//AssetManager::get().GetEmitterHandle("Emitter1");
                 drawInfo.startTime = trans.GetStartTime();
                 drawInfo.endTime = trans.GetEndTime();
