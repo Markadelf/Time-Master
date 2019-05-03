@@ -25,6 +25,9 @@ class SceneGraph
     // Number of varieties of phenomena
     int m_phenomenaTypeCount;
 
+	// Tracks if we have broken
+	bool m_valid;
+
 public:
 	SceneGraph();
 	~SceneGraph();
@@ -49,7 +52,8 @@ public:
     // Accessor functions
 	void GetStatics(StaticObject** objs, int& count);
     void GetEntities(TemporalEntity** ents, int& count);
-	
+	bool CheckValid();
+
     TemporalEntity* GetEntity(int index);
 	
     int GetEntityCount() const;

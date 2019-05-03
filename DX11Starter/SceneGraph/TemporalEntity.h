@@ -75,7 +75,7 @@ public:
 	
 	// Creates a phantom on the player's phantom stack and returns info for that phantom
 	Phantom* StackKeyFrame(KeyFrameData keyFrame);
-	void TrackPhenomena(Phenomenon Phenomena);
+	bool TrackPhenomena(Phenomenon Phenomena);
 
 	// Kill a player at a given time
 	void Kill(int imageIndex, TimeStamp time, const PhenomenaHandle& murderHandle, PhenomenaHandle& PhenomenaResetHandle);
