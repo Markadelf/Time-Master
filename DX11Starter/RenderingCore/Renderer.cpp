@@ -381,7 +381,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 
     for (size_t i = 0; i < drawGroup.m_emitterCount; i++)
     {
-        RenderEmitterSystem(drawGroup.m_emitters[i], AssetManager::get().GetEmitterPointer("Emitter1"), drawGroup.time, drawGroup.m_camera);
+        RenderEmitterSystem(drawGroup.m_emitters[i], drawGroup.time, drawGroup.m_camera);
     }
 
 	
@@ -538,9 +538,10 @@ void Renderer::DrawSky(Camera& camera)
 
 }
 
-void Renderer::RenderEmitterSystem(EmitterDrawInfo info, Emitter* emitter, float currentTime, Camera& camera)
+void Renderer::RenderEmitterSystem(EmitterDrawInfo info, float currentTime, Camera& camera)
 {
-	
+	Emitter* emitter = AssetManager::get().GetEmitterPointer(info.m_handle);
+
 	// Particle states
 	float blend[4] = { 1,1,1,1 };
 	context->OMSetBlendState(particleBlendState, blend, 0xffffffff);	// Additive blending

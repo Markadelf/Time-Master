@@ -50,6 +50,7 @@ private:
     void InitializeConnection();
 	void LoadUI();
 	void JoinGame();
+	void InitEmitters();
 
 	Renderer m_renderer;
 

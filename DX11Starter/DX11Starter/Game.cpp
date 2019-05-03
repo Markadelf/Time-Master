@@ -75,6 +75,7 @@ void Game::Init()
 	LoadShaders();
 	CreateBasicGeometry();
     InitializeConnection();
+	InitEmitters();
 	//Initialize the Audio Engine
 	Sound.Init();
 	Sound.LoadSound("../../Assets/Sounds/Bullet.wav", false, false,false);
@@ -172,6 +173,49 @@ void Game::JoinGame()
 	joinRequest.m_request = ClientRequestType::Join;
 	joinRequest.Serialize(*buff);
 	networkConnection->SendToServer();
+}
+
+void Game::InitEmitters()
+{
+	ID3D11Device* device = m_renderer.GetDevice();
+	ID3D11DeviceContext* context = m_renderer.GetContext();
+	//Emitter abc = *m_drawInfo.emitterOne;
+	//Emitter abc2 = *m_drawInfo.emitterTwo;
+	// Set up particles
+	AssetManager::get().LoadEmitter("Emitter1",									//Name of the emitter													// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.5f,																	// Particle lifetime
+		0.1f,																	// Start size
+		2.0f,																	// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+
+		// Set up particles
+	AssetManager::get().LoadEmitter("Emitter2",									//Name of the emitter												// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.5f,																	// Particle lifetime
+		0.1f,																	// Start size
+		2.0f,																	// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
 }
 
 // --------------------------------------------------------

@@ -99,7 +99,7 @@ void AssetManager::LoadEmitter(const char* file,int maxParticles, int pPerSec, f
 		device,
 		textureHandle);
 
-	emitterManager.AddResource(file, *emitter);
+	emitterManager.AddResource(file, emitter);
 }
 AssetManager::~AssetManager()
 {

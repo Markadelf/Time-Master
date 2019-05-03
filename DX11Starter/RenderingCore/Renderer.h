@@ -86,7 +86,7 @@ public:
 
 
 	//Emitter System
-	void RenderEmitterSystem(EmitterDrawInfo info, Emitter* emitter, float currentTime, Camera& camera);
+	void RenderEmitterSystem(EmitterDrawInfo info, float currentTime, Camera& camera);
 
 	// Render logic
 private:

@@ -70,7 +70,7 @@ private:
 		ResourceManager<Mesh> meshManager;
 		ResourceManager<Material> materialManager;
 		ResourceManager<ID3D11ShaderResourceView*> textureManager;
-		ResourceManager<Emitter> emitterManager;
+		ResourceManager<Emitter*> emitterManager;
 };
 
 template<typename T>
@@ -94,5 +94,5 @@ inline Material* AssetManager::GetMaterialPointer(T t)
 template<typename T>
 inline Emitter* AssetManager::GetEmitterPointer(T t)
 {
-	return emitterManager.GetResourcePointer(t);
+	return *emitterManager.GetResourcePointer(t);
 }

@@ -36,10 +36,6 @@ struct DrawGroup
 
     EmitterDrawInfo m_emitters[100];
 
-	Emitter* emitterOne=NULL;
-
-	Emitter* emitterTwo = NULL;
-
 	float time;
 
 	int m_visibleCount = 0;
