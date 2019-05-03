@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "InputManager.h"
 #include "AudioEngine.h"
 #include "UIManager.h"
 #include "ClientManager.h"

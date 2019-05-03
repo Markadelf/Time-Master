@@ -3,6 +3,7 @@
 
 ArenaLevel::ArenaLevel()
 {
+	int wallMaterial = 3;
     int floorMaterial = 2;
     int woodMaterial = 1;
     int playerMaterial = 0;
@@ -13,15 +14,16 @@ ArenaLevel::ArenaLevel()
     int sphereHandle = 3;
     int duckHandle = 4;
 
+
     // Add static objects to scene graph
     const int div = 20;
-    StaticObject objs[div + 2];
-    Vector2 right = Vector2(5, 0);
+    StaticObject objs[div + 6];
+    Vector2 right = Vector2(20, 0);
     HandleObject handle;
     handle.m_material = woodMaterial;
     handle.m_mesh = cubeHandle;
-    handle.m_scale[2] = 2;
-    handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 2);
+    handle.m_scale[2] = 8;
+    handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 8);
 
     Transform trans;
     for (size_t i = 0; i < div; i++)
@@ -41,20 +43,39 @@ ArenaLevel::ArenaLevel()
     // Add floor
     handle.m_collider = Colliders2D::ColliderHandle();
     handle.m_yPos = -1;
-    handle.m_scale[0] = 10;
-    handle.m_scale[2] = 10;
+    handle.m_scale[0] = 40;
+    handle.m_scale[2] = 40;
     objs[div + 1] = StaticObject(trans, handle);
 
-    m_staticObjectCount = div + 2;
+	//Add Separators
+	handle.m_yPos = 0;
+	handle.m_material = woodMaterial;
+	handle.m_mesh = cubeHandle;
+	handle.SetUniformScale(1);
+	handle.m_scale[0] = 16;	
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(8, 1);
+	trans = Transform(Vector2(8,0), 0);
+	objs[div + 2] = StaticObject(trans, handle);
+	trans = Transform(Vector2(0,8), 3.14f/2.0f);
+	objs[div + 3] = StaticObject(trans, handle);
+	trans = Transform(Vector2(-8, 0), 0);
+	objs[div + 4] = StaticObject(trans, handle);
+	trans = Transform(Vector2(0,-8), 3.14f/2.0f);
+	objs[div + 5] = StaticObject(trans, handle);
+
+
+    m_staticObjectCount = div + 6;
     m_staticObjs = new StaticObject[m_staticObjectCount];
     memcpy(m_staticObjs, objs, m_staticObjectCount * sizeof(StaticObject));
 
     // Add player
     handle.m_yPos = 0;
     handle.m_material = playerMaterial;
-    handle.m_mesh = cubeHandle;
+    handle.m_mesh = cylinderHandle;
     handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
     handle.SetUniformScale(1);
+	handle.m_scale[0] = 0.5;
+	handle.m_scale[2] = 0.5;
     Vector2 pos(0, -3);
 
 	m_entityCount = 3;

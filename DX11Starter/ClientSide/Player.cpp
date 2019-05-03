@@ -5,25 +5,29 @@
 Player::Player()
 {
 	m_reversed = false;
-    m_keyFrameRequested = true;
-    m_reportActionUsed = false;
-    m_usedAction = false;
+	// initialize the input manager
+	PlayerInput = new GameInput();
+	m_keyFrameRequested = true;
+	m_reportActionUsed = false;
+	m_usedAction = false;
 }
 
 
 Player::~Player()
 {
+	delete PlayerInput;
 }
 
-void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod)
+void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod, int isFirstBullet)
 {
 	m_transform = startingPos;
 	m_time = initialTime;
 	m_handle = handle;
-    m_keyPeriod = keyPeriod;
-    m_keyFrameTimer = 0;
+	m_keyPeriod = keyPeriod;
+	m_keyFrameTimer = 0;
 	m_reversed = false;
-    m_dead = false;
+	m_dead = false;
+	m_ctr = isFirstBullet;
 }
 
 void Player::Reposition(const Transform& pos, float time)
@@ -32,74 +36,93 @@ void Player::Reposition(const Transform& pos, float time)
 	m_time = time;
 }
 
-void Player::Update(float deltaTime)
+void Player::acquireAction()
 {
-	if (!m_dead)
+
+	// act on user input for player actions
+	for (auto x : PlayerInput->activeKeyMap)
 	{
-		m_time += deltaTime * (m_reversed ? -1 : 1);
-		UpdatePosition(deltaTime);
-
-		if (!m_usedAction)
+		switch (x.first)
 		{
-			m_keyFrameTimer -= deltaTime;
-			if (m_keyFrameTimer <= 0)
+		case input::GameCommands::Shoot:
+			if (m_ctr != 0)
 			{
+				m_actionUsedTime = m_time;
 				m_keyFrameRequested = true;
-			}
-
-			// TODO: Replace with other input logic
-			static bool rHeld = false;
-			if (GetAsyncKeyState('R') & 0x8000)
-			{
-				if (!rHeld)
-				{
-					m_reversed = !m_reversed;
-					rHeld = true;
-					m_keyFrameRequested = true;
-				}
+				m_usedAction = true;
+				m_reversed = false;
+				PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
+				break;
 			}
 			else
 			{
-				rHeld = false;
+				m_ctr++;
+				break;
 			}
-			static bool held = false;
-			if (GetAsyncKeyState(' ') & 0x8000)
-			{
-				if (!held)
-				{
-					m_actionUsedTime = m_time;
-					m_keyFrameRequested = true;
-					m_usedAction = true;
-					m_reversed = false;
-					held = true;
-					PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
-				}
-			}
-			else
-			{
-				held = false;
-			}
-		}
-		else
-		{
-			if (m_time > m_actionUsedTime + m_action.m_duration)
-			{
-				m_usedAction = false;
-				m_keyFrameRequested = true;
-				m_reportActionUsed = true;
-			}
+		case input::GameCommands::ReverseTime:
+			m_reversed = !m_reversed;
+			m_keyFrameRequested = true;
+			break;
 		}
 	}
-	else 
+}
+
+void Player::acquirePosition(float deltaTime)
+{
+	Vector2 vel;
+	// act on user input for player position
+	for (auto x : PlayerInput->activeKeyMap)
+	{
+		switch (x.first)
+		{
+		case input::GameCommands::PlayerMoveForward:
+			vel = vel + Vector2(0, 1);
+			break;
+		case input::GameCommands::PlayerMoveBack:
+			vel = vel + Vector2(0, -1);
+			break;
+		case input::GameCommands::PlayerMoveLeft:
+			vel = vel + Vector2(-1, 0);
+			break;
+		case input::GameCommands::PlayerMoveRight:
+			vel = vel + Vector2(1, 0);
+			break;
+		}
+	}
+
+	if (vel.m_x != 0 || vel.m_y != 0)
+	{
+		vel = vel.Normalized();
+		vel = vel.Rotate(-m_transform.GetRot());
+		m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
+	}
+}
+
+void Player::Update(float deltaTime)
+{
+	PlayerInput->acquireInput();
+	m_time += deltaTime * (m_reversed ? -1 : 1);
+	UpdatePosition(deltaTime);
+	if (!m_usedAction)
 	{
 		m_keyFrameTimer -= deltaTime;
 		if (m_keyFrameTimer <= 0)
 		{
 			m_keyFrameRequested = true;
 		}
+		acquireAction();
+	}
+	else
+	{
+		if (m_time > m_actionUsedTime + m_action.m_duration)
+		{
+			m_usedAction = false;
+			m_keyFrameRequested = true;
+			m_reportActionUsed = true;
+		}
 	}
 
-    GameUI::Get().UpdateGameUI(m_dead, m_time);
+	GameUI::Get().UpdateGameUI(m_dead, m_time);
 }
 
 Transform Player::GetTransform() const
@@ -149,7 +172,7 @@ void Player::SetTransform(Transform trans)
 
 void Player::SetAction(ActionInfo action)
 {
-    m_action = action;
+	m_action = action;
 }
 
 void Player::SetDead(bool val)
@@ -159,41 +182,23 @@ void Player::SetDead(bool val)
 
 KeyFrameData Player::GetKeyFrame()
 {
-    KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_reportActionUsed);
-    m_reportActionUsed = false;
+	KeyFrameData key = KeyFrameData(m_transform, m_time, m_entityId, m_reportActionUsed);
+	m_reportActionUsed = false;
 	return key;
 }
 
 bool Player::StackRequested()
 {
-    bool ret = m_usedAction ? m_actionUsedTime == m_time : m_keyFrameTimer <= 0;
-    if (ret)
-    {
-        m_keyFrameTimer = m_keyPeriod;
-        m_keyFrameRequested = false;
-    }
-    return ret;
+	bool ret = m_usedAction ? m_actionUsedTime == m_time : m_keyFrameTimer <= 0;
+	if (ret)
+	{
+		m_keyFrameTimer = m_keyPeriod;
+		m_keyFrameRequested = false;
+	}
+	return ret;
 }
 
-void Player::UpdatePosition(float deltaTime) {
-	Vector2 vel;
-	// TODO: Replace with input logic
-	if (GetAsyncKeyState('W') & 0x8000)
-	{
-		vel = vel + Vector2(0, 1);
-	}
-	if (GetAsyncKeyState('A') & 0x8000)
-	{
-		vel = vel + Vector2(-1, 0);
-	}
-	if (GetAsyncKeyState('S') & 0x8000)
-	{
-		vel = vel + Vector2(0, -1);
-	}
-	if (GetAsyncKeyState('D') & 0x8000)
-	{
-		vel = vel + Vector2(1, 0);
-	}
-	vel = vel.Rotate(-m_transform.GetRot());
-	m_transform.SetPos(m_transform.GetPos() + vel * deltaTime);
+void Player::UpdatePosition(float deltaTime)
+{
+	acquirePosition(deltaTime);
 }

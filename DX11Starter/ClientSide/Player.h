@@ -3,6 +3,7 @@
 #include "HandleObject.h"
 #include "StaticObject.h"
 #include "KeyFrameData.h"
+#include "GameInput.h"
 #include "AudioEngine.h"
 
 class Player
@@ -38,7 +39,7 @@ public:
 	Player();
 	~Player();
 
-	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod);
+	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod, int isFirstbullet);
 	void Reposition(const Transform& pos, float time);
 	void Update(float deltaTime);
 
@@ -61,8 +62,13 @@ public:
 	// Getting the keyframe, modifies the last time shot property
 	KeyFrameData GetKeyFrame();
 
+	// Player Input
+	GameInput *PlayerInput;
+	void acquireAction();
+	void acquirePosition(float deltaTime);
     bool StackRequested();
-
+	int m_ctr;
+	
 private:
 	void UpdatePosition(float deltaTime);
 };
