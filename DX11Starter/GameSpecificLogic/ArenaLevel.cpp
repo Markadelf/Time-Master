@@ -17,7 +17,8 @@ ArenaLevel::ArenaLevel()
 
     // Add static objects to scene graph
     const int div = 20;
-    StaticObject objs[div + 6];
+	const int bar = 8;
+    StaticObject objs[div + bar * 4 + 2];
     Vector2 right = Vector2(20, 0);
     HandleObject handle;
     handle.m_material = woodMaterial;
@@ -52,19 +53,21 @@ ArenaLevel::ArenaLevel()
 	handle.m_material = woodMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.SetUniformScale(1);
-	handle.m_scale[0] = 16;	
-	handle.m_collider = ColliderManager::get().GetRectangularHandle(8, 1);
-	trans = Transform(Vector2(8,0), 0);
-	objs[div + 2] = StaticObject(trans, handle);
-	trans = Transform(Vector2(0,8), 3.14f/2.0f);
-	objs[div + 3] = StaticObject(trans, handle);
-	trans = Transform(Vector2(-8, 0), 0);
-	objs[div + 4] = StaticObject(trans, handle);
-	trans = Transform(Vector2(0,-8), 3.14f/2.0f);
-	objs[div + 5] = StaticObject(trans, handle);
+	handle.m_scale[0] = 1;	
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 1);
+	for (int i = 0; i < bar; i++)
+	{
+		trans = Transform(Vector2((float)i, 0), 0);
+		objs[div + i * 4 + 2] = StaticObject(trans, handle);
+		trans = Transform(Vector2(0, (float)i), 3.14f / 2.0f);
+		objs[div + i * 4 + 3] = StaticObject(trans, handle);
+		trans = Transform(Vector2((float)-i, 0), 0);
+		objs[div + i * 4 + 4] = StaticObject(trans, handle);
+		trans = Transform(Vector2(0, (float)-i), 3.14f / 2.0f);
+		objs[div + i * 4 + 5] = StaticObject(trans, handle);
+	}
 
-
-    m_staticObjectCount = div + 6;
+    m_staticObjectCount = div + bar * 4 + 2;
     m_staticObjs = new StaticObject[m_staticObjectCount];
     memcpy(m_staticObjs, objs, m_staticObjectCount * sizeof(StaticObject));
 
