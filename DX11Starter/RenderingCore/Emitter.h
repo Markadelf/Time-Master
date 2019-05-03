@@ -35,6 +35,9 @@ struct Particle
 class Emitter
 {
 public:
+
+	Emitter();
+
 	Emitter(
 		int maxParticles,
 		int particlesPerSecond,

@@ -50,32 +50,56 @@ int AssetManager::GetMeshHandle(const char * file)
 	return meshManager.GetHandle(file);
 }
 
+int AssetManager::GetEmitterHandle(const char * file)
+{
+	return emitterManager.GetHandle(file);
+}
 void AssetManager::ReleaseAllAssetResource()
 {
 	meshManager.Release();
 	materialManager.Release();
 	textureManager.ReleaseDXPointers();
 }
-void AssetManager::LoadEmitter(int maxParticles, int pPerSec, float pLifetime, float pStartSize, float pEndSize, XMFLOAT4 pStartColor, XMFLOAT4 pEndColor, XMFLOAT3 pStartVelocity, XMFLOAT4 pVelocityRandRange, XMFLOAT4 emitterPos, XMFLOAT4 emitterPosRandRange, XMFLOAT4 emitterRotRandRange, XMFLOAT4 pConstAccel, ID3D11Device * device, int pTextureHandle)
-{
-	// Parameters- Max particles, Device, pos, pos rand range, start color, end color, 
-	m_drawInfo.emitter = new Emitter(
-		10,							// Max particles
-		20,								// Particles per second
-		.5f,							// Particle lifetime
-		0.1f,							// Start size
-		2.0f,							// End size
-		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
-		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
-		XMFLOAT3(0, 0, 0),				// Start velocity
-		XMFLOAT3(1, 1, 1),		        // Velocity randomness range
-		XMFLOAT3(0, 0, 0),		        // Emitter position
-		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
-		XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
-		XMFLOAT3(0, -1, 0),				// Constant acceleration
-		device,
-		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
 
+void AssetManager::LoadEmitter(const char* file,int maxParticles, int pPerSec, float pLifetime, float pStartSize, float pEndSize, XMFLOAT4 pStartColor, XMFLOAT4 pEndColor, XMFLOAT3 pStartVelocity, XMFLOAT3 pVelocityRandRange, XMFLOAT3 emitterPos, XMFLOAT3 emitterPosRandRange, XMFLOAT4 emitterRotRandRange, XMFLOAT3 pConstAccel, ID3D11Device* device, int textureHandle)
+{
+	//// Parameters- Max particles, Device, pos, pos rand range, start color, end color, 
+	//emitter = new Emitter(
+	//	maxParticles,							// Max particles
+	//	pPerSec,								// Particles per second
+	//	pLifetime,							// Particle lifetime
+	//	pStartSize,							// Start size
+	//	pEndSize,							// End size
+	//	pStartColor,	// Start color
+	//	pEndColor,		// End color
+	//	pStartVelocity,				// Start velocity
+	//	pVelocityRandRange,		        // Velocity randomness range
+	//	emitterPos,		        // Emitter position
+	//	emitterPosRandRange,		// Position randomness range
+	//	emitterRotRandRange,			// Random rotation ranges (startMin, startMax, endMin, endMax)
+	//	pConstAccel,				// Constant acceleration
+	//	device,
+	//	textureHandle);
+
+	//// Parameters- Max particles, Device, pos, pos rand range, start color, end color, 
+	Emitter* emitter = new Emitter(
+		maxParticles,							// Max particles
+		pPerSec,								// Particles per second
+		pLifetime,							// Particle lifetime
+		pStartSize,							// Start size
+		pEndSize,							// End size
+		pStartColor,	// Start color
+		pEndColor,		// End color
+		pStartVelocity,				// Start velocity
+		pVelocityRandRange,		        // Velocity randomness range
+		emitterPos,		        // Emitter position
+		emitterPosRandRange,		// Position randomness range
+		emitterRotRandRange,			// Random rotation ranges (startMin, startMax, endMin, endMax)
+		pConstAccel,				// Constant acceleration
+		device,
+		textureHandle);
+
+	emitterManager.AddResource(file, *emitter);
 }
 AssetManager::~AssetManager()
 {

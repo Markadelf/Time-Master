@@ -3,6 +3,9 @@
 using namespace DirectX;
 
 float globalDeltaTime = 0.0f;
+Emitter::Emitter() {
+
+}
 
 Emitter::Emitter(
 	int maxParticles,
@@ -19,8 +22,7 @@ Emitter::Emitter(
 	DirectX::XMFLOAT4 rotationRandomRanges,
 	DirectX::XMFLOAT3 emitterAcceleration,
 	ID3D11Device* device,
-	int texHandle
-	)
+	int texHandle) : Emitter()
 {
 	// Save params
 //	this->vs = vs;
