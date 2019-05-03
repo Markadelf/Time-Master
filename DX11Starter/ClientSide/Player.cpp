@@ -18,7 +18,7 @@ Player::~Player()
 	delete PlayerInput;
 }
 
-void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod)
+void Player::Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod, int isFirstBullet)
 {
 	m_transform = startingPos;
 	m_time = initialTime;
@@ -26,28 +26,38 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
     m_keyPeriod = keyPeriod;
     m_keyFrameTimer = 0;
     m_dead = false;
+	m_ctr = isFirstBullet;
 }
 
 void Player::acquireAction()
 {
+
 	// act on user input for player actions
 		for (auto x : PlayerInput->activeKeyMap)
 		{
 			switch (x.first)
 			{
 			case input::GameCommands::Shoot:
+				if (m_ctr != 0)
+				{				
 				m_actionUsedTime = m_time;
 				m_keyFrameRequested = true;
 				m_usedAction = true;
 				m_reversed = false;
 				PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
-				break;			
+				break;
+				}
+				else
+				{
+					m_ctr++;
+					break;
+				}
 			case input::GameCommands::ReverseTime:
 				m_reversed = !m_reversed;
 				m_keyFrameRequested = true;
-				break;							
-			}		
-		}	
+				break;
+			}
+		}
 }
 
 void Player::acquirePosition(float deltaTime)

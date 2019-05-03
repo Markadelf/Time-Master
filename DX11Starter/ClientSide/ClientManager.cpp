@@ -47,7 +47,7 @@ void ClientManager::Init()
 
     int playerId = 0;
     EntitySpawnInfo& player = arena.GetSpawnInfo(playerId);
-    m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f);
+    m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f, 0);
     m_player.SetEntityId(playerId);
     m_player.SetAction(player.m_action);
 

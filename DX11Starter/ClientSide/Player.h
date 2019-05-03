@@ -39,7 +39,7 @@ public:
 	Player();
 	~Player();
 
-	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod);
+	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod, int isFirstBullet);
 	void Update(float deltaTime);
 
 	// Accessor functions
@@ -65,7 +65,8 @@ public:
 	void acquireAction();
 	void acquirePosition(float deltaTime);
     bool StackRequested();
-
+	int m_ctr;
+	
 private:
 	void UpdatePosition(float deltaTime);
 };

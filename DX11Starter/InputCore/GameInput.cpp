@@ -23,7 +23,7 @@ void GameInput::setDefaultKeyMap()
 	keyMap.clear();
 	
 	keyMap[input::GameCommands::Quit] = new input::GameCommand(L"Quit", VK_ESCAPE, input::KeyState::JustPressed);	
-	keyMap[input::GameCommands::Shoot] = new input::GameCommand(L"Shoot", VK_SPACE, input::KeyState::JustPressed);
+	keyMap[input::GameCommands::Shoot] = new input::GameCommand(L"Shoot", VK_LBUTTON, input::KeyState::JustPressed);
 	keyMap[input::GameCommands::PlayerMoveForward] = new input::GameCommand(L"PlayerMoveForward", 'W', input::KeyState::StillPressed);
 	keyMap[input::GameCommands::PlayerMoveLeft] = new input::GameCommand(L"PlayerMoveLeft", 'A', input::KeyState::StillPressed);
 	keyMap[input::GameCommands::PlayerMoveBack] = new input::GameCommand(L"PlayerMoveBack", 'S', input::KeyState::StillPressed);
