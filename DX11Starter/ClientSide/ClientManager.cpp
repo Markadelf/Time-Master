@@ -19,6 +19,11 @@ ClientManager::ClientManager()
 
 ClientManager::~ClientManager()
 {
+	if (m_drawInfo.emitterOne != nullptr )
+	{
+		delete m_drawInfo.emitterOne, m_drawInfo.emitterTwo;
+		m_drawInfo.emitterOne, m_drawInfo.emitterTwo = nullptr;
+	}
 }
 
 void ClientManager::Update(float deltaTime)
@@ -56,6 +61,7 @@ void ClientManager::Update(float deltaTime)
 	{
 		GameUI::Get().ExitToResults(3);
 	}
+	//m_drawInfo.emitter->Update(deltaTime, totalTime);
 }
 
 void ClientManager::Init(int entityId)
@@ -78,6 +84,73 @@ void ClientManager::Init(int entityId)
 
 	PrepDrawGroupStatics();
 	m_timeSinceRecieve = 0;
+	if (m_drawInfo.emitterOne != nullptr)
+	{
+		delete m_drawInfo.emitterOne, m_drawInfo.emitterTwo;
+		m_drawInfo.emitterOne, m_drawInfo.emitterTwo = nullptr;
+	}
+
+	//Emitter abc = *m_drawInfo.emitterOne;
+	//Emitter abc2 = *m_drawInfo.emitterTwo;
+	// Set up particles
+	AssetManager::get().LoadEmitter("Emitter1",									//Name of the emitter													// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.5f,																	// Particle lifetime
+		0.1f,																	// Start size
+		2.0f,																	// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+
+		// Set up particles
+	AssetManager::get().LoadEmitter("Emitter2",									//Name of the emitter												// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.5f,																	// Particle lifetime
+		0.1f,																	// Start size
+		2.0f,																	// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+
+
+
+	//m_drawInfo.emitterOne = nullptr;
+	//m_drawInfo.emitterOne=AssetManager::get().GetEmitterPointer("Emitter1");
+	
+	//m_drawInfo.emitter = new Emitter(
+	//	10,							// Max particles
+	//	20,								// Particles per second
+	//	.5f,							// Particle lifetime
+	//	0.1f,							// Start size
+	//	2.0f,							// End size
+	//	XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
+	//	XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+	//	XMFLOAT3(0, 0, 0),				// Start velocity
+	//	XMFLOAT3(1, 1, 1),		        // Velocity randomness range
+	//	XMFLOAT3(0, 0, 0),		        // Emitter position
+	//	XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
+	//	XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
+	//	XMFLOAT3(0, -1, 0),				// Constant acceleration
+	//	device,
+	//	AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
+
+    PrepDrawGroupStatics();
 }
 
 Player& ClientManager::GetPlayer()
@@ -132,6 +205,7 @@ void ClientManager::PrepDrawGroupStatics()
 
 void ClientManager::PrepDrawGroup()
 {
+	
 	// Camera
 	DirectX::XMFLOAT3 pos;
 	Transform player = m_player.GetTransform();
@@ -143,8 +217,13 @@ void ClientManager::PrepDrawGroup()
 
 	// Entities
 	m_drawInfo.m_visibleCount = m_staticCount;
-	m_drawInfo.m_transparentCount = 0;
+    m_drawInfo.m_emitterCount = 0;
+    m_drawInfo.m_transparentCount = 0;
 	TimeStamp time = m_player.GetTimeStamp();
+
+	m_drawInfo.time = time;
+
+	int emitterHandleOne = AssetManager::get().GetEmitterHandle("Emitter1");
 
 	int eCount = m_graph.GetEntityCount();
 	for (int i = 0; i < eCount; i++)
@@ -221,8 +300,17 @@ void ClientManager::PrepDrawGroup()
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
 			if (trans.GetEndTime() > time && trans.GetStartTime() <= time)
 			{
-				ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
-			}
+				//ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+                // Projectiles
+                EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
+                drawInfo.m_handle = emitterHandleOne;
+				//AssetManager::get().GetEmitterHandle("Emitter1");
+                drawInfo.startTime = trans.GetStartTime();
+                drawInfo.endTime = trans.GetEndTime();
+
+                Vector2 trans2 = trans.GetPos(time);
+                drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), handle.m_yPos, trans2.GetY());
+            }
 		}
 	}
 

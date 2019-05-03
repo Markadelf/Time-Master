@@ -98,7 +98,7 @@ private:
 	double perfCounterSeconds;
 	float totalTime;
 	float deltaTime;
-	__int64 startTime;
+	__int64 emitterStartTime;
 	__int64 currentTime;
 	__int64 previousTime;
 

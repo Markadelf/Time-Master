@@ -32,6 +32,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)DrawItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Emitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Camera.h">
@@ -64,6 +67,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)DrawItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Emitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)shaders\lighting.hlsli" />
@@ -74,6 +80,8 @@
     <FxCompile Include="$(MSBuildThisFileDirectory)ShadowVS.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyPixelShader.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyVertexShader.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)ParticlePS.hlsl" />
+    <FxCompile Include="$(MSBuildThisFileDirectory)ParticleVS.hlsl" />
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\BlendingPixelShader.hlsl" />
   </ItemGroup>
 </Project>

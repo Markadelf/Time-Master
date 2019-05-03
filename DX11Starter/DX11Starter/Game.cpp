@@ -100,6 +100,7 @@ void Game::LoadTextures()
 	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Texture.jpeg", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Bump_Map.jpeg", device, context);
+	AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
 }
 
 // --------------------------------------------------------
@@ -152,7 +153,6 @@ void Game::InitializeConnection()
     networkConnection->SetActiveCallBack(SUserCallback);
     networkConnection->SetClientCallBack(SClientCallback);
     clientInterface->SetNetworkPointer(networkConnection);
-    
 }
 
 void Game::LoadUI()
@@ -399,7 +399,8 @@ void Game::SUserCallback(Buffer& bitBuffer)
 // State Machine
 void Game::UpdateGameState(GameState arg)
 {
-    switch (arg)
+	ID3D11Device* device = GameInstance->m_renderer.GetDevice();
+	switch (arg)
     {
     case GameState::InGame:
 		GameUI::Get().DisplayHUD();
