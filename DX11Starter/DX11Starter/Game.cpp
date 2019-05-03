@@ -84,6 +84,8 @@ void Game::LoadTextures()
 	AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Texture.jpeg", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Bump_Map.jpeg", device, context);
 }
 
 // --------------------------------------------------------
@@ -101,6 +103,8 @@ void Game::LoadShaders()
 	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
 	AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
 	AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "WALL", "Textures/Stone_Wall_1_Texture.jpeg", "Textures/Stone_Wall_1_Bump_Map.jpeg");
+	
 }
 
 // --------------------------------------------------------
