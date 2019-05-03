@@ -59,9 +59,6 @@ Game::~Game()
 
 	Sound.UnLoadSound("../../Assets/Sounds/Bullet.wav");
 	Sound.Shutdown();
-		
-	delete clientInterface;
-	
 }
 
 // --------------------------------------------------------

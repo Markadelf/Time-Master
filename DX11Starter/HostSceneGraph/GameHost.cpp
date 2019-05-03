@@ -77,7 +77,7 @@ void GameHost::ValidateGameState()
 	if (!m_ingame) {
 		return;
 	}
-	for (size_t i = 0; i < m_sceneGraph.GetEntityCount(); i++)
+	for (int i = 0; i < m_sceneGraph.GetEntityCount(); i++)
 	{
 		Buffer* outData = m_serverPointer->GetNextBufferActiveUser(MessageType::Ping, i);
 		m_serverPointer->SendToActiveUser(i);

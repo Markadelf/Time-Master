@@ -52,8 +52,6 @@ private:
 
     void InitializeResultScreen();
 
-	void InitializeResultScreen();
-
 	void InitializeWaitScreen();
 
     static void ExitToMenu(int graph, int args);

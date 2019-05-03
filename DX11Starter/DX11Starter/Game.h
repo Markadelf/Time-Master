@@ -12,11 +12,6 @@ enum GameState {
     InGame
 };
 
-enum GameState {
-    MenuOnly,
-    InGame
-};
-
 // Handles the game engine level a the highest level of abstraction
 // Manages most of the other core components
 class Game 
@@ -63,8 +58,6 @@ private:
 
 	ClientManager* clientInterface;
     ClientHelper* networkConnection;
-
-    GameState m_state;
 
     GameState m_state;
 

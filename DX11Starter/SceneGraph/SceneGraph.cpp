@@ -5,7 +5,7 @@ SceneGraph::SceneGraph()
 {
 	m_entities = nullptr;
 	m_statics = nullptr;
-    m_phenomenaTypes = nullptr;
+	m_phenomenaTypes = nullptr;
 	m_entityCount = 0;
 	m_staticObjectCount = 0;
 }
@@ -21,10 +21,10 @@ SceneGraph::~SceneGraph()
 		delete[] m_statics;
 		m_statics = nullptr;
 	}
-    if (m_phenomenaTypes) {
-        delete[] m_phenomenaTypes;
-        m_phenomenaTypes = nullptr;
-    }
+	if (m_phenomenaTypes) {
+		delete[] m_phenomenaTypes;
+		m_phenomenaTypes = nullptr;
+	}
 }
 
 void SceneGraph::Init(int entityCount)
@@ -43,10 +43,10 @@ void SceneGraph::Init(int entityCount)
 
 void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
 {
-    if (m_statics) {
-        delete[] m_statics;
-        m_statics = nullptr;
-    }
+	if (m_statics) {
+		delete[] m_statics;
+		m_statics = nullptr;
+	}
 
 	// Static Object Buffer
 	m_statics = new StaticObject[staticobjectCount];
@@ -58,17 +58,17 @@ void SceneGraph::Init(StaticObject* staticObjs, int staticobjectCount)
 
 void SceneGraph::Init(PhenomenaPrototype* phenomenaTypes, int count)
 {
-    if (m_phenomenaTypes) {
-        delete[] m_phenomenaTypes;
-        m_phenomenaTypes = nullptr;
-    }
+	if (m_phenomenaTypes) {
+		delete[] m_phenomenaTypes;
+		m_phenomenaTypes = nullptr;
+	}
 
-    // Phenomena prototype Buffer
-    m_phenomenaTypes = new PhenomenaPrototype[count];
-    memcpy(m_phenomenaTypes, phenomenaTypes, count * sizeof(PhenomenaPrototype));
+	// Phenomena prototype Buffer
+	m_phenomenaTypes = new PhenomenaPrototype[count];
+	memcpy(m_phenomenaTypes, phenomenaTypes, count * sizeof(PhenomenaPrototype));
 
-    // Number of prototypes
-    m_phenomenaTypeCount = count;
+	// Number of prototypes
+	m_phenomenaTypeCount = count;
 }
 
 void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, int* deathCount)
@@ -87,14 +87,14 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 	int dCount = 0;
 	if (keyFrame.m_usedAction)
 	{
-        ActionInfo action = entity->GetAction();
-        float shotTime = keyFrame.m_timeStamp + action.m_deploymentTime;
-        PhenomenaPrototype& proto = m_phenomenaTypes[action.m_phenomenaType];
+		ActionInfo action = entity->GetAction();
+		float shotTime = keyFrame.m_timeStamp + action.m_deploymentTime;
+		PhenomenaPrototype& proto = m_phenomenaTypes[action.m_phenomenaType];
 
-        // Stack a keyframe for this action
-        Transform transform = phantom->GetTransform().GetTransform(shotTime);
+		// Stack a keyframe for this action
+		Transform transform = phantom->GetTransform().GetTransform(shotTime);
 
-        Vector2 finalPos = transform.GetPos() + Vector2(0, proto.m_range).Rotate(-transform.GetRot());
+		Vector2 finalPos = transform.GetPos() + Vector2(0, proto.m_range).Rotate(-transform.GetRot());
 		TimeInstableTransform traj = TimeInstableTransform(transform, Transform(finalPos, transform.GetRot()), shotTime, shotTime + proto.m_period, false);
 
 		TimeStamp timeStamp;
@@ -104,7 +104,7 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 		{
 			if (ColliderManager::get().CheckCollision(traj, proto.m_handle.m_collider, m_statics[i].GetTransform(), m_statics[i].GetHandles().m_collider, timeStamp))
 			{
-                // We only care about the earliest collision
+				// We only care about the earliest collision
 				if (traj.GetReversed() ? firstTimeStamp < timeStamp : firstTimeStamp > timeStamp)
 				{
 					firstTimeStamp = timeStamp;
@@ -180,16 +180,12 @@ void SceneGraph::StackKeyFrame(KeyFrameData keyFrame, DeathInfo* deathBuffer, in
 				Kill(*entity, entity->GetImageCount() - 1, timeStamp, dHandle);
 			}
 		}
-
-		if (!entity->TrackPhenomena(Phenomenon(traj, proto.m_handle))) {
-			m_valid = false;
-		}
 	}
-			// If someone is tracking deaths, give them the info
-		if (deathCount != nullptr)
-		{
-			*deathCount = dCount;
-		}
+	// If someone is tracking deaths, give them the info
+	if (deathCount != nullptr)
+	{
+		*deathCount = dCount;
+	}
 }
 
 bool SceneGraph::PreventCollision(int entityId, Transform& trans) {
@@ -218,8 +214,8 @@ void SceneGraph::GetStatics(StaticObject** objs, int& count) {
 
 void SceneGraph::GetEntities(TemporalEntity** ents, int& count)
 {
-    *ents = m_entities;
-    count = m_entityCount;
+	*ents = m_entities;
+	count = m_entityCount;
 }
 
 bool SceneGraph::CheckValid()
@@ -258,30 +254,30 @@ int SceneGraph::AddEntity(int maxImages, int maxPhenomina)
 
 void SceneGraph::AuthoritativeStack(HostDataHeader& authoritativeHeader)
 {
-    int phenominaIndex = 0;
-    // Add any phantoms the server told us to
-    for (size_t i = 0; i < authoritativeHeader.m_phantomCount; i++)
-    {
-        Phantom& phantom = authoritativeHeader.m_phantoms[i];
-        TemporalEntity& entity = m_entities[phantom.GetEntityId()];
+	int phenominaIndex = 0;
+	// Add any phantoms the server told us to
+	for (size_t i = 0; i < authoritativeHeader.m_phantomCount; i++)
+	{
+		Phantom& phantom = authoritativeHeader.m_phantoms[i];
+		TemporalEntity& entity = m_entities[phantom.GetEntityId()];
 
-        // If there is a phenomina for this keyframe, track it
+		// If there is a phenomina for this keyframe, track it
 		if (!entity.TrackPhantom(phantom)) {
 			m_valid = false;
 		}
-        if (phantom.GetShot())
-        {
+		if (phantom.GetShot())
+		{
 			if (!entity.TrackPhenomena(authoritativeHeader.m_phenomina[phenominaIndex])) {
 				m_valid = false;
 			}
-            phenominaIndex++;
-        }
-    }
-    // Kill anyone the server said to kill
-    for (size_t i = 0; i < authoritativeHeader.m_deathCount; i++)
-    {
-        DeathInfo death = authoritativeHeader.m_deaths[i];
+			phenominaIndex++;
+		}
+	}
+	// Kill anyone the server said to kill
+	for (size_t i = 0; i < authoritativeHeader.m_deathCount; i++)
+	{
+		DeathInfo death = authoritativeHeader.m_deaths[i];
 		Kill(m_entities[death.m_entityId], death.m_image, death.m_deathTime, death.m_killedBy);
-    }
+	}
 }
 
