@@ -12,23 +12,29 @@
 
 // Helper Utility
 #include "expected.h"
-#include "serviceLocator.h"
+
 
 // CLASSES //////////////////////////////////////////////////////////////////////////////
 namespace input
 {
 	// enumerate all game commands
-	enum Events : int;																// enumeration of all standard application events
-	enum GameCommands : int;														// enumeration of all possible game commands
-	enum KeyState { StillReleased, JustPressed, StillPressed, JustReleased };		// enumeration of all possible key states
+
+	// enumeration of all standard application events
+	enum Events : int;			
+	// enumeration of all possible game commands
+	enum GameCommands : int;					
+	// enumeration of all possible key states
+	enum KeyState { StillReleased, JustPressed, StillPressed, JustReleased };		
 
 	// structure to combine key codes and key states
 	// each game command can have several bindings (chord), i.e. toggle show FPS = 'shift'+'control'+'FPS'
 	struct BindInfo
 	{
 	private:
-		unsigned int keyCode;		// the actual key code
-		KeyState keyState;			// the state the above specified key has to be in for the "binding" to become active
+		// the actual key code
+		unsigned int keyCode;
+		// the state the above specified key has to be in for the "binding" to become active
+		KeyState keyState;			
 
 	public:
 		// constructors and destructor
@@ -44,8 +50,10 @@ namespace input
 	struct GameCommand
 	{
 	private:
-		std::wstring name;						// human readable name
-		std::vector<BindInfo> chord;			// the chord mapped to this command, i.e. "shift"+"control"+"F"
+		// human readable name
+		std::wstring name;	
+		// the chord mapped to this command, example. "shift"+"control"+"F"
+		std::vector<BindInfo> chord;			
 
 	public:
 		// constructors and destructor
@@ -65,31 +73,39 @@ namespace input
 		/////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////// KEYBOARD /////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////
-		std::array<BYTE, 256> keyboardStateCurrent;					// the state of the keyboard in the current frame 
-		std::array<BYTE, 256> keyboardStatePrevious;				// the state of the keyboard in the previous frame
-
-		void getKeyboardState();									// gets the keyboard state, uses GetAsyncKeyState to read the state of all 256 keys
-		const KeyState getKeyboardKeyState(const unsigned int keyCode) const;// gets the state of the specified key, depending on its state in the previous and the current frame
-
-		inline const bool isPressed(int keyCode) const { return (GetAsyncKeyState(keyCode) & 0x8000) ? 1 : 0; };	// returns true iff the key is down
+		// the state of the keyboard in the current frame 
+		std::array<BYTE, 256> keyboardStateCurrent;			
+		// the state of the keyboard in the previous frame
+		std::array<BYTE, 256> keyboardStatePrevious;				
+		// gets the keyboard state, uses GetAsyncKeyState to read the state of all 256 keys
+		void getKeyboardState();									
+		// gets the state of the specified key, depending on its state in the previous and the current frame
+		const KeyState getKeyboardKeyState(const unsigned int keyCode) const;
+		// returns true iff the key is down
+		inline const bool isPressed(int keyCode) const { return (GetAsyncKeyState(keyCode) & 0x8000) ? 1 : 0; };	
 
 		// polling
-		void update();												// update the active key map
+		// update the active key map
+		void update();												
 	protected:
-		std::unordered_map<GameCommands, GameCommand*> keyMap;		// list of all possible game commands mapped to the appropriate command structure
+		// list of all possible game commands mapped to the appropriate command structure
+		std::unordered_map<GameCommands, GameCommand*> keyMap;		
 
 		// constructor and destructor
 		InputManager();
 		~InputManager();
 
 		// initialization
-		virtual void setDefaultKeyMap() = 0;						// set up default controls
+		// set up default controls
+		virtual void setDefaultKeyMap() = 0;						
 
 		// getters and setters
-		util::Expected<std::wstring> getKeyName(const unsigned int keyCode);// retrieves the name of a virtual key code
+		// retrieves the name of a virtual key code
+		util::Expected<std::wstring> getKeyName(const unsigned int keyCode);
 
 	public:
-		std::unordered_map<GameCommands, GameCommand*> activeKeyMap;// list of all active key maps; game acts on each command in this list
+		// list of all active key maps; game acts on each command in this list
+		std::unordered_map<GameCommands, GameCommand*> activeKeyMap;
 
 		// acquire input
 		void acquireInput();

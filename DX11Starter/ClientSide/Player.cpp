@@ -36,7 +36,6 @@ void Player::acquireAction()
 			switch (x.first)
 			{
 			case input::GameCommands::Shoot:
-				printf("SHOOTING");
 				m_actionUsedTime = m_time;
 				m_keyFrameRequested = true;
 				m_usedAction = true;
@@ -60,19 +59,15 @@ void Player::acquirePosition(float deltaTime)
 		switch (x.first)
 		{
 		case input::GameCommands::PlayerMoveForward:
-			printf("W");
 			vel = vel + Vector2(0, 1);
 			break;
 		case input::GameCommands::PlayerMoveBack:
-			printf("S");
 			vel = vel + Vector2(0, -1);
 			break;
 		case input::GameCommands::PlayerMoveLeft:
-			printf("A");
 			vel = vel + Vector2(-1, 0);
 			break;
 		case input::GameCommands::PlayerMoveRight:
-			printf("D");
 			vel = vel + Vector2(1, 0);
 			break;
 		}

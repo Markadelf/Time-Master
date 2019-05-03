@@ -17,13 +17,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)expected.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GameInput.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)InputManager.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)log.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)serviceLocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)GameInput.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)InputManager.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)log.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)serviceLocator.cpp" />
   </ItemGroup>
 </Project>

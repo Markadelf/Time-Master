@@ -54,6 +54,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
+
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
@@ -137,12 +138,21 @@ void Game::LoadUI()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-    // Quit if the escape key is pressed
-    if (GetAsyncKeyState(VK_ESCAPE))
-        m_renderer.Quit();
+	// Quit if the escape key is pressed
+	if (GetAsyncKeyState(VK_ESCAPE))
+	{
+		if (m_state == GameState::InGame)
+		{
+		ShowCursor(true);
+	    }
+		else
+		{
+			m_renderer.Quit();
+		}
+	}
     if (m_state == GameState::InGame)
     {
-        clientInterface->Update(deltaTime);
+        clientInterface->Update(deltaTime);		
     }
 }
 
@@ -157,10 +167,10 @@ void Game::SUpdate(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	m_renderer.Begin();
-
+	
     if (m_state == GameState::InGame)
     {
-        m_renderer.RenderGroup(clientInterface->GetDrawGroup());
+	  m_renderer.RenderGroup(clientInterface->GetDrawGroup());
     }
 	UIManager::get().Render();
 
@@ -184,7 +194,24 @@ void Game::OnResize(int width, int height)
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
+	RECT rect;
+	GetClientRect(m_renderer.GethWnd(), &rect);
+	POINT ul;
+	ul.x = rect.left;
+	ul.y = rect.top;
 
+	POINT lr;
+	lr.x = rect.right;
+	lr.y = rect.bottom;
+
+	MapWindowPoints(m_renderer.GethWnd(), nullptr, &ul, 1);
+	MapWindowPoints(m_renderer.GethWnd(), nullptr, &lr, 1);
+
+	rect.left = ul.x;
+	rect.top = ul.y;
+
+	rect.right = lr.x;
+	rect.bottom = lr.y;
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
 	prevMousePos.y = y;
@@ -193,7 +220,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
 	SetCapture(m_renderer.GethWnd());
-
+	ClipCursor(&rect);
     UIManager::get().OnClick(x, y);
 }
 
@@ -216,6 +243,14 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
+	RECT rcClient;
+	POINT ptDiff;
+	GetClientRect(m_renderer.GethWnd(), &rcClient);
+	ptDiff.x = (rcClient.right - rcClient.left);
+	ptDiff.y = (rcClient.bottom - rcClient.top);
+
+	
+
 	int dY = (y - prevMousePos.y);
 	int dX = (x - prevMousePos.x);
 
@@ -227,6 +262,15 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
 	prevMousePos.y = y;
+
+	if (m_state == GameState::InGame)
+	{
+		if (prevMousePos.x == rcClient.left || prevMousePos.x == rcClient.right -1)
+		{
+			SetCursorPos((int)(ptDiff.x / 2), (int)(ptDiff.y / 2));
+		}		
+	}
+	
 }
 
 // --------------------------------------------------------
@@ -257,7 +301,10 @@ void Game::SOnResize(int width, int height)
 
 void Game::SOnMouseDown(WPARAM buttonState, int x, int y)
 {
+	
+		
 	GameInstance->OnMouseDown(buttonState, x, y);
+	
 }
 
 void Game::SOnMouseUp(WPARAM buttonState, int x, int y)
@@ -267,7 +314,7 @@ void Game::SOnMouseUp(WPARAM buttonState, int x, int y)
 
 void Game::SOnMouseMove(WPARAM buttonState, int x, int y)
 {
-	GameInstance->OnMouseMove(buttonState, x, y);
+	GameInstance->OnMouseMove(buttonState, x, y);	
 }
 
 void Game::SOnMouseWheel(float wheelDelta, int x, int y)
@@ -280,7 +327,8 @@ void Game::UpdateGameState(GameState arg)
     switch (arg)
     {
     case GameState::InGame:
-        GameInstance->clientInterface->Init();
+		GameInstance->clientInterface->Init();
+		ShowCursor(false);
         break;
     default:
         break;

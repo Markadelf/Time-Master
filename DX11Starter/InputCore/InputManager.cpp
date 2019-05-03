@@ -25,7 +25,6 @@ namespace input
 		keyboardStateCurrent.fill(0);
 		keyboardStateCurrent.fill(0);
 
-		//util::ServiceLocator::getFileLogger()->print<util::SeverityType::info>("The input manager was successfully initialized.");
 	};
 
 	InputManager::~InputManager()
@@ -35,12 +34,8 @@ namespace input
 			delete x.second;
 		keyMap.clear();
 
-		// clear active key map
-		/*for (auto x : activeKeyMap)
-			delete x.second;*/
-		activeKeyMap.clear();
-
-		//util::ServiceLocator::getFileLogger()->print<util::SeverityType::info>("The input manager was shutdown successfully.");
+		
+		activeKeyMap.clear();		
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +43,7 @@ namespace input
 	/////////////////////////////////////////////////////////////////////////////////////////
 	void InputManager::acquireInput()
 	{
+
 		// get keyboard state
 		getKeyboardState();
 
@@ -81,9 +77,6 @@ namespace input
 				activeKeyMap.insert(std::pair<GameCommands, GameCommand*>(x.first, x.second));
 		}
 
-		// delegate to the UI
-
-		// delegate to the game
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -112,10 +105,6 @@ namespace input
 			else
 				return KeyState::StillReleased;
 	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////// Bindings /////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////// Key Codes ////////////////////////////////////////////

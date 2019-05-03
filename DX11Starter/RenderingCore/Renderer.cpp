@@ -24,7 +24,7 @@ Renderer::Renderer(HINSTANCE hInstance)
 		720,			// Height of the window's client area
 		true)			// Show extra stats (fps) in title bar?
 {
-
+		
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
 	CreateConsoleWindow(500, 120, 32, 120);
@@ -37,6 +37,7 @@ Renderer::Renderer(HINSTANCE hInstance)
 	m_blendPS = nullptr;
 	m_skyPS = nullptr;
 	m_skyVS = nullptr;
+
 }
 
 // --------------------------------------------------------
@@ -84,6 +85,11 @@ void Renderer::Init()
 	InitializeShaders();
 	InitializeShadowMaps();
 	resize(width, height);
+	
+	//Maximize on Launch
+	ShowWindow(Renderer::GethWnd(), SW_MAXIMIZE);
+	SetCursorPos((int)(width / 2), (int)(height / 2));
+	
 
 	// Load the sky box
 	CreateDDSTextureFromFile(device, L"../../Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
