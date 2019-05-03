@@ -409,6 +409,7 @@ void Game::UpdateGameState(GameState arg)
 		GameInstance->JoinGame();
 		break;
     default:
+		ShowCursor(true);
         break;
     }
     GameInstance->m_state = arg;
