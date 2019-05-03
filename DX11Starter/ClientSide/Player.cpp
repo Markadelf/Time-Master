@@ -22,65 +22,82 @@ void Player::Initialize(const Transform& startingPos, float initialTime, HandleO
 	m_handle = handle;
     m_keyPeriod = keyPeriod;
     m_keyFrameTimer = 0;
+	m_reversed = false;
     m_dead = false;
+}
+
+void Player::Reposition(const Transform& pos, float time)
+{
+	m_transform = pos;
+	m_time = time;
 }
 
 void Player::Update(float deltaTime)
 {
-	m_time += deltaTime * (m_reversed ? -1 : 1);
+	if (!m_dead)
+	{
+		m_time += deltaTime * (m_reversed ? -1 : 1);
+		UpdatePosition(deltaTime);
 
-    UpdatePosition(deltaTime);
+		if (!m_usedAction)
+		{
+			m_keyFrameTimer -= deltaTime;
+			if (m_keyFrameTimer <= 0)
+			{
+				m_keyFrameRequested = true;
+			}
 
-    if (!m_usedAction)
-    {
-        m_keyFrameTimer -= deltaTime;
-        if (m_keyFrameTimer <= 0)
-        {
-            m_keyFrameRequested = true;
-        }
-
-        // TODO: Replace with other input logic
-        static bool rHeld = false;
-        if (GetAsyncKeyState('R') & 0x8000)
-        {
-            if (!rHeld)
-            {
-                m_reversed = !m_reversed;
-                rHeld = true;
-                m_keyFrameRequested = true;
-            }
-        }
-        else
-        {
-            rHeld = false;
-        }
-        static bool held = false;
-        if (GetAsyncKeyState(' ') & 0x8000)
-        {
-            if (!held)
-            {
-                m_actionUsedTime = m_time;
-                m_keyFrameRequested = true;
-                m_usedAction = true;
-                m_reversed = false;
-                held = true;
-				PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
-            }
-        }
-        else
-        {
-            held = false;
-        }
-    }
-    else 
-    {
-        if (m_time > m_actionUsedTime + m_action.m_duration)
-        {
-            m_usedAction = false;
-            m_keyFrameRequested = true;
-            m_reportActionUsed = true;
-        }
-    }
+			// TODO: Replace with other input logic
+			static bool rHeld = false;
+			if (GetAsyncKeyState('R') & 0x8000)
+			{
+				if (!rHeld)
+				{
+					m_reversed = !m_reversed;
+					rHeld = true;
+					m_keyFrameRequested = true;
+				}
+			}
+			else
+			{
+				rHeld = false;
+			}
+			static bool held = false;
+			if (GetAsyncKeyState(' ') & 0x8000)
+			{
+				if (!held)
+				{
+					m_actionUsedTime = m_time;
+					m_keyFrameRequested = true;
+					m_usedAction = true;
+					m_reversed = false;
+					held = true;
+					PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
+				}
+			}
+			else
+			{
+				held = false;
+			}
+		}
+		else
+		{
+			if (m_time > m_actionUsedTime + m_action.m_duration)
+			{
+				m_usedAction = false;
+				m_keyFrameRequested = true;
+				m_reportActionUsed = true;
+			}
+		}
+	}
+	else 
+	{
+		m_keyFrameTimer -= deltaTime;
+		if (m_keyFrameTimer <= 0)
+		{
+			m_keyFrameRequested = true;
+		}
+	}
 
     GameUI::Get().UpdateGameUI(m_dead, m_time);
 }
@@ -133,6 +150,11 @@ void Player::SetTransform(Transform trans)
 void Player::SetAction(ActionInfo action)
 {
     m_action = action;
+}
+
+void Player::SetDead(bool val)
+{
+	m_dead = val;
 }
 
 KeyFrameData Player::GetKeyFrame()

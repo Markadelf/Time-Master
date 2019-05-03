@@ -1,6 +1,6 @@
 #pragma once
 #include "TimeInstableTransform.h"
-#include "PlayerKeyFrameData.h"
+#include "KeyFrameData.h"
 
 // This is how the server will send keyframe data to the client
 class Phantom
@@ -23,7 +23,7 @@ public:
 
 	// Accessor
 	TimeInstableTransform GetTransform();
-	int GetPlayerId();
+	int GetEntityId();
 	bool GetShot();
 
 	// Modifier

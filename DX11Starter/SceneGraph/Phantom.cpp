@@ -31,7 +31,7 @@ TimeInstableTransform Phantom::GetTransform()
 	return m_transform;
 }
 
-int Phantom::GetPlayerId()
+int Phantom::GetEntityId()
 {
 	return m_entityId;
 }

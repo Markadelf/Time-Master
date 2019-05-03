@@ -1,7 +1,7 @@
 #include "Buffer.h"
+#include <memory>
 
-
-Buffer::Buffer(): Buffer(1200)
+Buffer::Buffer() : Buffer(1200)
 {
 }
 
@@ -116,7 +116,48 @@ bool Buffer::ReadBytes(void* data, unsigned int byteCount) {
 	return ReadBits(data, byteCount << 3);
 }
 
+bool Buffer::ReadBuffer(Buffer& other)
+{
+	if (bitCapacity >= other.bitIndex)
+	{
+		memcpy(bytes, other.bytes, other.Size());
+
+		ResetIndex();
+		return true;
+	}
+	return false;
+}
+
+bool Buffer::MoveBuffer(Buffer& other)
+{
+	if (bitCapacity >= other.bitCapacity)
+	{
+		memcpy(bytes, other.bytes, (other.bitCapacity + 7) / 8);
+
+		bitIndex = other.bitIndex;
+		return true;
+	}
+	return false;
+}
+
+bool Buffer::OverwriteBuffer(void* data, size_t byteCount)
+{
+	if (bitCapacity >= byteCount * 8)
+	{
+		memcpy(bytes, data, byteCount);
+
+		ResetIndex();
+		return true;
+	}
+	return false;
+}
+
 void Buffer::ResetIndex()
 {
 	bitIndex = 0;
+}
+
+void Buffer::MoveIndex(int bitPos)
+{
+	bitIndex = bitPos;
 }

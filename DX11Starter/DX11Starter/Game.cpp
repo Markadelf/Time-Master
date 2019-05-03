@@ -4,6 +4,8 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "GameUI.h"
+#include "RequestNetworkStructs.h"
+#include "JsonParser.h"
 
 Game* Game::GameInstance;
 
@@ -24,6 +26,7 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 	m_renderer.SetDraw(SDraw, SOnResize);
 	m_renderer.SetUpdate(SUpdate);
 	m_renderer.SetControls(SOnMouseDown, SOnMouseUp, SOnMouseMove, SOnMouseWheel);
+    networkConnection = nullptr;
     m_state = GameState::MenuOnly;
 }
 
@@ -34,6 +37,19 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 // --------------------------------------------------------
 Game::~Game()
 {
+    // Release any (and all!) DirectX objects
+    // we've made in the Game class	
+    //AssetManager::get().~AssetManager();
+    // Delete our simple shader objects, which
+    // will clean up their own internal DirectX stuff
+    AssetManager::get().ReleaseAllAssetResource();
+
+    delete clientInterface;
+    if (networkConnection != nullptr)
+    {
+        delete networkConnection;
+        networkConnection = nullptr;
+    }
 	// Release any (and all!) DirectX objects
 	// we've made in the Game class	
 	//AssetManager::get().~AssetManager();
@@ -60,6 +76,7 @@ void Game::Init()
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
+    InitializeConnection();
 	//Initialize the Audio Engine
 	Sound.Init();
 	Sound.LoadSound("../../Assets/Sounds/Bullet.wav", false, false,false);
@@ -118,8 +135,22 @@ void Game::CreateBasicGeometry()
 	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
 
 	clientInterface = new ClientManager();
+}
 
-	clientInterface->Init();
+void Game::InitializeConnection()
+{
+    // Local host is 127.0.0.1
+	// 129.21.29.156
+	//Address serverAddress(127, 0, 0, 1, 30000);
+	int ipAddr[4];
+	JsonParser ipParser(FilePathHelper::GetPath(std::string("config.json")).c_str());
+	ipParser.GetIpAddr(ipAddr);
+	Address serverAddress(ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3], 30000);
+    networkConnection = new ClientHelper(30001, serverAddress);
+    networkConnection->SetActiveCallBack(SUserCallback);
+    networkConnection->SetClientCallBack(SClientCallback);
+    clientInterface->SetNetworkPointer(networkConnection);
+    
 }
 
 void Game::LoadUI()
@@ -130,16 +161,29 @@ void Game::LoadUI()
     GameUI::Get().InitializeUI();
 }
 
+void Game::JoinGame()
+{
+	networkConnection->ResetAcks();
 
+	Buffer* buff = networkConnection->GetNextBuffer(MessageType::GameRequest);
+	ClientRequest joinRequest;
+	joinRequest.m_request = ClientRequestType::Join;
+	joinRequest.Serialize(*buff);
+	networkConnection->SendToServer();
+}
 
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-    // Quit if the escape key is pressed
-    if (GetAsyncKeyState(VK_ESCAPE))
-        m_renderer.Quit();
+	// Quit if the escape key is pressed
+	if (GetAsyncKeyState(VK_ESCAPE))
+		m_renderer.Quit();
+    if (networkConnection != nullptr)
+    {
+        networkConnection->Listen();
+	}
     if (m_state == GameState::InGame)
     {
         clientInterface->Update(deltaTime);
@@ -275,13 +319,46 @@ void Game::SOnMouseWheel(float wheelDelta, int x, int y)
 	GameInstance->OnMouseWheel(wheelDelta, x, y);
 }
 
+// Network callbacks
+void Game::SClientCallback(Buffer& bitBuffer)
+{
+	HostRequest request;
+	request.Deserialize(bitBuffer);
+
+	switch (request.m_request)
+	{
+	case HostRequestType::Prepare:
+		GameInstance->clientInterface->Init(request.m_arg);
+		UpdateGameState(GameState::InGame);
+		break;
+	case HostRequestType::DeclareVictor:
+		GameUI::Get().ExitToResults(request.m_arg == GameInstance->clientInterface->GetPlayer().GetEntityId() ? 0 : 1);
+		GameInstance->networkConnection->ResetAcks();
+		break;
+	default:
+
+		break;
+	}
+
+	
+}
+
+void Game::SUserCallback(Buffer& bitBuffer)
+{
+    GameInstance->clientInterface->RecieveData(bitBuffer);
+}
+
+// State Machine
 void Game::UpdateGameState(GameState arg)
 {
     switch (arg)
     {
     case GameState::InGame:
-        GameInstance->clientInterface->Init();
+		GameUI::Get().DisplayHUD();
         break;
+	case GameState::WaitingForNetwork:
+		GameInstance->JoinGame();
+		break;
     default:
         break;
     }

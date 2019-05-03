@@ -3,6 +3,7 @@
 #include "HandleObject.h"
 #include "StaticObject.h"
 #include "PlayerKeyFrameData.h"
+#include "KeyFrameData.h"
 #include "AudioEngine.h"
 
 class Player
@@ -39,6 +40,7 @@ public:
 	~Player();
 
 	void Initialize(const Transform& startingPos, float initialTime, HandleObject handle, float keyPeriod);
+	void Reposition(const Transform& pos, float time);
 	void Update(float deltaTime);
 
 	// Accessor functions
@@ -55,6 +57,7 @@ public:
 	void SetEntityId(int id);
 	void SetTransform(Transform trans);
     void SetAction(ActionInfo action);
+	void SetDead(bool val);
 
 	// Getting the keyframe, modifies the last time shot property
 	KeyFrameData GetKeyFrame();
