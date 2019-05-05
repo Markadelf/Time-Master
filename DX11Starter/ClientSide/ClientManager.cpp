@@ -256,13 +256,19 @@ void ClientManager::PrepDrawGroup()
                 drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), handle.m_yPos, trans2.GetY());
                 if (m_drawInfo.m_lightCount < MAX_LIGHTS)
                 {
+                    float lerp = trans.GetProgress(time);
+                    if (lerp > 1)
+                    {
+                        lerp = 2 - lerp;
+                        lerp *= lerp;
+                    }
                     Light& light = m_drawInfo.m_lightList[m_drawInfo.m_lightCount++];
                     DirectX::XMFLOAT4 col = AssetManager::get().GetEmitterPointer(drawInfo.m_handle)->startColor;
                     light.Color = DirectX::XMFLOAT3(col.x, col.y, col.z);
                     light.Type = LIGHT_TYPE_POINT;
                     light.Position = drawInfo.pos;
-                    light.Range = 20.0f;
-                    light.DiffuseIntensity = 1.0f;
+                    light.Range = lerp * 20.0f;
+                    light.DiffuseIntensity = lerp * 10;
                     light.AmbientIntensity = 0.0f;
                 }
             }
