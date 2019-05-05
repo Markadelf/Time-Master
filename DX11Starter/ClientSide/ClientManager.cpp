@@ -76,11 +76,10 @@ void ClientManager::Init(int entityId)
 	m_player.SetAction(player.m_action);
 
 	Light* lights;
-	int lCount;
-	arena.GetLights(&lights, lCount);
+	arena.GetLights(&lights, m_staticLightCount);
 
-	memcpy(m_drawInfo.m_lightList, lights, lCount * sizeof(Light));
-	m_drawInfo.m_lightCount = lCount;
+	memcpy(m_drawInfo.m_lightList, lights, m_staticLightCount * sizeof(Light));
+	m_drawInfo.m_lightCount = m_staticLightCount;
 
 	PrepDrawGroupStatics();
 	m_timeSinceRecieve = 0;
@@ -149,7 +148,8 @@ void ClientManager::PrepDrawGroup()
 	m_drawInfo.m_camera.SetYaw(player.GetRot());
 
 	// Entities
-	m_drawInfo.m_visibleCount = m_staticCount;
+    m_drawInfo.m_visibleCount = m_staticCount;
+    m_drawInfo.m_lightCount = m_staticLightCount;
     m_drawInfo.m_emitterCount = 0;
     m_drawInfo.m_transparentCount = 0;
 	TimeStamp time = m_player.GetTimeStamp();
@@ -214,8 +214,12 @@ void ClientManager::PrepDrawGroup()
 				float personalTime = phantoms[phanCount - 1].GetPersonalTime() + (trans.GetReversed() ? (trans.GetEndTime() - time) : (time - trans.GetStartTime()));
 				if (personalTime <= pTimeReversed[rCount - 2] + predictPeriod)
 				{
-					opacity = (personalTime - pTimeReversed[rIndex]) / predictPeriod;
+					opacity = (personalTime - pTimeReversed[rCount - 2]) / predictPeriod;
 				}
+                if (opacity < 0)
+                {
+                    opacity = 1;
+                }
 				float opacity2 = (personalTime - pTimeReversed[rIndex]) / predictPeriod;
 				opacity = opacity < opacity2 ? opacity : opacity2;
 				opacity *= opacity;
@@ -226,21 +230,41 @@ void ClientManager::PrepDrawGroup()
 		int phenCount = entity->GetPhenomenaCount();
 		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
 
-		for (size_t j = 0; j < phenCount && m_drawInfo.m_visibleCount < MAX_OBJS; j++)
+		for (size_t j = 0; j < phenCount && m_drawInfo.m_emitterCount < MAX_OBJS; j++)
 		{
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
-			if (trans.GetEndTime() > time && trans.GetStartTime() <= time)
-			{
-				//ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+            float excess = .5f;
+            if (trans.GetEndTime() + excess > time && trans.GetStartTime() <= time)
+            {
+                //ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
                 // Projectiles
                 EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
                 drawInfo.m_handle = phenomenas[j].GetHandle().m_mesh;
-				//AssetManager::get().GetEmitterHandle("Emitter1");
+                //AssetManager::get().GetEmitterHandle("Emitter1");
                 drawInfo.startTime = trans.GetStartTime();
-                drawInfo.endTime = trans.GetEndTime();
+                drawInfo.endTime = trans.GetEndTime() + excess;
 
-                Vector2 trans2 = trans.GetPos(time);
+                Vector2 trans2;
+                if (trans.GetEndTime() < time)
+                {
+                    trans2 = trans.GetPos(trans.GetEndTime());
+                }
+                else
+                {
+                    trans2 = trans.GetPos(time);
+                }
                 drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), handle.m_yPos, trans2.GetY());
+                if (m_drawInfo.m_lightCount < MAX_LIGHTS)
+                {
+                    Light& light = m_drawInfo.m_lightList[m_drawInfo.m_lightCount++];
+                    DirectX::XMFLOAT4 col = AssetManager::get().GetEmitterPointer(drawInfo.m_handle)->startColor;
+                    light.Color = DirectX::XMFLOAT3(col.x, col.y, col.z);
+                    light.Type = LIGHT_TYPE_POINT;
+                    light.Position = drawInfo.pos;
+                    light.Range = 20.0f;
+                    light.DiffuseIntensity = 1.0f;
+                    light.AmbientIntensity = 0.0f;
+                }
             }
 		}
 	}

@@ -126,7 +126,7 @@ void Renderer::Init()
 
 	// Create a rasterizer description and then state
 	D3D11_RASTERIZER_DESC blendRasterizerDesc = {};
-	blendRasterizerDesc.CullMode = D3D11_CULL_NONE;
+	blendRasterizerDesc.CullMode = D3D11_CULL_BACK;
 	blendRasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	device->CreateRasterizerState(&blendRasterizerDesc, &m_blendRasterizer);
 
@@ -333,8 +333,9 @@ void Renderer::End()
 void Renderer::RenderGroup(DrawGroup& drawGroup)
 {
 	// Create the view and projection for the shadow map light
+    XMFLOAT3 pos = XMFLOAT3(0, 0, 0); //drawGroup.m_camera.GetPosition();
 	XMMATRIX shView = XMMatrixLookToLH(
-		XMVectorAdd(XMLoadFloat3(&drawGroup.m_camera.GetPosition()), XMVectorMultiply(XMLoadFloat3(&drawGroup.m_lightList[0].Direction), XMVectorSet(-D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, 0))),
+		XMVectorAdd(XMLoadFloat3(&pos), XMVectorMultiply(XMLoadFloat3(&drawGroup.m_lightList[0].Direction), XMVectorSet(-D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, 0))),
 		XMLoadFloat3(&drawGroup.m_lightList[0].Direction),
 		XMVectorSet(0, 1, 0, 0));
 	XMStoreFloat4x4(&m_shadowViewMatrix, XMMatrixTranspose(shView));
@@ -394,11 +395,24 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Set the states!
 	context->RSSetState(m_blendRasterizer);
 	context->OMSetBlendState(m_blendState, 0, 0xFFFFFFFF);
-	for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
+
+    context->PSSetShader(0, 0, 0);
+    // Set up shaders for rendering
+    m_shadowVS->SetShader();
+    m_shadowVS->SetMatrix4x4("view", drawGroup.m_camera.GetView());
+    m_shadowVS->SetMatrix4x4("projection", drawGroup.m_camera.GetProjection());
+    context->OMSetDepthStencilState(m_skyDepthState, 0);
+    for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
 	{
 		//Render transperant obj
-		RenderTransperentEntity(drawGroup.m_transparentObjects[i].m_entity, drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount, drawGroup.m_transparentObjects[i].m_transparency);
+        RenderToShadowMap(drawGroup.m_transparentObjects[i].m_entity.GetTransform(), AssetManager::get().GetMeshPointer(drawGroup.m_transparentObjects[i].m_entity.GetMeshHandle()));
 	}
+
+    for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
+    {
+        //Render transperant obj
+        RenderTransperentEntity(drawGroup.m_transparentObjects[i].m_entity, drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount, drawGroup.m_transparentObjects[i].m_transparency);
+    }
 	
 	// Resetting blender state
 	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
@@ -429,7 +443,9 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 
 	ps->SetInt("lightCount", (int)lightCount);
 	ps->SetData("lights", (void*)(lights), sizeof(Light) * MAX_LIGHTS);
-	if (ps == m_blendPS) {
+    ps->SetFloat2("shadowRes", XMFLOAT2(shadowMapSize, shadowMapSize));
+    ps->SetInt("shadowSmooth",1);
+    if (ps == m_blendPS) {
 		ps->SetFloat("transparency", transparency);
 	}
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 

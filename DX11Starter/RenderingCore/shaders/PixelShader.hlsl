@@ -27,6 +27,8 @@ cbuffer externalData : register(b0)
 	int lightCount;
 	float3 cameraPos;
 	float  shinniness;
+    float2 shadowRes;
+    int shadowSmooth;
 };
 
 Texture2D diffuseTexture    : register(t0);
@@ -65,8 +67,16 @@ float4 main(VertexToPixel input) : SV_TARGET
 
 	// Sample the shadow map with our comparison sampler so that
 	// it does the comparison of the interpolated pixels for us!
-	float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, depthFromLight);
-
+	float shadowAmount = 0;
+    int pixelCount = shadowSmooth * 2 + 1;
+    pixelCount *= pixelCount;
+    for (int x = -shadowSmooth; x <= shadowSmooth; x++)
+    {
+        for (int y = -shadowSmooth; y <= shadowSmooth; y++)
+        {
+            shadowAmount += ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV + float2(x / shadowRes.x, y / shadowRes.y), depthFromLight - .01f) / pixelCount;
+        }
+    }
 
 	float3 finalColor = float3(0,0,0);
 	for (int i = 0; i < lightCount; i++)
