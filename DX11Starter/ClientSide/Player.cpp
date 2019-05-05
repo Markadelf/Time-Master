@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "ColliderManager.h"
 #include "GameUI.h"
+#include "FilePathHelper.h"
 
 Player::Player()
 {
@@ -51,7 +52,8 @@ void Player::acquireAction()
 				m_keyFrameRequested = true;
 				m_usedAction = true;
 				m_reversed = false;
-				PlayerSound.PlaySounds("../../Assets/Sounds/Bullet.wav", { (0),(0),(0) }, 0.0f);
+                static std::string path = FilePathHelper::GetPath("Sounds/Bullet.wav");
+				PlayerSound.PlaySounds(path, { (0),(0),(0) }, 0.0f);
 				break;
 			}
 			else
