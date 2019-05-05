@@ -57,7 +57,7 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	AssetManager::get().ReleaseAllAssetResource();
 
-	Sound.UnLoadSound("../../Assets/Sounds/Bullet.wav");
+	Sound.UnLoadSound(FilePathHelper::GetPath("Sounds/Bullet.wav"));
 	Sound.Shutdown();
 }
 
@@ -78,7 +78,7 @@ void Game::Init()
 	InitEmitters();
 	//Initialize the Audio Engine
 	Sound.Init();
-	Sound.LoadSound("../../Assets/Sounds/Bullet.wav", false, false,false);
+	Sound.LoadSound(FilePathHelper::GetPath("Sounds/Bullet.wav"), false, false,false);
 
 	LoadUI();
 	m_renderer.OnResize();
