@@ -98,7 +98,13 @@ void Renderer::Init()
 	
 
 	// Load the sky box
-	CreateDDSTextureFromFile(device, L"Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
+#ifdef DEBUG
+    CreateDDSTextureFromFile(device, L"../Release/Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
+#endif // DEBUG
+
+#ifndef DEBUG
+    CreateDDSTextureFromFile(device, L"Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
+#endif // !DEBUG
 		
 	// Create the states for the sky
 	D3D11_RASTERIZER_DESC rd = {};

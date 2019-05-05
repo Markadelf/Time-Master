@@ -153,7 +153,6 @@ void Game::InitializeConnection()
     networkConnection = new ClientHelper(30001, serverAddress);
     networkConnection->SetActiveCallBack(SUserCallback);
     networkConnection->SetClientCallBack(SClientCallback);
-    clientInterface->SetNetworkPointer(networkConnection);
 }
 
 void Game::LoadUI()
@@ -173,6 +172,7 @@ void Game::JoinGame()
 	joinRequest.m_request = ClientRequestType::Join;
 	joinRequest.Serialize(*buff);
 	networkConnection->SendToServer();
+
 }
 
 void Game::InitEmitters()
@@ -437,6 +437,7 @@ void Game::SClientCallback(Buffer& bitBuffer)
 	switch (request.m_request)
 	{
 	case HostRequestType::Prepare:
+        GameInstance->clientInterface->SetNetworkPointer(GameInstance->networkConnection);
 		GameInstance->clientInterface->Init(request.m_arg);
 		UpdateGameState(GameState::InGame);
 		break;
@@ -448,13 +449,17 @@ void Game::SClientCallback(Buffer& bitBuffer)
 
 		break;
 	}
-
-	
 }
 
 void Game::SUserCallback(Buffer& bitBuffer)
 {
     GameInstance->clientInterface->RecieveData(bitBuffer);
+}
+
+void Game::StartGameOffline() {
+    GameInstance->clientInterface->SetNetworkPointer(nullptr);
+    GameInstance->clientInterface->Init(0);
+    UpdateGameState(GameState::InGame);
 }
 
 // State Machine

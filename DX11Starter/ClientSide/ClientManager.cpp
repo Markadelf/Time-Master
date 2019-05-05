@@ -47,7 +47,11 @@ void ClientManager::Update(float deltaTime)
 		}
 	}
 
-	m_timeSinceRecieve += deltaTime;
+    if (m_networkConnection != nullptr)
+    {
+        m_timeSinceRecieve += deltaTime;
+    }
+
 	if (!m_graph.CheckValid() || m_timeSinceRecieve > 5)
 	{
 		GameUI::Get().ExitToResults(3);

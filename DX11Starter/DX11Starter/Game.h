@@ -75,6 +75,8 @@ private:
     static void SClientCallback(Buffer& bitBuffer);
     static void SUserCallback(Buffer& bitBuffer);
 public:
+    static void StartGameOffline();
+
     static void UpdateGameState(GameState arg);
 };
 

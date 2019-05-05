@@ -55,7 +55,9 @@ private:
 	void InitializeWaitScreen();
 
     static void ExitToMenu(int graph, int args);
-
     static void JoinGame(int graph, int args);
+
+    static void StartGame(int graph, int args);
 };
+
 

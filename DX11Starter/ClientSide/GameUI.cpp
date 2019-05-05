@@ -81,9 +81,13 @@ void GameUI::InitializeMainMenu()
 
     UIElement playButton;
     playButton.m_textureHandle = playButtonHandle;
-    playButton.m_transform.m_size = Vector2(1/3.f, 1);
+    playButton.m_transform.m_size = Vector2(1/3.f, .5f);
     playButton.m_eventBinding = UIManager::get().Bind(JoinGame);
 
+    UIElement playButton2 = playButton;
+    playButton2.m_transform.m_anchor = Vector2(0, .5f);
+    playButton2.m_eventBinding = UIManager::get().Bind(StartGame);
+    playButton2.m_color = DirectX::XMFLOAT4(.5f, 1, 1, .5f);
 
     InitializeControlsUI();
     UIElement controlButton;
@@ -106,9 +110,11 @@ void GameUI::InitializeMainMenu()
     mainMenu.AddItem(backGround);
     int barHandle = mainMenu.AddItem(bar);
     playButton.m_transform.m_parent = barHandle;
+    playButton2.m_transform.m_parent = barHandle;
     controlButton.m_transform.m_parent = barHandle;
     creditsButton.m_transform.m_parent = barHandle;
     mainMenu.AddItem(playButton);
+    mainMenu.AddItem(playButton2);
     mainMenu.AddItem(controlButton);
     mainMenu.AddItem(creditsButton);
 }
@@ -272,4 +278,9 @@ void GameUI::JoinGame(int graph, int args)
 {
     UIManager::MoveToUI(graph, Get().waitingHandle);
     Game::UpdateGameState(GameState::WaitingForNetwork);
+}
+
+void GameUI::StartGame(int graph, int args)
+{
+    Game::StartGameOffline();
 }

@@ -115,7 +115,7 @@ xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\li
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\UICore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\InputCore\</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_MBCS;CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;CLIENT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\libs\;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x64</AdditionalLibraryDirectories>
