@@ -615,7 +615,7 @@ void Renderer::RenderEmitterSystem(EmitterDrawInfo info, float currentTime, Came
 	// setting structured buffers for a vertex shader
 	context->VSSetShaderResources(0, 1, &emitter->particleDataSRV);
 
-	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/particle.jpg"));
+	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer(emitter->texture));
 	particlePS->SetShader();
 
 

@@ -230,7 +230,7 @@ void ClientManager::PrepDrawGroup()
 		int phenCount = entity->GetPhenomenaCount();
 		Phenomenon* phenomenas = entity->GetPhenomenaBuffer();
 
-		for (size_t j = 0; j < phenCount && m_drawInfo.m_emitterCount < MAX_OBJS; j++)
+		for (size_t j = 0; j < phenCount && m_drawInfo.m_emitterCount < MAX_OBJS - 1; j++)
 		{
 			TimeInstableTransform trans = phenomenas[j].GetTransform();
             float excess = .5f;
@@ -239,7 +239,7 @@ void ClientManager::PrepDrawGroup()
                 //ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
                 // Projectiles
                 EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
-                drawInfo.m_handle = phenomenas[j].GetHandle().m_mesh;
+                drawInfo.m_handle = phenomenas[j].GetHandle().m_mesh * 2;
                 //AssetManager::get().GetEmitterHandle("Emitter1");
                 drawInfo.startTime = trans.GetStartTime();
                 drawInfo.endTime = trans.GetEndTime() + excess;
@@ -254,6 +254,9 @@ void ClientManager::PrepDrawGroup()
                     trans2 = trans.GetPos(time);
                 }
                 drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), handle.m_yPos, trans2.GetY());
+                m_drawInfo.m_emitters[m_drawInfo.m_emitterCount] = drawInfo;
+                m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++].m_handle++;
+
                 if (m_drawInfo.m_lightCount < MAX_LIGHTS)
                 {
                     float lerp = trans.GetProgress(time);
