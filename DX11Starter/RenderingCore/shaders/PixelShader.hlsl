@@ -27,7 +27,7 @@ cbuffer externalData : register(b0)
 	int lightCount;
 	float3 cameraPos;
 	float  shinniness;
-    float2 shadowRes;
+    int shadowRes;
     int shadowSmooth;
 };
 
@@ -74,7 +74,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     {
         for (int y = -shadowSmooth; y <= shadowSmooth; y++)
         {
-            shadowAmount += ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV + float2(x / shadowRes.x, y / shadowRes.y), depthFromLight - .01f) / pixelCount;
+            shadowAmount += ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV + float2(x / shadowRes, y / shadowRes), depthFromLight - .01f) / pixelCount;
         }
     }
 

@@ -368,7 +368,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	for (size_t i = 0; i < drawGroup.m_visibleCount; i++)
 	{
 		Mesh* mesh = AssetManager::get().GetMeshPointer(drawGroup.m_opaqueObjects[i].GetMeshHandle());
-		RenderToShadowMap(drawGroup.m_opaqueObjects[i].GetTransform(), mesh);
+		RenderDepth(drawGroup.m_opaqueObjects[i].GetTransform(), mesh);
 	}
 	//Resetting the render states
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
@@ -405,7 +405,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
     for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
 	{
 		//Render transperant obj
-        RenderToShadowMap(drawGroup.m_transparentObjects[i].m_entity.GetTransform(), AssetManager::get().GetMeshPointer(drawGroup.m_transparentObjects[i].m_entity.GetMeshHandle()));
+        RenderDepth(drawGroup.m_transparentObjects[i].m_entity.GetTransform(), AssetManager::get().GetMeshPointer(drawGroup.m_transparentObjects[i].m_entity.GetMeshHandle()));
 	}
 
     for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
@@ -417,7 +417,13 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Resetting blender state
 	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
 	context->RSSetState(0);
-	// Turn off all texture at the pixel shader stage
+	
+    // Render to target A Get Bright pixels
+    // Render to target B Blur
+    // Render to screen target
+    
+    
+    // Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
 	ID3D11ShaderResourceView* noSRV[16] = {};
 	context->PSSetShaderResources(0, 16, noSRV);
@@ -443,7 +449,7 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 
 	ps->SetInt("lightCount", (int)lightCount);
 	ps->SetData("lights", (void*)(lights), sizeof(Light) * MAX_LIGHTS);
-    ps->SetFloat2("shadowRes", XMFLOAT2(shadowMapSize, shadowMapSize));
+    ps->SetInt("shadowRes", shadowMapSize);
     ps->SetInt("shadowSmooth",1);
     if (ps == m_blendPS) {
 		ps->SetFloat("transparency", transparency);
@@ -484,7 +490,7 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 		0);    // Offset to add to each index when looking up vertices
 }
 
-void Renderer::RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh)
+void Renderer::RenderDepth(DirectX::XMFLOAT4X4& transform, Mesh* mesh)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;

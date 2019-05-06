@@ -98,7 +98,7 @@ private:
     // Renders an object with the given parameters
 	void Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount, float transparency=1);
 	// Renders a mesh to a shadow map
-    void RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh);
+    void RenderDepth(DirectX::XMFLOAT4X4& transform, Mesh* mesh);
 
 };
 
