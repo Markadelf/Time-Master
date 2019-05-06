@@ -126,7 +126,7 @@ void Renderer::Init()
 
 	// Create a rasterizer description and then state
 	D3D11_RASTERIZER_DESC blendRasterizerDesc = {};
-	blendRasterizerDesc.CullMode = D3D11_CULL_NONE;
+	blendRasterizerDesc.CullMode = D3D11_CULL_BACK;
 	blendRasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	device->CreateRasterizerState(&blendRasterizerDesc, &m_blendRasterizer);
 
@@ -333,8 +333,9 @@ void Renderer::End()
 void Renderer::RenderGroup(DrawGroup& drawGroup)
 {
 	// Create the view and projection for the shadow map light
+    XMFLOAT3 pos = XMFLOAT3(0, 0, 0); //drawGroup.m_camera.GetPosition();
 	XMMATRIX shView = XMMatrixLookToLH(
-		XMVectorAdd(XMLoadFloat3(&drawGroup.m_camera.GetPosition()), XMVectorMultiply(XMLoadFloat3(&drawGroup.m_lightList[0].Direction), XMVectorSet(-D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, 0))),
+		XMVectorAdd(XMLoadFloat3(&pos), XMVectorMultiply(XMLoadFloat3(&drawGroup.m_lightList[0].Direction), XMVectorSet(-D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, 0))),
 		XMLoadFloat3(&drawGroup.m_lightList[0].Direction),
 		XMVectorSet(0, 1, 0, 0));
 	XMStoreFloat4x4(&m_shadowViewMatrix, XMMatrixTranspose(shView));
@@ -367,7 +368,7 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	for (size_t i = 0; i < drawGroup.m_visibleCount; i++)
 	{
 		Mesh* mesh = AssetManager::get().GetMeshPointer(drawGroup.m_opaqueObjects[i].GetMeshHandle());
-		RenderToShadowMap(drawGroup.m_opaqueObjects[i].GetTransform(), mesh);
+		RenderDepth(drawGroup.m_opaqueObjects[i].GetTransform(), mesh);
 	}
 	//Resetting the render states
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
@@ -394,16 +395,35 @@ void Renderer::RenderGroup(DrawGroup& drawGroup)
 	// Set the states!
 	context->RSSetState(m_blendRasterizer);
 	context->OMSetBlendState(m_blendState, 0, 0xFFFFFFFF);
-	for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
+
+    context->PSSetShader(0, 0, 0);
+    // Set up shaders for rendering
+    m_shadowVS->SetShader();
+    m_shadowVS->SetMatrix4x4("view", drawGroup.m_camera.GetView());
+    m_shadowVS->SetMatrix4x4("projection", drawGroup.m_camera.GetProjection());
+    context->OMSetDepthStencilState(m_skyDepthState, 0);
+    for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
 	{
 		//Render transperant obj
-		RenderTransperentEntity(drawGroup.m_transparentObjects[i].m_entity, drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount, drawGroup.m_transparentObjects[i].m_transparency);
+        RenderDepth(drawGroup.m_transparentObjects[i].m_entity.GetTransform(), AssetManager::get().GetMeshPointer(drawGroup.m_transparentObjects[i].m_entity.GetMeshHandle()));
 	}
+
+    for (size_t i = 0; i < drawGroup.m_transparentCount; i++)
+    {
+        //Render transperant obj
+        RenderTransperentEntity(drawGroup.m_transparentObjects[i].m_entity, drawGroup.m_camera, drawGroup.m_lightList, drawGroup.m_lightCount, drawGroup.m_transparentObjects[i].m_transparency);
+    }
 	
 	// Resetting blender state
 	context->OMSetBlendState(0, 0, 0xFFFFFFFF);
 	context->RSSetState(0);
-	// Turn off all texture at the pixel shader stage
+	
+    // Render to target A Get Bright pixels
+    // Render to target B Blur
+    // Render to screen target
+    
+    
+    // Turn off all texture at the pixel shader stage
 	// This is to ensure that when we draw to shadowSRV next time, it is not bound to anything.
 	ID3D11ShaderResourceView* noSRV[16] = {};
 	context->PSSetShaderResources(0, 16, noSRV);
@@ -429,7 +449,9 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 
 	ps->SetInt("lightCount", (int)lightCount);
 	ps->SetData("lights", (void*)(lights), sizeof(Light) * MAX_LIGHTS);
-	if (ps == m_blendPS) {
+    ps->SetInt("shadowRes", shadowMapSize);
+    ps->SetInt("shadowSmooth",1);
+    if (ps == m_blendPS) {
 		ps->SetFloat("transparency", transparency);
 	}
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
@@ -468,7 +490,7 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 		0);    // Offset to add to each index when looking up vertices
 }
 
-void Renderer::RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh)
+void Renderer::RenderDepth(DirectX::XMFLOAT4X4& transform, Mesh* mesh)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
@@ -593,7 +615,7 @@ void Renderer::RenderEmitterSystem(EmitterDrawInfo info, float currentTime, Came
 	// setting structured buffers for a vertex shader
 	context->VSSetShaderResources(0, 1, &emitter->particleDataSRV);
 
-	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/particle.jpg"));
+	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer(emitter->texture));
 	particlePS->SetShader();
 
 

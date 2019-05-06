@@ -57,13 +57,14 @@ ArenaLevel::ArenaLevel()
 	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 1);
 	for (int i = 0; i < bar; i++)
 	{
-		trans = Transform(Vector2((float)i, 0), 0);
+        float dist = (float)i;
+		trans = Transform(Vector2((float)dist, 0), 0);
 		objs[div + i * 4 + 2] = StaticObject(trans, handle);
-		trans = Transform(Vector2(0, (float)i), 3.14f / 2.0f);
+		trans = Transform(Vector2(0, (float)dist), 3.14f / 2.0f);
 		objs[div + i * 4 + 3] = StaticObject(trans, handle);
-		trans = Transform(Vector2((float)-i, 0), 0);
+		trans = Transform(Vector2((float)-dist, 0), 0);
 		objs[div + i * 4 + 4] = StaticObject(trans, handle);
-		trans = Transform(Vector2(0, (float)-i), 3.14f / 2.0f);
+		trans = Transform(Vector2(0, (float)-dist), 3.14f / 2.0f);
 		objs[div + i * 4 + 5] = StaticObject(trans, handle);
 	}
 
@@ -75,7 +76,7 @@ ArenaLevel::ArenaLevel()
     handle.m_yPos = 0;
     handle.m_material = playerMaterial;
     handle.m_mesh = cylinderHandle;
-    handle.m_collider = ColliderManager::get().GetCircleHandle(.25f);
+    handle.m_collider = ColliderManager::get().GetCircleHandle(.125f);
     handle.SetUniformScale(1);
 	handle.m_scale[0] = 0.5;
 	handle.m_scale[2] = 0.5;
@@ -102,7 +103,7 @@ ArenaLevel::ArenaLevel()
     HandleObject bulletHandle;
     bulletHandle.m_material = 1;
     bulletHandle.m_mesh = 0;
-    bulletHandle.m_collider = ColliderManager::get().GetCircleHandle(.125f);
+    bulletHandle.m_collider = ColliderManager::get().GetCircleHandle(.000125f);
     bulletHandle.SetUniformScale(.5f);
     m_phenomenaTypes[0].m_handle = bulletHandle;
     m_phenomenaTypes[0].m_period = 1;
