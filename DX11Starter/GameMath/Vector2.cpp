@@ -81,13 +81,13 @@ float Vector2::DotProduct(Vector2 a, Vector2 b)
 bool Vector2::Serialize(Buffer& buffer) const
 {
 	return
-		Serializer::SerializeFloat<-100, 100, 1, 100>(buffer, m_x) &&
-		Serializer::SerializeFloat<-100, 100, 1, 100>(buffer, m_y);
+		Serializer::SerializeFloatFP(buffer, m_x) &&
+		Serializer::SerializeFloatFP(buffer, m_y);
 }
 
 bool Vector2::Deserialize(Buffer& buffer)
 {
 	return
-		Serializer::DeserializeFloat<-100, 100, 1, 100>(buffer, m_x) &&
-		Serializer::DeserializeFloat<-100, 100, 1, 100>(buffer, m_y);
+		Serializer::DeserializeFloatFP(buffer, m_x) &&
+		Serializer::DeserializeFloatFP(buffer, m_y);
 }

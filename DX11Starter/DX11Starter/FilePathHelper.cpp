@@ -1,8 +1,15 @@
 #include "FilePathHelper.h"
 
 // Use two so one can handle Wide characters
-std::string FilePathHelper::ASSETPATH =		 "../../Assets/";
-std::wstring FilePathHelper::ASSETPATHW =	L"../../Assets/";
+#ifdef DEBUG
+std::string FilePathHelper::ASSETPATH = "../Release/Assets/";
+std::wstring FilePathHelper::ASSETPATHW = L"../Release/Assets/";
+#endif // DEBUG
+
+#ifndef DEBUG
+std::string FilePathHelper::ASSETPATH = "Assets/";
+std::wstring FilePathHelper::ASSETPATHW = L"Assets/";
+#endif // !DEBUG
 
 FilePathHelper::FilePathHelper()
 {

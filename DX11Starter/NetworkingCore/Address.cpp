@@ -1,5 +1,10 @@
 #include "Address.h"
 
+Address::Address()
+{
+
+}
+
 Address::Address(sockaddr_in sockAddress)
 {
 	this->sockAddress = sockAddress;

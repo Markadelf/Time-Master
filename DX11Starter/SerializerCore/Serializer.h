@@ -151,6 +151,26 @@ namespace Serializer
 		}
 	}
 
+	union FloatInt {
+		unsigned __int32 intVal;
+		float floatVal;
+	};
+
+	// Allows full precision floats as well
+	static bool SerializeFloatFP(Buffer& buffer, float value)
+	{
+		FloatInt convert;
+		convert.floatVal = value;
+		return SerializeUINT32(buffer, convert.intVal);
+	}
+	static bool DeserializeFloatFP(Buffer& buffer, float& value)
+	{
+		FloatInt convert;
+		bool ret = DeserializeUINT32(buffer, convert.intVal);
+		value = convert.floatVal;
+		return ret;
+	}
+
 	// Serialize the length followed by the data
 	template<int maxLength>
 	static bool SerializeString(Buffer& buffer, const char* data)
@@ -196,6 +216,31 @@ namespace Serializer
 	template <class T>
 	static bool Deserialize(Buffer& buffer, T* obj) {
 		return obj->Deserialize(buffer);
+	}
+
+	// Design by contract for arrays
+	template <class T, int max>
+	static bool Serialize(Buffer& buffer, const T* data, int count) {
+		bool success = SerializeInteger<0, max>(buffer, count);
+
+		for (size_t i = 0; i < count && success; i++)
+		{
+			success = data[i].Serialize(buffer);
+		}
+
+		return success;
+	}
+
+	template <class T, int max>
+	static bool Deserialize(Buffer& buffer, T* data, int& count) {
+		bool success = DeserializeInteger<0, max>(buffer, count);
+
+		for (size_t i = 0; i < count && success; i++)
+		{
+			success = data[i].Deserialize(buffer);
+		}
+
+		return success;
 	}
 };
 
