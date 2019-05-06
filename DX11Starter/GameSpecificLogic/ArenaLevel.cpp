@@ -57,7 +57,7 @@ ArenaLevel::ArenaLevel()
 	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 1);
 	for (int i = 0; i < bar; i++)
 	{
-        float dist = i;
+        float dist = (float)i;
 		trans = Transform(Vector2((float)dist, 0), 0);
 		objs[div + i * 4 + 2] = StaticObject(trans, handle);
 		trans = Transform(Vector2(0, (float)dist), 3.14f / 2.0f);
