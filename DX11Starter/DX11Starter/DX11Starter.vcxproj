@@ -116,6 +116,7 @@ xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\li
       <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\UICore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\InputCore\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;CLIENT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\libs\;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x64</AdditionalLibraryDirectories>
@@ -126,6 +127,9 @@ xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\li
 xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\X64\*.dll" "$(OutDir)"
 xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\X64\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

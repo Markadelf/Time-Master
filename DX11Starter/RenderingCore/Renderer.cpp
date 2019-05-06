@@ -99,11 +99,11 @@ void Renderer::Init()
 
 	// Load the sky box
 #ifdef DEBUG
-    CreateDDSTextureFromFile(device, L"../Release/Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
+    CreateDDSTextureFromFile(device, L"../Release/Assets/Textures/Skybox.dds", 0, &m_skySRV);
 #endif // DEBUG
 
 #ifndef DEBUG
-    CreateDDSTextureFromFile(device, L"Assets/Textures/SunnyCubeMap.dds", 0, &m_skySRV);
+    CreateDDSTextureFromFile(device, L"Assets/Textures/Skybox.dds", 0, &m_skySRV);
 #endif // !DEBUG
 		
 	// Create the states for the sky
