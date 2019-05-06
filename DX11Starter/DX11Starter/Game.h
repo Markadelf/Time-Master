@@ -44,6 +44,7 @@ private:
 	void CreateBasicGeometry();
 
 	Emitter* emitter;
+	Emitter* emitter1;
 
 	Renderer m_renderer;
 

@@ -41,6 +41,7 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	AssetManager::get().ReleaseAllAssetResource();
 	delete emitter;
+	delete emitter1;
 	delete sceneGraph;
 }
 
@@ -76,19 +77,37 @@ void Game::Init()
 	emitter = new Emitter(
 		110,							// Max particles
 		20,								// Particles per second
-		5,								// Particle lifetime
+		0.5,							// Particle lifetime
 		0.1f,							// Start size
-		2.0f,							// End size
-		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),	// Start color
-		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		0.8f,							// End size
+		XMFLOAT4(1, 0.2f, 0.2f, 0.2f),	// Start color
+		XMFLOAT4(1, 0.3f, 0.3f, 0.3),		// End color
 		XMFLOAT3(-2, 2, 0),				// Start velocity
-		XMFLOAT3(0.2f, 0.2f, 0.2f),		// Velocity randomness range
+		XMFLOAT3(0.3f, 0.3f, 0.3f),		// Velocity randomness range
 		XMFLOAT3(2, 0, 0),				// Emitter position
 		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
 		XMFLOAT4(-2, 2, -2, 2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
 		XMFLOAT3(0, -1, 0),				// Constant acceleration
 		m_renderer.GetDevice(),
-		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));
+		AssetManager::get().GetTextureHandle("Textures/Particle4.jpg"));
+
+	// Set up particles
+	emitter1 = new Emitter(
+		110,							// Max particles
+		20,								// Particles per second
+		0.5,							// Particle lifetime
+		0.1f,							// Start size
+		0.5f,							// End size
+		XMFLOAT4(1, 0.6f, 0.1f, 0.1f),	// Start color
+		XMFLOAT4(1, 0.8f, 0.5f, 0.8),		// End color
+		XMFLOAT3(-2, 2, 0),				// Start velocity
+		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Velocity randomness range
+		XMFLOAT3(2, 0, 0),				// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),		// Position randomness range
+		XMFLOAT4(2, -2, 2, -2),			// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),				// Constant acceleration
+		m_renderer.GetDevice(),
+		AssetManager::get().GetTextureHandle("Textures/Particle2.jpg"));
 }
 
 void Game::LoadTextures()
@@ -100,7 +119,8 @@ void Game::LoadTextures()
 	AssetManager::get().LoadTexture(L"Textures/player3.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Wooden.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/Stripes.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Particle4.jpg", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Particle2.jpg", device, context);
 }
 
 // --------------------------------------------------------
@@ -197,6 +217,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	emitter1->Update(deltaTime);
 	emitter->Update(deltaTime);
 	// TODO: Migrate update game logic somewhere else
 	Camera* cam = m_renderer.GetCamera();
@@ -342,6 +363,8 @@ void Game::Draw(float deltaTime, float totalTime)
 	m_renderer.DrawScene(sceneGraph, time);
 
 	m_renderer.RenderEmitterSystem(emitter);
+
+	m_renderer.RenderEmitterSystem2(emitter1);
 
 	m_renderer.End();
 

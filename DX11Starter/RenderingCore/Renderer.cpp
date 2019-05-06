@@ -343,7 +343,8 @@ void Renderer::RenderEmitterSystem(Emitter * emitter)
 	particleVS->SetShader();
 	particleVS->CopyAllBufferData();
 
-	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/particle.jpg"));
+	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/Particle4.jpg"));
+	//particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/Particle3.jpg"));
 	particlePS->SetShader();
 
 	// Draw the correct parts of the buffer
@@ -370,4 +371,52 @@ void Renderer::RenderEmitterSystem(Emitter * emitter)
 	//	//	emitter2->Draw(context, camera);
 	//		//emitter3->Draw(context, camera);
 	//}
+}
+
+void Renderer::RenderEmitterSystem2(Emitter * emitter)
+{
+	// Particle states
+	float blend[4] = { 1,1,1,1 };
+	context->OMSetBlendState(particleBlendState, blend, 0xffffffff);	// Additive blending
+	context->OMSetDepthStencilState(particleDepthState, 0);				// No depth WRITING
+
+	// No wireframe debug
+	particlePS->SetInt("debugWireframe", 0);
+	particlePS->CopyAllBufferData();
+
+	// Draw the emitters
+	//emitter->Draw(context, camera);
+
+
+	// Copy to dynamic buffer
+	emitter->CopyParticlesToGPU(context, &m_currentView);
+
+	// Set up buffers
+	UINT stride = sizeof(ParticleVertex);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, &emitter->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(emitter->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	particleVS->SetMatrix4x4("view", m_currentView.GetView());
+	particleVS->SetMatrix4x4("projection", m_currentView.GetProjection());
+	particleVS->SetShader();
+	particleVS->CopyAllBufferData();
+
+	particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/Particle2.jpg"));
+	//particlePS->SetShaderResourceView("particle", *AssetManager::get().GetTexturePointer("Textures/Particle3.jpg"));
+	particlePS->SetShader();
+
+	// Draw the correct parts of the buffer
+	if (emitter->firstAliveIndex < emitter->firstDeadIndex)
+	{
+		context->DrawIndexed(emitter->livingParticleCount * 6, emitter->firstAliveIndex * 6, 0);
+	}
+	else
+	{
+		// Draw first half (0 -> dead)
+		context->DrawIndexed(max(emitter->firstDeadIndex - 1, 0) * 6, 0, 0);
+
+		// Draw second half (alive -> max)
+		context->DrawIndexed((emitter->maxParticles - emitter->firstAliveIndex) * 6, emitter->firstAliveIndex * 6, 0);
+	}
 }
