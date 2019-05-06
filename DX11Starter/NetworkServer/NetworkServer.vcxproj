@@ -117,7 +117,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\GameSpecificLogic\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\;..\GameSpecificLogic\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,7 +159,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\GameSpecificLogic\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AssetManager\;..\SharedDataStructures\;..\GameSpecificLogic\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -15,9 +15,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ColliderManager.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)Level.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)DataNetworkStructs.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phantom.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)KeyFrameData.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)RequestNetworkStructs.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Level.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Phenomena.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SceneGraph.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)StaticObject.cpp" />
@@ -26,6 +28,9 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ColliderManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)HandleObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)DataNetworkStructs.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)KeyFrameData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)RequestNetworkStructs.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Level.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Phantom.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)PlayerKeyFrameData.h" />

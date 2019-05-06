@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Renderer.h"
+#include "InputManager.h"
 #include "AudioEngine.h"
 #include "UIManager.h"
 #include "ClientManager.h"
+#include "ClientHelper.h"
 
 enum GameState {
     MenuOnly,
+	WaitingForNetwork,
     InGame
 };
 
@@ -44,7 +47,10 @@ private:
 	void LoadTextures();
 	void LoadShaders();
 	void CreateBasicGeometry();
+    void InitializeConnection();
 	void LoadUI();
+	void JoinGame();
+	void InitEmitters();
 
 	Renderer m_renderer;
 
@@ -53,6 +59,7 @@ private:
 	POINT prevMousePos;
 
 	ClientManager* clientInterface;
+    ClientHelper* networkConnection;
 
     GameState m_state;
 
@@ -64,7 +71,12 @@ private:
 	static void SOnMouseUp(WPARAM buttonState, int x, int y);
 	static void SOnMouseMove(WPARAM buttonState, int x, int y);
 	static void SOnMouseWheel(float wheelDelta, int x, int y);
+
+    static void SClientCallback(Buffer& bitBuffer);
+    static void SUserCallback(Buffer& bitBuffer);
 public:
+    static void StartGameOffline();
+
     static void UpdateGameState(GameState arg);
 };
 

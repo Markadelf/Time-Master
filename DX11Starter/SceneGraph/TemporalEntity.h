@@ -2,7 +2,7 @@
 #include "TimeInstableTransform.h"
 #include "HandleObject.h"
 #include "Phantom.h"
-#include "PlayerKeyFrameData.h"
+#include "KeyFrameData.h"
 #include "ColliderManager.h"
 
 // The player object keeps a record of all of the actions a player has taken
@@ -55,6 +55,7 @@ public:
 
 	// Accessor functions
 	PhenomenaHandle GetKilledBy();
+	bool GetDead();
 	Phantom Head();
 	int GetImageCount() const;
 	int GetPhenomenaCount() const;
@@ -75,6 +76,7 @@ public:
 	
 	// Creates a phantom on the player's phantom stack and returns info for that phantom
 	Phantom* StackKeyFrame(KeyFrameData keyFrame);
+	bool TrackPhantom(Phantom key);
 	bool TrackPhenomena(Phenomenon Phenomena);
 
 	// Kill a player at a given time

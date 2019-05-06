@@ -27,6 +27,7 @@ void GameUI::InitializeUI()
     InitializeMainMenu();
     InitializeInGameUI();
     InitializeResultScreen();
+	InitializeWaitScreen();
     barScale = 100;
 }
 
@@ -43,6 +44,16 @@ void GameUI::UpdateGameUI(bool dead, float time)
     UIManager::get().GetGraph(ingameUIHandle).GetElement(barEle).m_transform.m_size.m_x = percentage;
 
     UIManager::get().GetGraph(ingameUIHandle).GetElement(deathEle).m_color = dead ? DirectX::XMFLOAT4(1, 1, 1, 1) : DirectX::XMFLOAT4(0, 0, 0, 0);
+}
+
+void GameUI::WaitForNetwork()
+{
+	UIManager::MoveToUI(0, waitingHandle);
+}
+
+void GameUI::DisplayHUD()
+{
+	UIManager::MoveToUI(0, Get().ingameUIHandle);
 }
 
 void GameUI::InitializeMainMenu()
@@ -70,9 +81,13 @@ void GameUI::InitializeMainMenu()
 
     UIElement playButton;
     playButton.m_textureHandle = playButtonHandle;
-    playButton.m_transform.m_size = Vector2(1/3.f, 1);
-    playButton.m_eventBinding = UIManager::get().Bind(StartGame);
+    playButton.m_transform.m_size = Vector2(1/3.f, .5f);
+    playButton.m_eventBinding = UIManager::get().Bind(JoinGame);
 
+    UIElement playButton2 = playButton;
+    playButton2.m_transform.m_anchor = Vector2(0, .5f);
+    playButton2.m_eventBinding = UIManager::get().Bind(StartGame);
+    playButton2.m_color = DirectX::XMFLOAT4(.5f, 1, 1, .5f);
 
     InitializeControlsUI();
     UIElement controlButton;
@@ -95,9 +110,11 @@ void GameUI::InitializeMainMenu()
     mainMenu.AddItem(backGround);
     int barHandle = mainMenu.AddItem(bar);
     playButton.m_transform.m_parent = barHandle;
+    playButton2.m_transform.m_parent = barHandle;
     controlButton.m_transform.m_parent = barHandle;
     creditsButton.m_transform.m_parent = barHandle;
     mainMenu.AddItem(playButton);
+    mainMenu.AddItem(playButton2);
     mainMenu.AddItem(controlButton);
     mainMenu.AddItem(creditsButton);
 }
@@ -149,6 +166,8 @@ void GameUI::InitializeInGameUI()
     death.m_transform.m_size = Vector2(.75f, .75f);
 
     deathEle = inGameUI.AddItem(death);
+
+	UpdateGameUI(false, 0);
 }
 
 void GameUI::InitializeCreditsUI()
@@ -232,14 +251,36 @@ void GameUI::InitializeResultScreen()
     resultEle = results.AddItem(root);
 }
 
+void GameUI::InitializeWaitScreen()
+{
+	AssetManager::get().LoadTexture(L"Textures/WaitingForNetwork.png", device, context);
+	int waitBack = AssetManager::get().GetTextureHandle("Textures/WaitingForNetwork.png");
+
+	waitingHandle = UIManager::get().MakeGraph();
+	UIGraph& controls = UIManager::get().GetGraph(waitingHandle);
+
+	UIElement root;
+	root.m_transform.m_size = Vector2(.5f, .5f);
+	root.m_transform.m_anchor = Vector2(.5f, .5f);
+	root.m_transform.m_pivot = Vector2(.5f, .5f);
+	root.m_textureHandle = waitBack;
+
+	controls.AddItem(root);
+}
+
 void GameUI::ExitToMenu(int graph, int args)
 {
     Game::UpdateGameState(GameState::MenuOnly);
     UIManager::MoveToUI(graph, args);
 }
 
+void GameUI::JoinGame(int graph, int args)
+{
+    UIManager::MoveToUI(graph, Get().waitingHandle);
+    Game::UpdateGameState(GameState::WaitingForNetwork);
+}
+
 void GameUI::StartGame(int graph, int args)
 {
-    UIManager::MoveToUI(graph, Get().ingameUIHandle);
-    Game::UpdateGameState(GameState::InGame);
+    Game::StartGameOffline();
 }

@@ -4,6 +4,8 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "GameUI.h"
+#include "RequestNetworkStructs.h"
+#include "JsonParser.h"
 
 Game* Game::GameInstance;
 
@@ -24,6 +26,7 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 	m_renderer.SetDraw(SDraw, SOnResize);
 	m_renderer.SetUpdate(SUpdate);
 	m_renderer.SetControls(SOnMouseDown, SOnMouseUp, SOnMouseMove, SOnMouseWheel);
+    networkConnection = nullptr;
     m_state = GameState::MenuOnly;
 }
 
@@ -34,6 +37,19 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
 // --------------------------------------------------------
 Game::~Game()
 {
+    // Release any (and all!) DirectX objects
+    // we've made in the Game class	
+    //AssetManager::get().~AssetManager();
+    // Delete our simple shader objects, which
+    // will clean up their own internal DirectX stuff
+    AssetManager::get().ReleaseAllAssetResource();
+
+    delete clientInterface;
+    if (networkConnection != nullptr)
+    {
+        delete networkConnection;
+        networkConnection = nullptr;
+    }
 	// Release any (and all!) DirectX objects
 	// we've made in the Game class	
 	//AssetManager::get().~AssetManager();
@@ -41,11 +57,8 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	AssetManager::get().ReleaseAllAssetResource();
 
-	Sound.UnLoadSound("../../Assets/Sounds/Bullet.wav");
+	Sound.UnLoadSound(FilePathHelper::GetPath("Sounds/Bullet.wav"));
 	Sound.Shutdown();
-		
-	delete clientInterface;
-	
 }
 
 // --------------------------------------------------------
@@ -54,15 +67,18 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
+
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 	LoadTextures();
 	LoadShaders();
 	CreateBasicGeometry();
+    InitializeConnection();
+	InitEmitters();
 	//Initialize the Audio Engine
 	Sound.Init();
-	Sound.LoadSound("../../Assets/Sounds/Bullet.wav", false, false,false);
+	Sound.LoadSound(FilePathHelper::GetPath("Sounds/Bullet.wav"), false, false,false);
 
 	LoadUI();
 	m_renderer.OnResize();
@@ -83,6 +99,9 @@ void Game::LoadTextures()
 	AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
 	AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Texture.jpeg", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Bump_Map.jpeg", device, context);
+	AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
 }
 
 // --------------------------------------------------------
@@ -100,6 +119,8 @@ void Game::LoadShaders()
 	AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
 	AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
 	AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
+	AssetManager::get().LoadMaterial(0, 0, "WALL", "Textures/Stone_Wall_1_Texture.jpeg", "Textures/Stone_Wall_1_Bump_Map.jpeg");
+	
 }
 
 // --------------------------------------------------------
@@ -118,8 +139,20 @@ void Game::CreateBasicGeometry()
 	int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
 
 	clientInterface = new ClientManager();
+}
 
-	clientInterface->Init();
+void Game::InitializeConnection()
+{
+    // Local host is 127.0.0.1
+	// 129.21.29.156
+	//Address serverAddress(127, 0, 0, 1, 30000);
+	int ipAddr[4];
+	JsonParser ipParser(FilePathHelper::GetPath(std::string("config.json")).c_str());
+	ipParser.GetIpAddr(ipAddr);
+	Address serverAddress(ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3], 30000);
+    networkConnection = new ClientHelper(30001, serverAddress);
+    networkConnection->SetActiveCallBack(SUserCallback);
+    networkConnection->SetClientCallBack(SClientCallback);
 }
 
 void Game::LoadUI()
@@ -130,19 +163,102 @@ void Game::LoadUI()
     GameUI::Get().InitializeUI();
 }
 
+void Game::JoinGame()
+{
+	networkConnection->ResetAcks();
 
+	Buffer* buff = networkConnection->GetNextBuffer(MessageType::GameRequest);
+	ClientRequest joinRequest;
+	joinRequest.m_request = ClientRequestType::Join;
+	joinRequest.Serialize(*buff);
+	networkConnection->SendToServer();
+
+}
+
+void Game::InitEmitters()
+{
+	ID3D11Device* device = m_renderer.GetDevice();
+	ID3D11DeviceContext* context = m_renderer.GetContext();
+	//Emitter abc = *m_drawInfo.emitterOne;
+	//Emitter abc2 = *m_drawInfo.emitterTwo;
+	// Set up particles
+	AssetManager::get().LoadEmitter("Emitter1",									//Name of the emitter													// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.25f,																	// Particle lifetime
+		0.05f,																	// Start size
+		1.5f,																	// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+
+		// Set up particles
+	AssetManager::get().LoadEmitter("Emitter2",									//Name of the emitter												// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.25f,																	// Particle lifetime
+		0.05f,																	// Start size
+		1.5f,																		// End size
+		XMFLOAT4(0, 0.8f, 0.1f, 0.7f),											// Start color
+		XMFLOAT4(0, 1.f, 0.1f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+
+	AssetManager::get().LoadEmitter("Emitter3",									//Name of the emitter												// Pointer to the emitter
+		10,																		// Max Particles
+		20,																		// Particles per second
+		.25f,																	// Particle lifetime
+		0.05f,																	// Start size
+		1.5f,																			// End size
+		XMFLOAT4(.5f, 0.1f, 1.0f, 0.7f),											// Start color
+		XMFLOAT4(1, 0.6f, .8f, 0),												// End color
+		XMFLOAT3(0, 0, 0),														// Start velocity
+		XMFLOAT3(1, 1, 1),		        										// Velocity randomness range
+		XMFLOAT3(0, 0, 0),		       											// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0.1f),												// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),													// Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),														// Constant acceleration
+		device,																	// Device
+		AssetManager::get().GetTextureHandle("Textures/particle.jpg"));			// Texture Handle
+}
 
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
-    // Quit if the escape key is pressed
-    if (GetAsyncKeyState(VK_ESCAPE))
-        m_renderer.Quit();
+	// Quit if the escape key is pressed
+	if (GetAsyncKeyState(VK_ESCAPE))
+		{
+			if (m_state == GameState::InGame)
+		{
+		ShowCursor(true);
+	    }
+		else
+		{
+			m_renderer.Quit();
+		}
+		}
+    if (networkConnection != nullptr)
+    {
+        networkConnection->Listen();
+	}
     if (m_state == GameState::InGame)
     {
-        clientInterface->Update(deltaTime);
+        clientInterface->Update(deltaTime);		
     }
 }
 
@@ -157,10 +273,10 @@ void Game::SUpdate(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	m_renderer.Begin();
-
+	
     if (m_state == GameState::InGame)
     {
-        m_renderer.RenderGroup(clientInterface->GetDrawGroup());
+	  m_renderer.RenderGroup(clientInterface->GetDrawGroup());
     }
 	UIManager::get().Render();
 
@@ -184,7 +300,24 @@ void Game::OnResize(int width, int height)
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
+	RECT rect;
+	GetClientRect(m_renderer.GethWnd(), &rect);
+	POINT ul;
+	ul.x = rect.left;
+	ul.y = rect.top;
 
+	POINT lr;
+	lr.x = rect.right;
+	lr.y = rect.bottom;
+
+	MapWindowPoints(m_renderer.GethWnd(), nullptr, &ul, 1);
+	MapWindowPoints(m_renderer.GethWnd(), nullptr, &lr, 1);
+
+	rect.left = ul.x;
+	rect.top = ul.y;
+
+	rect.right = lr.x;
+	rect.bottom = lr.y;
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
 	prevMousePos.y = y;
@@ -193,7 +326,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
 	SetCapture(m_renderer.GethWnd());
-
+	ClipCursor(&rect);
     UIManager::get().OnClick(x, y);
 }
 
@@ -216,6 +349,14 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
+	RECT rcClient;
+	POINT ptDiff;
+	GetClientRect(m_renderer.GethWnd(), &rcClient);
+	ptDiff.x = (rcClient.right - rcClient.left);
+	ptDiff.y = (rcClient.bottom - rcClient.top);
+
+	
+
 	int dY = (y - prevMousePos.y);
 	int dX = (x - prevMousePos.x);
 
@@ -227,6 +368,15 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
 	prevMousePos.y = y;
+
+	if (m_state == GameState::InGame)
+	{
+		if (prevMousePos.x == rcClient.left || prevMousePos.x == rcClient.right -1)
+		{
+			SetCursorPos((int)(ptDiff.x / 2), (int)(ptDiff.y / 2));
+		}		
+	}
+	
 }
 
 // --------------------------------------------------------
@@ -257,7 +407,10 @@ void Game::SOnResize(int width, int height)
 
 void Game::SOnMouseDown(WPARAM buttonState, int x, int y)
 {
+	
+		
 	GameInstance->OnMouseDown(buttonState, x, y);
+	
 }
 
 void Game::SOnMouseUp(WPARAM buttonState, int x, int y)
@@ -267,7 +420,7 @@ void Game::SOnMouseUp(WPARAM buttonState, int x, int y)
 
 void Game::SOnMouseMove(WPARAM buttonState, int x, int y)
 {
-	GameInstance->OnMouseMove(buttonState, x, y);
+	GameInstance->OnMouseMove(buttonState, x, y);	
 }
 
 void Game::SOnMouseWheel(float wheelDelta, int x, int y)
@@ -275,14 +428,55 @@ void Game::SOnMouseWheel(float wheelDelta, int x, int y)
 	GameInstance->OnMouseWheel(wheelDelta, x, y);
 }
 
+// Network callbacks
+void Game::SClientCallback(Buffer& bitBuffer)
+{
+	HostRequest request;
+	request.Deserialize(bitBuffer);
+
+	switch (request.m_request)
+	{
+	case HostRequestType::Prepare:
+        GameInstance->clientInterface->SetNetworkPointer(GameInstance->networkConnection);
+		GameInstance->clientInterface->Init(request.m_arg);
+		UpdateGameState(GameState::InGame);
+		break;
+	case HostRequestType::DeclareVictor:
+		GameUI::Get().ExitToResults(request.m_arg == GameInstance->clientInterface->GetPlayer().GetEntityId() ? 0 : 1);
+		GameInstance->networkConnection->ResetAcks();
+		break;
+	default:
+
+		break;
+	}
+}
+
+void Game::SUserCallback(Buffer& bitBuffer)
+{
+    GameInstance->clientInterface->RecieveData(bitBuffer);
+}
+
+void Game::StartGameOffline() {
+    GameInstance->clientInterface->SetNetworkPointer(nullptr);
+    GameInstance->clientInterface->Init(0);
+    UpdateGameState(GameState::InGame);
+}
+
+// State Machine
 void Game::UpdateGameState(GameState arg)
 {
-    switch (arg)
+	ID3D11Device* device = GameInstance->m_renderer.GetDevice();
+	switch (arg)
     {
     case GameState::InGame:
-        GameInstance->clientInterface->Init();
+		GameUI::Get().DisplayHUD();
+		ShowCursor(false);
         break;
+	case GameState::WaitingForNetwork:
+		GameInstance->JoinGame();
+		break;
     default:
+		ShowCursor(true);
         break;
     }
     GameInstance->m_state = arg;

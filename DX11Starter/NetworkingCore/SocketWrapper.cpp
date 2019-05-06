@@ -2,8 +2,30 @@
 #include <iostream>
 
 
+SocketWrapper::SocketWrapper() {
+	socketHandle = -1;
+}
+
 SocketWrapper::SocketWrapper(unsigned short port)
 {
+	Rebind(port);
+}
+
+
+SocketWrapper::~SocketWrapper()
+{
+	if (socketHandle != -1)
+	{
+		closesocket(socketHandle);
+	}
+}
+
+void SocketWrapper::Rebind(unsigned short port)
+{
+	if (socketHandle != -1)
+	{
+		closesocket(socketHandle);
+	}
 	socketHandle = (int)socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 	sockaddr_in address;
@@ -21,18 +43,13 @@ SocketWrapper::SocketWrapper(unsigned short port)
 	ioctlsocket(socketHandle, FIONBIO, &nonBlocking);
 }
 
-
-SocketWrapper::~SocketWrapper()
-{
-	closesocket(socketHandle);
-}
-
 void SocketWrapper::Send(Address outAddress, const void* packet_data, const int packet_size)
 {
 	int sent = sendto(socketHandle, reinterpret_cast<const char*>(packet_data), packet_size, 0, (sockaddr*)outAddress.GetSockAddress(), sizeof(sockaddr_in));
 	if (sent < packet_size)
 	{
 		std::cout << ("failed to send packet\n");
+		std::cout << WSAGetLastError();
 	}
 }
 

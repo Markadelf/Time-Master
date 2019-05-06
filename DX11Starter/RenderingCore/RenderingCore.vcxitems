@@ -17,6 +17,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Camera.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DXCore.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DrawItem.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Emitter.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Material.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Renderer.cpp" />
@@ -27,6 +28,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)DrawGroup.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DXCore.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DrawItem.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Emitter.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Lights.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Mesh.h" />
@@ -38,6 +40,14 @@
     <None Include="$(MSBuildThisFileDirectory)shaders\lighting.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="$(MSBuildThisFileDirectory)ParticlePS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="$(MSBuildThisFileDirectory)ParticleVS.hlsl">
+      <ShaderType>Vertex</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\BlendingPixelShader.hlsl">
       <DeploymentContent>true</DeploymentContent>
       <ShaderType>Pixel</ShaderType>
@@ -51,10 +61,12 @@
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyPixelShader.hlsl">
       <FileType>Document</FileType>
       <ShaderType>Pixel</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\Skybox\SkyVertexShader.hlsl">
       <FileType>Document</FileType>
       <ShaderType>Vertex</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="$(MSBuildThisFileDirectory)shaders\VertexShader.hlsl">
       <ShaderType>Vertex</ShaderType>

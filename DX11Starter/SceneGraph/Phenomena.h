@@ -44,6 +44,15 @@ struct PhenomenaHandle
 		m_entity = entity;
         m_phenomena = phenomena;
     }
+
+    bool Serialize(Buffer& buffer) const {
+        return Serializer::SerializeInteger<-1, 100>(buffer, m_entity) &&
+            Serializer::SerializeInteger<-1, 100>(buffer, m_phenomena);
+    }
+    bool Deserialize(Buffer& buffer) {
+        return Serializer::DeserializeInteger<-1, 100>(buffer, m_entity) &&
+            Serializer::DeserializeInteger<-1, 100>(buffer, m_phenomena);
+    }
 };
 
 // This class is for storing data about an instance of a phenomena
@@ -60,4 +69,7 @@ public:
 	// Accessors
 	TimeInstableTransform GetTransform() const;
 	HandleObject GetHandle() const;
+
+    bool Serialize(Buffer& buffer) const;
+    bool Deserialize(Buffer& buffer);
 };

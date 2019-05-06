@@ -64,6 +64,7 @@
     <Import Project="..\JobSystem\JobSystem.vcxitems" Label="Shared" />
     <Import Project="..\RenderingCore\RenderingCore.vcxitems" Label="Shared" />
     <Import Project="..\AssetManager\AssetManager.vcxitems" Label="Shared" />
+    <Import Project="..\InputCore\InputCore.vcxitems" Label="Shared" />
     <Import Project="..\AudioCore\AudioCore.vcxitems" Label="Shared" />
     <Import Project="..\ClientSide\ClientSide.vcxitems" Label="Shared" />
     <Import Project="..\Logger\Logger.vcxitems" Label="Shared" />
@@ -96,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\InputCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\x64\Debug\%(AdditionalLibraryDirectories);$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x86;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x86;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x86</AdditionalLibraryDirectories>
@@ -113,8 +114,8 @@ xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\li
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\UICore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_MBCS;CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\AssetManager\;..\SharedDataStructures\;..\RenderingCore\;..\UICore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\InputCore\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;CLIENT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\libs\;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\lib\x64;$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\studio\lib\x64</AdditionalLibraryDirectories>
@@ -133,7 +134,7 @@ xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\li
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\AudioCore\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\AudioCore\;..\InputCore\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -154,7 +155,7 @@ xcopy /y /d "$(SolutionDir)\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\li
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\;..\UICore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\DX11Starter\;..\NetworkingCore\;..\SerializerCore\;..\SceneGraph\;..\GameMath\;..\HostSceneGraph\;..\Logger\;..\JobSystem\;..\ClientSide\;..\GameSpecificLogic\;..\RenderingCore\;..\AssetManager\;..\SharedDataStructures\;..\UICore\;..\AudioCore\FMOD\FMOD Studio API Windows\api\core\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\fsbank\inc;..\AudioCore\FMOD\FMOD Studio API Windows\api\studio\inc;..\AudioCore\;..\InputCore\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
