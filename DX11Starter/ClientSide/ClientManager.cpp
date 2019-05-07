@@ -144,21 +144,21 @@ void ClientManager::PrepDrawGroupStatics()
     drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), 10, trans2.GetY());
 
 
-	Vector2 trans3(-10, 10);
-	m_drawInfo.m_emitterCount = 1;
-	EmitterDrawInfo& drawInfo1 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
-	drawInfo1.m_handle = 6;
-	drawInfo1.startTime = -100;
-	drawInfo1.endTime = 100;
-	drawInfo1.pos = DirectX::XMFLOAT3(trans3.GetX(), 10, trans3.GetY());
+    Vector2 trans3(-10, 10);
+    m_drawInfo.m_emitterCount = 1;
+    EmitterDrawInfo& drawInfo1 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
+    drawInfo1.m_handle = 6;
+    drawInfo1.startTime = -100;
+    drawInfo1.endTime = 100;
+    drawInfo1.pos = DirectX::XMFLOAT3(trans3.GetX(), 10, trans3.GetY());
 
-	Vector2 trans4(10, -10);
-	m_drawInfo.m_emitterCount = 2;
-	EmitterDrawInfo& drawInfo2 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
-	drawInfo2.m_handle = 6;
-	drawInfo2.startTime = -100;
-	drawInfo2.endTime = 100;
-	drawInfo2.pos = DirectX::XMFLOAT3(trans4.GetX(), 10, trans4.GetY());
+    Vector2 trans4(10, -10);
+    m_drawInfo.m_emitterCount = 2;
+    EmitterDrawInfo& drawInfo2 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
+    drawInfo2.m_handle = 6;
+    drawInfo2.startTime = -100;
+    drawInfo2.endTime = 100;
+    drawInfo2.pos = DirectX::XMFLOAT3(trans4.GetX(), 10, trans4.GetY());
 
     m_staticEmitters = m_drawInfo.m_emitterCount;
 }
@@ -218,15 +218,8 @@ void ClientManager::PrepDrawGroup()
                 }
                 if (personalTime + fadePeriod >= pTimeReversed[rIndex + 1])
                 {
-                    if (opacity != 1)
-                    {
-                        float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
-                        opacity = opacity < opacity2 ? opacity : opacity2;
-                    }
-                    else
-                    {
-                        opacity = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
-                    }
+                    float opacity2 = (pTimeReversed[rIndex + 1] - personalTime) / fadePeriod;
+                    opacity = opacity < opacity2 ? opacity : opacity2;
                 }
                 opacity = opacity * opacity;
                 DrawPhantom(handle, trans, time, opacity);
