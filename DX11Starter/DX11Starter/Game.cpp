@@ -108,6 +108,7 @@ void Game::LoadTextures()
     AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle2.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle4.png", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Particle5.png", device, context);
 }
 
 // --------------------------------------------------------
@@ -201,7 +202,7 @@ void Game::InitEmitters()
         XMFLOAT4(-2, 2, -2, 2),         // Random rotation ranges (startMin, startMax, endMin, endMax)
         XMFLOAT3(0, -1, 0),				// Constant acceleration
         m_renderer.GetDevice(),
-        AssetManager::get().GetTextureHandle("Textures/particle4.png"));
+        AssetManager::get().GetTextureHandle("Textures/particle2.png"));
 
     // Set up particles
     AssetManager::get().LoadEmitter("Emitter4",
@@ -292,6 +293,23 @@ void Game::InitEmitters()
         XMFLOAT3(0, -1, 0),				// Constant acceleration
         m_renderer.GetDevice(),
         AssetManager::get().GetTextureHandle("Textures/particle2.png"));
+
+	AssetManager::get().LoadEmitter("Emitter7",
+		110,							// Max particles
+		10,								// Particles per second
+		5.0,							// Particle lifetime
+		1.0f,							// Start size
+		3.0f,							// End size
+		XMFLOAT4(1, 0.2f, 0.2f, 0.2f),	// Start color
+		XMFLOAT4(1, 0.8f, 0.3f, 0.3f),	// End color
+		XMFLOAT3(0, 1, 0),				// Start velocity
+		XMFLOAT3(0, 1, 0),		        // Velocity randomness range
+		XMFLOAT3(0.1, 0.1, 0),		       	// Emitter position
+		XMFLOAT3(20.0f, 20.0f, 0.1f),		// Position randomness range
+		XMFLOAT4(-2, 2, -2, 2),         // Random rotation ranges (startMin, startMax, endMin, endMax)
+		XMFLOAT3(0, -1, 0),				// Constant acceleration
+		m_renderer.GetDevice(),
+		AssetManager::get().GetTextureHandle("Textures/Particle5.png"));
 
 }
 

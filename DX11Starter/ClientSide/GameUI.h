@@ -1,5 +1,7 @@
 #pragma once
 #include "DXCore.h"
+#include "Game.h"
+#include "AssetManager.h"
 
 class GameUI
 {
@@ -36,6 +38,8 @@ public:
     void ExitToResults(int resultCode);
 
     void UpdateGameUI(bool dead, float time);
+
+    void UpdateIconColor(DirectX::XMFLOAT4 col);
 
 	void WaitForNetwork();
 
