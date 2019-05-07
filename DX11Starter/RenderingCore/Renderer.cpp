@@ -457,6 +457,7 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 	// Only copies first ten as the size is fixed on the shader. Subtracting the pad value is necessary because the 
 	ps->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()));
 	ps->SetShaderResourceView("roughnessTexture", *AssetManager::get().GetTexturePointer(mat->GetRoughnessTextureHandle()));
+	ps->SetShaderResourceView("normalTexture", *AssetManager::get().GetTexturePointer(mat->GetNormalMapHandle()));
 	ps->SetShaderResourceView("ShadowMap", m_shadowSRV);
 	ps->SetSamplerState("basicSampler", sampler);
 	ps->SetSamplerState("ShadowSampler", m_shadowSampler);

@@ -11,10 +11,11 @@ class Material
 	float shinniness;
 	int diffuseTextureHandle;
 	int roughnessTextureHandle;
+	int normalMapHandle;
 
 public:
 	Material();
-	Material(int vertexHandle, int pixelHandle, int diffuseTextureHandle,int roughnessTextureHandle, int samplerHandle, float shinniness);
+	Material(int vertexHandle, int pixelHandle, int diffuseTextureHandle,int roughnessTextureHandle, int samplerHandle, float shinniness, int normalMapHandle);
 	~Material();
 
 	int GetPixelShaderHandle();
@@ -23,5 +24,6 @@ public:
 	int GetRoughnessTextureHandle();
 	float GetShinniness();
 	int GetSamplerHandle();
+	int GetNormalMapHandle();
 };
 

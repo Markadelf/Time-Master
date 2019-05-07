@@ -101,6 +101,7 @@ void Game::LoadTextures()
     AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Texture.jpeg", device, context);
     AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Bump_Map.jpeg", device, context);
+	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Normal_Map.jpeg", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle2.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle4.png", device, context);
@@ -118,10 +119,10 @@ void Game::LoadShaders()
     ID3D11DeviceContext* context = m_renderer.GetContext();
 
     //For now shinniness is being handled in Assetmanager.Will move it to the material once we have everythin up and running with latest renderer.
-    AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png");
-    AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png");
-    AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png");
-    AssetManager::get().LoadMaterial(0, 0, "WALL", "Textures/Stone_Wall_1_Texture.jpeg", "Textures/Stone_Wall_1_Bump_Map.jpeg");
+    AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png", "Stone_Wall_1_Normal_Map.jpeg");
+    AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png","Stone_Wall_1_Normal_Map.jpeg");
+    AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png","Stone_Wall_1_Normal_Map.jpeg");
+    AssetManager::get().LoadMaterial(0, 0, "WALL", "Textures/Stone_Wall_1_Texture.jpeg", "Textures/Stone_Wall_1_Bump_Map.jpeg","Stone_Wall_1_Normal_Map.jpeg");
 
 }
 
