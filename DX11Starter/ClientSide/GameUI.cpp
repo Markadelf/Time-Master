@@ -41,9 +41,14 @@ void GameUI::UpdateGameUI(bool dead, float time)
 {
     float percentage = .5f + time / barScale;
     percentage = percentage < 1 ? (percentage > 0 ? percentage : 0) : 1;
-    UIManager::get().GetGraph(ingameUIHandle).GetElement(barEle).m_transform.m_size.m_x = percentage;
+    UIManager::get().GetGraph(ingameUIHandle).GetElement(barEle).m_transform.m_anchor.m_x = percentage;
 
     UIManager::get().GetGraph(ingameUIHandle).GetElement(deathEle).m_color = dead ? DirectX::XMFLOAT4(1, 1, 1, 1) : DirectX::XMFLOAT4(0, 0, 0, 0);
+}
+
+void GameUI::UpdateIconColor(DirectX::XMFLOAT4 col)
+{
+    UIManager::get().GetGraph(ingameUIHandle).GetElement(barEle).m_color = col;
 }
 
 void GameUI::WaitForNetwork()
@@ -62,6 +67,8 @@ void GameUI::InitializeMainMenu()
     int backGroundHandle = AssetManager::get().GetTextureHandle("Textures/Background.png");
     AssetManager::get().LoadTexture(L"Textures/PlayButton.png", device, context);
     int playButtonHandle = AssetManager::get().GetTextureHandle("Textures/PlayButton.png");
+    AssetManager::get().LoadTexture(L"Textures/PlayOffline.png", device, context);
+    int playOffline = AssetManager::get().GetTextureHandle("Textures/PlayOffline.png");
     AssetManager::get().LoadTexture(L"Textures/ControlsButton.png", device, context);
     int optionsButtonHandle = AssetManager::get().GetTextureHandle("Textures/ControlsButton.png");
     AssetManager::get().LoadTexture(L"Textures/CreditsButton.png", device, context);
@@ -81,19 +88,19 @@ void GameUI::InitializeMainMenu()
 
     UIElement playButton;
     playButton.m_textureHandle = playButtonHandle;
-    playButton.m_transform.m_size = Vector2(1/3.f, .5f);
+    playButton.m_transform.m_size = Vector2(.25f, 1);
     playButton.m_eventBinding = UIManager::get().Bind(JoinGame);
 
     UIElement playButton2 = playButton;
-    playButton2.m_transform.m_anchor = Vector2(0, .5f);
+    playButton2.m_textureHandle = playOffline;
+    playButton2.m_transform.m_anchor = Vector2(.25f, 0);
     playButton2.m_eventBinding = UIManager::get().Bind(StartGame);
-    playButton2.m_color = DirectX::XMFLOAT4(.5f, 1, 1, .5f);
 
     InitializeControlsUI();
     UIElement controlButton;
     controlButton.m_textureHandle = optionsButtonHandle;
-    controlButton.m_transform.m_size = Vector2(1 / 3.f, 1);
-    controlButton.m_transform.m_anchor = Vector2(1 / 3.f, 0);
+    controlButton.m_transform.m_size = Vector2(.25f, 1);
+    controlButton.m_transform.m_anchor = Vector2(.5f, 0);
     controlButton.m_eventBinding = UIManager::get().Bind(UIManager::OpenUIFront);
     controlButton.m_eventArg = controlsHandle;
 
@@ -101,8 +108,8 @@ void GameUI::InitializeMainMenu()
     UIElement creditsButton;
     // Add button for graph 2 to graph one
     creditsButton.m_textureHandle = creditsButtonHandle;
-    creditsButton.m_transform.m_size = Vector2(1 / 3.f, 1);
-    creditsButton.m_transform.m_anchor = Vector2(2 / 3.f, 0);
+    creditsButton.m_transform.m_size = Vector2(.25f, 1);
+    creditsButton.m_transform.m_anchor = Vector2(.75f, 0);
     creditsButton.m_eventBinding = UIManager::get().Bind(UIManager::OpenUIFront);
     creditsButton.m_eventArg = creditsHandle;
 
@@ -123,6 +130,12 @@ void GameUI::InitializeInGameUI()
 {
     AssetManager::get().LoadTexture(L"Textures/Death.png", device, context);
     int deathImageHandle = AssetManager::get().GetTextureHandle("Textures/Death.png");
+
+    AssetManager::get().LoadTexture(L"Textures/timeLine.png", device, context);
+    int timeLineHandle = AssetManager::get().GetTextureHandle("Textures/timeLine.png");
+
+    AssetManager::get().LoadTexture(L"Textures/icon.png", device, context);
+    int iconHandle = AssetManager::get().GetTextureHandle("Textures/icon.png");
 
     ingameUIHandle = UIManager::get().MakeGraph();
     UIGraph& inGameUI = UIManager::get().GetGraph(ingameUIHandle);
@@ -146,15 +159,18 @@ void GameUI::InitializeInGameUI()
 
     // bar
     UIElement barHolder;
-    barHolder.m_textureHandle = 1;
+    barHolder.m_textureHandle = timeLineHandle;
     barHolder.m_transform.m_anchor = Vector2(.5f, .05f);
     barHolder.m_transform.m_pivot = Vector2(.5f, .5f);
-    barHolder.m_transform.m_size = Vector2(.8f, .02f);
+    barHolder.m_transform.m_size = Vector2(.6f, .03f);
+    barHolder.m_color = DirectX::XMFLOAT4(1, 1, 1, 1);
     
     UIElement bar;
-    bar.m_textureHandle = 0;
+    bar.m_textureHandle = iconHandle;
     bar.m_transform.m_parent = inGameUI.AddItem(barHolder);
-    bar.m_transform.m_size = Vector2(.5f, 1);
+    bar.m_transform.m_anchor.m_y = .5f;
+    bar.m_transform.m_size = Vector2(.02f, 1.2f);
+    bar.m_transform.m_pivot = Vector2(.75f, 1);
     bar.m_color = DirectX::XMFLOAT4(0, 1, 1, 1);
 
     barEle = inGameUI.AddItem(bar);
@@ -253,7 +269,8 @@ void GameUI::InitializeResultScreen()
 
 void GameUI::InitializeWaitScreen()
 {
-	AssetManager::get().LoadTexture(L"Textures/WaitingForNetwork.png", device, context);
+    int playButtonHandle = AssetManager::get().GetTextureHandle("Textures/PlayButton.png");
+    AssetManager::get().LoadTexture(L"Textures/WaitingForNetwork.png", device, context);
 	int waitBack = AssetManager::get().GetTextureHandle("Textures/WaitingForNetwork.png");
 
 	waitingHandle = UIManager::get().MakeGraph();
@@ -265,6 +282,35 @@ void GameUI::InitializeWaitScreen()
 	root.m_transform.m_pivot = Vector2(.5f, .5f);
 	root.m_textureHandle = waitBack;
 
+    UIElement element;
+    element.m_transform.m_size = Vector2(.08f, .1f);
+    element.m_transform.m_anchor = Vector2(0, 0);
+    element.m_transform.m_pivot = Vector2(0, 0);
+    element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
+    element.m_transform.m_parent = controls.AddItem(element);
+
+    element.m_textureHandle = 1;
+    element.m_transform.m_size = Vector2(.5f, .5f);
+    element.m_transform.m_anchor = Vector2(.5f, .5f);
+    element.m_transform.m_pivot = Vector2(.5f, .5f);
+    element.m_color = DirectX::XMFLOAT4(1, 0, 0, 1);
+    element.m_eventArg = mainMenuHandle;
+    element.m_eventBinding = UIManager::get().Bind(ExitToMenu);
+
+    element.m_transform.m_parent = controls.AddItem(element);
+
+    UIElement bar;
+    bar.m_transform.m_size = Vector2(1, .1f);
+    bar.m_transform.m_anchor = Vector2(0, .9f);
+
+    UIElement playButton;
+    playButton.m_textureHandle = playButtonHandle;
+    playButton.m_transform.m_size = Vector2(1 / 3.f, 1);
+    playButton.m_eventBinding = UIManager::get().Bind(StartGame);
+
+    int barHandle = controls.AddItem(bar);
+    playButton.m_transform.m_parent = barHandle;
+    controls.AddItem(playButton);
 	controls.AddItem(root);
 }
 

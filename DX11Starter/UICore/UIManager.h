@@ -17,6 +17,7 @@ class UIManager
 	UIGraph* m_graphs;
 	int* m_activeGraphs;
 	DirectX::SpriteBatch* m_sb;
+    ID3D11BlendState* m_blend;
 
 	// The max number of graphs we can store at once
 	static const int MAXGRAPHS = 10;
@@ -43,6 +44,7 @@ public:
 
 	// Initializes the Spritebatch by passing the context in
 	void SetContext(ID3D11DeviceContext* ctx);
+    void SetBlendState(ID3D11BlendState* blend);
 
 	// Creates a new empty graph and returns a handle
 	int MakeGraph();
@@ -66,7 +68,6 @@ public:
 
     // Binds a function pointer to a handle
     int Bind(UIEvent callback);
-
 
     // Static ui events
     static void OpenUIFront(int graph, int arg);

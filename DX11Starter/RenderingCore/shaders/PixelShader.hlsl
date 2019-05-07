@@ -70,9 +70,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float shadowAmount = 0;
     uint pixelCount = shadowSmooth * 2 + 1;
     pixelCount *= pixelCount;
-    for (int x = -shadowSmooth; x <= shadowSmooth; x++)
+    for (float x = -shadowSmooth; x <= shadowSmooth; x++)
     {
-        for (int y = -shadowSmooth; y <= shadowSmooth; y++)
+        for (float y = -shadowSmooth; y <= shadowSmooth; y++)
         {
             shadowAmount += ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV + float2(x / shadowRes, y / shadowRes), depthFromLight - .01f) / pixelCount;
         }
