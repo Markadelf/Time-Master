@@ -89,7 +89,8 @@ ArenaLevel::ArenaLevel()
     handle.SetUniformScale(1);
 	handle.m_scale[0] = 0.5;
 	handle.m_scale[2] = 0.5;
-    Vector2 pos(0, 0);
+    Vector2 center(4, 4);
+    Vector2 pos(2, 2);
 
 	m_entityCount = 3;
 	m_entities = new EntitySpawnInfo[m_entityCount];
@@ -100,7 +101,7 @@ ArenaLevel::ArenaLevel()
 		m_entities[i].m_initialTime = 0;
 		m_entities[i].m_maxImages = 2048;
 		m_entities[i].m_maxPhenomena = 100;
-		m_entities[i].m_startingPos = Transform(pos.Rotate(i * 6.28f / m_entityCount), -i * 6.28f / m_entityCount);
+		m_entities[i].m_startingPos = Transform(center + pos.Rotate(i * 6.28f / m_entityCount), -i * 6.28f / m_entityCount);
 		m_entities[i].m_action.m_deploymentTime = .1f;
 		m_entities[i].m_action.m_duration = .1f;
 		m_entities[i].m_action.m_phenomenaType = i;

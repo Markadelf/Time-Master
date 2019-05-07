@@ -291,8 +291,8 @@ void ClientManager::PrepDrawGroup()
                     light.Color = DirectX::XMFLOAT3(col.x, col.y, col.z);
                     light.Type = LIGHT_TYPE_POINT;
                     light.Position = drawInfo.pos;
-                    light.Range = lerp * 20.0f;
-                    light.DiffuseIntensity = lerp * 10;
+                    light.Range = lerp * 10.0f;
+                    light.DiffuseIntensity = lerp * 5;
                     light.AmbientIntensity = 0.0f;
                 }
             }

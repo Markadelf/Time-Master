@@ -57,6 +57,7 @@ private:
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
+    bool m_mouseLock;
 
 	ClientManager* clientInterface;
     ClientHelper* networkConnection;

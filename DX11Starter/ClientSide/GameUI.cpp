@@ -49,6 +49,7 @@ void GameUI::UpdateGameUI(bool dead, float time)
 
 void GameUI::UpdateIconColor(DirectX::XMFLOAT4 col)
 {
+    col.w = 1;
     UIManager::get().GetGraph(ingameUIHandle).GetElement(barEle).m_color = col;
 }
 

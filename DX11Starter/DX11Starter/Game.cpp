@@ -28,6 +28,7 @@ Game::Game(HINSTANCE hInstance) : m_renderer(hInstance)
     m_renderer.SetControls(SOnMouseDown, SOnMouseUp, SOnMouseMove, SOnMouseWheel);
     networkConnection = nullptr;
     m_state = GameState::MenuOnly;
+    m_mouseLock = false;
 }
 
 // --------------------------------------------------------
@@ -95,20 +96,20 @@ void Game::LoadTextures()
 
     AssetManager::get().LoadTexture(L"Textures/paint_albedo.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/paint_roughness.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/paint_normals.png", device, context);
+    AssetManager::get().LoadTexture(L"Textures/paint_normals.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/wood_albedo.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/wood_roughness.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/wood_normals.png", device, context);
+    AssetManager::get().LoadTexture(L"Textures/wood_normals.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/floor_albedo.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/floor_roughness.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/floor_normals.png", device, context);
+    AssetManager::get().LoadTexture(L"Textures/floor_normals.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Texture.jpeg", device, context);
     AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Bump_Map.jpeg", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Normal_Map.jpeg", device, context);
+    AssetManager::get().LoadTexture(L"Textures/Stone_Wall_1_Normal_Map.jpeg", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle.jpg", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle2.png", device, context);
     AssetManager::get().LoadTexture(L"Textures/particle4.png", device, context);
-	AssetManager::get().LoadTexture(L"Textures/Particle5.png", device, context);
+    AssetManager::get().LoadTexture(L"Textures/Particle5.png", device, context);
 }
 
 // --------------------------------------------------------
@@ -124,9 +125,9 @@ void Game::LoadShaders()
 
     //For now shinniness is being handled in Assetmanager.Will move it to the material once we have everythin up and running with latest renderer.
     AssetManager::get().LoadMaterial(0, 0, "PLAYER3", "Textures/paint_albedo.png", "Textures/paint_roughness.png", "Textures/paint_normals.png");
-    AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png","Textures/wood_normals.png");
-    AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png","Textures/floor_normals.png");
-    AssetManager::get().LoadMaterial(0, 0, "WALL", "Textures/Stone_Wall_1_Texture.jpeg", "Textures/Stone_Wall_1_Bump_Map.jpeg","Textures/Stone_Wall_1_Normal_Map.jpeg");
+    AssetManager::get().LoadMaterial(0, 0, "WOOD", "Textures/wood_albedo.png", "Textures/wood_roughness.png", "Textures/wood_normals.png");
+    AssetManager::get().LoadMaterial(0, 0, "FLOOR", "Textures/floor_albedo.png", "Textures/floor_roughness.png", "Textures/floor_normals.png");
+    AssetManager::get().LoadMaterial(0, 0, "WALL", "Textures/Stone_Wall_1_Texture.jpeg", "Textures/Stone_Wall_1_Bump_Map.jpeg", "Textures/Stone_Wall_1_Normal_Map.jpeg");
 }
 
 // --------------------------------------------------------
@@ -143,7 +144,7 @@ void Game::CreateBasicGeometry()
     int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj", device);
     int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj", device);
     int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
-	int planeHandle = AssetManager::get().LoadMesh("OBJ_Files/Plane.obj", device);
+    int planeHandle = AssetManager::get().LoadMesh("OBJ_Files/Plane.obj", device);
 
     clientInterface = new ClientManager();
 }
@@ -295,22 +296,22 @@ void Game::InitEmitters()
         m_renderer.GetDevice(),
         AssetManager::get().GetTextureHandle("Textures/particle2.png"));
 
-	AssetManager::get().LoadEmitter("Emitter7",
-		110,							// Max particles
-		10,								// Particles per second
-		5.0,							// Particle lifetime
-		1.0f,							// Start size
-		3.0f,							// End size
-		XMFLOAT4(1, 0.2f, 0.2f, 0.2f),	// Start color
-		XMFLOAT4(1, 0.8f, 0.3f, 0.3f),	// End color
-		XMFLOAT3(0, 1, 0),				// Start velocity
-		XMFLOAT3(0, 1, 0),		        // Velocity randomness range
-		XMFLOAT3(0.1f, 0.1f, 0),		       	// Emitter position
-		XMFLOAT3(20.0f, 20.0f, 0.1f),		// Position randomness range
-		XMFLOAT4(-2, 2, -2, 2),         // Random rotation ranges (startMin, startMax, endMin, endMax)
-		XMFLOAT3(0, -1, 0),				// Constant acceleration
-		m_renderer.GetDevice(),
-		AssetManager::get().GetTextureHandle("Textures/Particle5.png"));
+    AssetManager::get().LoadEmitter("Emitter7",
+        110,							// Max particles
+        10,								// Particles per second
+        5.0,							// Particle lifetime
+        1.0f,							// Start size
+        3.0f,							// End size
+        XMFLOAT4(1, 0.2f, 0.2f, 0.2f),	// Start color
+        XMFLOAT4(1, 0.8f, 0.3f, 0.3f),	// End color
+        XMFLOAT3(0, 1, 0),				// Start velocity
+        XMFLOAT3(0, 1, 0),		        // Velocity randomness range
+        XMFLOAT3(0.1f, 0.1f, 0),		       	// Emitter position
+        XMFLOAT3(20.0f, 20.0f, 0.1f),		// Position randomness range
+        XMFLOAT4(-2, 2, -2, 2),         // Random rotation ranges (startMin, startMax, endMin, endMax)
+        XMFLOAT3(0, -1, 0),				// Constant acceleration
+        m_renderer.GetDevice(),
+        AssetManager::get().GetTextureHandle("Textures/Particle5.png"));
 
 }
 
@@ -324,6 +325,7 @@ void Game::Update(float deltaTime, float totalTime)
     {
         if (m_state == GameState::InGame)
         {
+            m_mouseLock = false;
             ShowCursor(true);
         }
         else
@@ -378,6 +380,11 @@ void Game::OnResize(int width, int height)
 // --------------------------------------------------------
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
+    if (m_state == GameState::InGame && !m_mouseLock)
+    {
+        ShowCursor(false);
+        m_mouseLock = true;
+    }
     // Add any custom code here...
     RECT rect;
     GetClientRect(m_renderer.GethWnd(), &rect);
@@ -437,23 +444,20 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 
 
     int dY = (y - prevMousePos.y);
-    int dX = (x - prevMousePos.x);
+    int dX = (x - (int)(ptDiff.x / 2));
 
-    dX = dX % 10;
+    //dX = dX % 10;
     dY = dY % 10;
 
-    clientInterface->GetPlayer().Rotate(dX / 180.f);
 
     // Save the previous mouse position, so we have it for the future
     prevMousePos.x = x;
     prevMousePos.y = y;
 
-    if (m_state == GameState::InGame)
+    if (m_state == GameState::InGame && m_mouseLock)
     {
-        if (prevMousePos.x == rcClient.left || prevMousePos.x == rcClient.right - 1)
-        {
-            SetCursorPos((int)(ptDiff.x / 2), (int)(ptDiff.y / 2));
-        }
+        clientInterface->GetPlayer().Rotate(dX / 1800.f);
+        SetCursorPos((int)(ptDiff.x / 2), (int)(ptDiff.y / 2));
     }
 
 }
@@ -486,10 +490,7 @@ void Game::SOnResize(int width, int height)
 
 void Game::SOnMouseDown(WPARAM buttonState, int x, int y)
 {
-
-
     GameInstance->OnMouseDown(buttonState, x, y);
-
 }
 
 void Game::SOnMouseUp(WPARAM buttonState, int x, int y)
@@ -537,7 +538,7 @@ void Game::SUserCallback(Buffer& bitBuffer)
 
 void Game::StartGameOffline() {
     GameInstance->clientInterface->SetNetworkPointer(nullptr);
-    GameInstance->clientInterface->Init(2);
+    GameInstance->clientInterface->Init(0);
     UpdateGameState(GameState::InGame);
 }
 
@@ -549,6 +550,7 @@ void Game::UpdateGameState(GameState arg)
     {
     case GameState::InGame:
         GameUI::Get().DisplayHUD();
+        GameInstance->m_mouseLock = true;
         ShowCursor(false);
         break;
     case GameState::WaitingForNetwork:
