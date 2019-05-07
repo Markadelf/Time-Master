@@ -143,6 +143,7 @@ void Game::CreateBasicGeometry()
     int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj", device);
     int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj", device);
     int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
+	int planeHandle = AssetManager::get().LoadMesh("OBJ_Files/Plane.obj", device);
 
     clientInterface = new ClientManager();
 }

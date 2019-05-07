@@ -4,73 +4,81 @@
 ArenaLevel::ArenaLevel()
 {
 	int wallMaterial = 3;
-    int floorMaterial = 2;
-    int woodMaterial = 1;
-    int playerMaterial = 0;
+	int floorMaterial = 2;
+	int woodMaterial = 1;
+	int playerMaterial = 0;
 
-    int coneHandle = 0;
-    int cubeHandle = 1;
-    int cylinderHandle = 2;
-    int sphereHandle = 3;
-    int duckHandle = 4;
+	int coneHandle = 0;
+	int cubeHandle = 1;
+	int cylinderHandle = 2;
+	int sphereHandle = 3;
+	int duckHandle = 4;
+	int planeHandle = 5;
 
 
-    // Add static objects to scene graph
-    const int div = 20;
-	const int bar = 8;
-    StaticObject objs[div + bar * 4 + 2];
-    Vector2 right = Vector2(20, 0);
-    HandleObject handle;
-    handle.m_material = woodMaterial;
-    handle.m_mesh = cubeHandle;
-    handle.m_scale[2] = 8;
-    handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 8);
+	// Add static objects to scene graph
+	HandleObject handle;
+	const int floor = 64;
+	const int wall = 32;
+	const int sept = 10;
+	StaticObject objs[floor + wall + sept];
+	Transform trans;
 
-    Transform trans;
-    for (size_t i = 0; i < div; i++)
-    {
-        trans = Transform(right.Rotate(6.28f / div * i), -6.28f / div * i);
-        objs[i] = StaticObject(trans, handle);
-    }
-    handle.m_material = floorMaterial;
-    handle.m_mesh = cylinderHandle;
-    handle.SetUniformScale(1);
-    handle.m_collider = ColliderManager::get().GetCircleHandle(.5f);
-    //handle.m_scale[2] = 1;
+	//Floor	
+	handle.m_material = floorMaterial;
+	handle.m_mesh = cubeHandle;
+	handle.SetUniformScale(1);
+	handle.m_scale[1] = 0.1f;
+	handle.m_yPos = -0.5f;
+	int ctr = 0;
+	for (float i = 0; i < 8; i++)
+	{
+		for (float j = 0; j < 8; j++)
+		{
+			trans = Transform(Vector2(0 + i, 0 + j), 0);
+			objs[ctr] = StaticObject(trans, handle);
+			ctr++;
+		}
+	}
 
-    trans = Transform(Vector2(), 0);
-    objs[div] = StaticObject(trans, handle);
-
-    // Add floor
-    handle.m_collider = Colliders2D::ColliderHandle();
-    handle.m_yPos = -1;
-    handle.m_scale[0] = 5;
-	handle.m_scale[2] = 5;
-    objs[div + 1] = StaticObject(trans, handle);
-
-	//Add Separators
+	//Boundary Wall	
+	handle.m_material = woodMaterial;
+	handle.m_mesh = cubeHandle;
+	handle.SetUniformScale(1);
+	handle.m_scale[2] = 0.1f;
 	handle.m_yPos = 0;
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(0.5f, 0.5f);
+	for (float i = 0; i < 8; i++)
+	{
+		trans = Transform(Vector2(i, -0.5f), 3.14f);
+		objs[ctr] = StaticObject(trans, handle);
+		trans = Transform(Vector2(i, 7.5f), 3.14f);
+		objs[ctr + 1] = StaticObject(trans, handle);
+		trans = Transform(Vector2(-0.5f, i), 3.14f / 2);
+		objs[ctr + 2] = StaticObject(trans, handle);
+		trans = Transform(Vector2(7.5f, i), 3.14f / 2);
+		objs[ctr + 3] = StaticObject(trans, handle);
+		ctr = ctr + 4;
+	}
+
+	//Separator
 	handle.m_material = wallMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.SetUniformScale(1);
-	handle.m_scale[0] = 1;	
-	handle.m_collider = ColliderManager::get().GetRectangularHandle(1, 1);
-	for (int i = 0; i < bar; i++)
+	handle.m_yPos = 0;
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(0.5f, 0.5f);
+	for (float i = 0; i < 5; i++ )
 	{
-        float dist = (float)i;
-		trans = Transform(Vector2((float)dist, 0), 0);
-		objs[div + i * 4 + 2] = StaticObject(trans, handle);
-		trans = Transform(Vector2(0, (float)dist), 3.14f / 2.0f);
-		objs[div + i * 4 + 3] = StaticObject(trans, handle);
-		trans = Transform(Vector2((float)-dist, 0), 0);
-		objs[div + i * 4 + 4] = StaticObject(trans, handle);
-		trans = Transform(Vector2(0, (float)-dist), 3.14f / 2.0f);
-		objs[div + i * 4 + 5] = StaticObject(trans, handle);
+		trans = Transform(Vector2(1.5f + i, 3.5f), 3.14f);
+		objs[ctr] = StaticObject(trans, handle);
+		trans = Transform(Vector2(3.5f, 1.5f+i), 3.14f / 2);
+		objs[ctr + 1] = StaticObject(trans, handle);
+		ctr = ctr +2;
 	}
-
-    m_staticObjectCount = div + bar * 4 + 2;
-    m_staticObjs = new StaticObject[m_staticObjectCount];
-    memcpy(m_staticObjs, objs, m_staticObjectCount * sizeof(StaticObject));
+	
+	m_staticObjectCount = floor + wall + sept;
+	m_staticObjs = new StaticObject[m_staticObjectCount];
+	memcpy(m_staticObjs, objs, m_staticObjectCount * sizeof(StaticObject));
 
     // Add player
     handle.m_yPos = 0;
@@ -80,7 +88,7 @@ ArenaLevel::ArenaLevel()
     handle.SetUniformScale(1);
 	handle.m_scale[0] = 0.5;
 	handle.m_scale[2] = 0.5;
-    Vector2 pos(0, -3);
+    Vector2 pos(0, 0);
 
 	m_entityCount = 3;
 	m_entities = new EntitySpawnInfo[m_entityCount];
