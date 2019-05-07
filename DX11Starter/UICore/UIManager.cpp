@@ -9,6 +9,7 @@ UIManager::UIManager()
     m_activeCount = 0;
 
     m_sb = nullptr;
+    m_blend = nullptr;
 }
 
 UIManager::~UIManager()
@@ -44,6 +45,11 @@ void UIManager::SetContext(ID3D11DeviceContext* ctx)
         m_sb = nullptr;
     }
     m_sb = new DirectX::SpriteBatch(ctx);
+}
+
+void UIManager::SetBlendState(ID3D11BlendState* blend)
+{
+    m_blend = blend;
 }
 
 int UIManager::MakeGraph()
@@ -112,7 +118,8 @@ void UIManager::SetScreenDimensions(int width, int height)
 
 void UIManager::Render()
 {
-    m_sb->Begin();
+    
+    m_sb->Begin(DirectX::SpriteSortMode_Deferred, m_blend);
     for (size_t i = 0; i < m_activeCount; i++)
     {
         UIGraph& graph = m_graphs[m_activeGraphs[i]];

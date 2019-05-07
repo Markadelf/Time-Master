@@ -190,7 +190,7 @@ void Game::InitEmitters()
         0.1f,							// Start size
         0.8f,							// End size
         XMFLOAT4(1, 0.2f, 0.2f, 0.2f),	// Start color
-        XMFLOAT4(1, 0.3f, 0.3f, 0.3),	// End color
+        XMFLOAT4(1, 0.3f, 0.3f, 0.3f),	// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
         XMFLOAT3(1, 1, 1),		        // Velocity randomness range
         XMFLOAT3(0, 0, 0),		       	// Emitter position
@@ -208,7 +208,7 @@ void Game::InitEmitters()
         0.1f,							// Start size
         0.5f,							// End size
         XMFLOAT4(1, 0.6f, 0.1f, .9f),	// Start color
-        XMFLOAT4(1, 0.8f, 0.5f, 0.8),		// End color
+        XMFLOAT4(1, 0.8f, 0.5f, 0.8f),		// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
         XMFLOAT3(1, 1, 1),		        // Velocity randomness range
         XMFLOAT3(0, 0, 0),		       	// Emitter position
@@ -245,7 +245,7 @@ void Game::InitEmitters()
         0.1f,							// Start size
         0.5f,							// End size
         XMFLOAT4(1, 0.6f, 0.8f, .9f),	// Start color
-        XMFLOAT4(1, 0.2f, 0.5f, 0.8),		// End color
+        XMFLOAT4(1, 0.2f, 0.5f, 0.8f),		// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
         XMFLOAT3(1, 1, 1),		        // Velocity randomness range
         XMFLOAT3(0, 0, 0),		       	// Emitter position
@@ -280,7 +280,7 @@ void Game::InitEmitters()
         0.1f,							// Start size
         0.5f,							// End size
         XMFLOAT4(1, 0.1f, 0.1f, .9f),	// Start color
-        XMFLOAT4(1, 0.2f, 0.5f, 0.8),		// End color
+        XMFLOAT4(1, 0.2f, 0.5f, 0.8f),		// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
         XMFLOAT3(1, 1, 1),		        // Velocity randomness range
         XMFLOAT3(0, 0, 0),		       	// Emitter position

@@ -74,6 +74,7 @@ void ClientManager::Init(int entityId)
 	m_player.Initialize(player.m_startingPos, player.m_initialTime, player.m_handle, .1f, 0);
 	m_player.SetEntityId(entityId);
 	m_player.SetAction(player.m_action);
+    GameUI::Get().UpdateIconColor(AssetManager::get().GetEmitterPointer(entityId * 2)->startColor);
 
 	Light* lights;
 	arena.GetLights(&lights, m_staticLightCount);
@@ -133,6 +134,10 @@ void ClientManager::PrepDrawGroupStatics()
 	}
 
 	m_drawInfo.m_visibleCount = m_staticCount;
+
+
+
+
 }
 
 void ClientManager::PrepDrawGroup()

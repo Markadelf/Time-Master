@@ -4,6 +4,7 @@
 #include <cmath>
 #include "AssetManager.h"
 #include "DDSTextureLoader.h"
+#include "UIManager.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -156,6 +157,7 @@ void Renderer::Init()
 	// Create the state
 	device->CreateBlendState(&bd, &m_blendState);
 
+    UIManager::get().SetBlendState(m_blendState);
 }
 
 void Renderer::InitializeEmitters()
@@ -598,6 +600,7 @@ void Renderer::RenderEmitterSystem(EmitterDrawInfo info, float currentTime, Came
 	particleVS->SetMatrix4x4("view", camera.GetView());
 	particleVS->SetMatrix4x4("projection", camera.GetProjection());
 
+	particleVS->SetFloat3("acceleration", emitter->emitterAcceleration);
 	particleVS->SetFloat3("acceleration", emitter->emitterAcceleration);
 	particleVS->SetFloat4("startColor", emitter->startColor);
 	particleVS->SetFloat4("endColor", emitter->endColor);
