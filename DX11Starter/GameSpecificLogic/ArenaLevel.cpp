@@ -3,6 +3,7 @@
 
 ArenaLevel::ArenaLevel()
 {
+    const float pi = 3.14159265358979323846f;
 	int wallMaterial = 3;
 	int floorMaterial = 2;
 	int woodMaterial = 1;
@@ -45,18 +46,18 @@ ArenaLevel::ArenaLevel()
 	handle.m_material = woodMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.SetUniformScale(1);
-	handle.m_scale[2] = 0.1f;
+	//handle.m_scale[2] = 0.1f;
 	handle.m_yPos = 0;
 	handle.m_collider = ColliderManager::get().GetRectangularHandle(0.5f, 0.5f);
 	for (float i = 0; i < 8; i++)
 	{
-		trans = Transform(Vector2(i, -0.5f), 3.14f);
+		trans = Transform(Vector2(i, -0.5f), pi);
 		objs[ctr] = StaticObject(trans, handle);
-		trans = Transform(Vector2(i, 7.5f), 3.14f);
+		trans = Transform(Vector2(i, 7.5f), pi);
 		objs[ctr + 1] = StaticObject(trans, handle);
-		trans = Transform(Vector2(-0.5f, i), 3.14f / 2);
+		trans = Transform(Vector2(-0.5f, i), pi / 2);
 		objs[ctr + 2] = StaticObject(trans, handle);
-		trans = Transform(Vector2(7.5f, i), 3.14f / 2);
+		trans = Transform(Vector2(7.5f, i), pi / 2);
 		objs[ctr + 3] = StaticObject(trans, handle);
 		ctr = ctr + 4;
 	}
@@ -69,9 +70,9 @@ ArenaLevel::ArenaLevel()
 	handle.m_collider = ColliderManager::get().GetRectangularHandle(0.5f, 0.5f);
 	for (float i = 0; i < 5; i++ )
 	{
-		trans = Transform(Vector2(1.5f + i, 3.5f), 3.14f);
+		trans = Transform(Vector2(1.5f + i, 3.5f), pi);
 		objs[ctr] = StaticObject(trans, handle);
-		trans = Transform(Vector2(3.5f, 1.5f+i), 3.14f / 2);
+		trans = Transform(Vector2(3.5f, 1.5f+i), pi / 2);
 		objs[ctr + 1] = StaticObject(trans, handle);
 		ctr = ctr +2;
 	}
