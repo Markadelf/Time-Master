@@ -301,7 +301,7 @@ void Game::InitEmitters()
 		XMFLOAT4(1, 0.8f, 0.3f, 0.3f),	// End color
 		XMFLOAT3(0, 1, 0),				// Start velocity
 		XMFLOAT3(0, 1, 0),		        // Velocity randomness range
-		XMFLOAT3(0.1, 0.1, 0),		       	// Emitter position
+		XMFLOAT3(0.1f, 0.1f, 0),		       	// Emitter position
 		XMFLOAT3(20.0f, 20.0f, 0.1f),		// Position randomness range
 		XMFLOAT4(-2, 2, -2, 2),         // Random rotation ranges (startMin, startMax, endMin, endMax)
 		XMFLOAT3(0, -1, 0),				// Constant acceleration
