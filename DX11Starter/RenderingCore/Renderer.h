@@ -20,7 +20,7 @@ class Renderer
 	SimplePixelShader* m_ps;
 	SimpleVertexShader* m_vs;
 	SimpleVertexShader* m_shadowVS;
-
+	
 	// Smapler States
 	ID3D11SamplerState* m_sampler;
 	ID3D11SamplerState* m_shadowSampler;

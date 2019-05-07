@@ -70,7 +70,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// Overwrite the initial normal with the version from the
 	// normal map, after we've converted to world space
 	input.normal = normalize(mul(normalFromMap, TBN));
-
+	//return float4(input.normal, 0);
 	float4 surfaceColor = pow(abs(diffuseTexture.Sample(basicSampler, input.uv)), 2.2);
 	float roughness = roughnessTexture.Sample(basicSampler, input.uv).r;
 	roughness = lerp(0, roughness, 1);// x*(1-s) + y*s lerp(x,y,s)

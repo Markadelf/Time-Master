@@ -44,13 +44,13 @@ ArenaLevel::ArenaLevel()
     // Add floor
     handle.m_collider = Colliders2D::ColliderHandle();
     handle.m_yPos = -1;
-    handle.m_scale[0] = 40;
-    handle.m_scale[2] = 40;
+    handle.m_scale[0] = 5;
+	handle.m_scale[2] = 5;
     objs[div + 1] = StaticObject(trans, handle);
 
 	//Add Separators
 	handle.m_yPos = 0;
-	handle.m_material = woodMaterial;
+	handle.m_material = wallMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.SetUniformScale(1);
 	handle.m_scale[0] = 1;	

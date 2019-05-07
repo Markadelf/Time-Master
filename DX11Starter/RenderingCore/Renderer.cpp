@@ -75,7 +75,6 @@ Renderer::~Renderer()
 	m_blendState->Release();
 	m_blendDepthState->Release();
 	m_blendRasterizer->Release();
-
 }
 
 // --------------------------------------------------------
@@ -95,7 +94,8 @@ void Renderer::Init()
 	//Maximize on Launch
 	ShowWindow(Renderer::GethWnd(), SW_MAXIMIZE);
 	SetCursorPos((int)(width / 2), (int)(height / 2));
-	
+
+	//CreateWICTextureFromFile(device, context, L"Textures/Stone_Wall_1_Normal_Map.jpeg", 0, &m_normalMapSRV);	
 
 	// Load the sky box
 #ifdef DEBUG
@@ -458,6 +458,7 @@ void Renderer::Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* m
 	ps->SetShaderResourceView("diffuseTexture", *AssetManager::get().GetTexturePointer(mat->GetDiffuseTextureHandle()));
 	ps->SetShaderResourceView("roughnessTexture", *AssetManager::get().GetTexturePointer(mat->GetRoughnessTextureHandle()));
 	ps->SetShaderResourceView("normalTexture", *AssetManager::get().GetTexturePointer(mat->GetNormalMapHandle()));
+	//	ps->SetShaderResourceView("normalTexture", m_normalMapSRV);
 	ps->SetShaderResourceView("ShadowMap", m_shadowSRV);
 	ps->SetSamplerState("basicSampler", sampler);
 	ps->SetSamplerState("ShadowSampler", m_shadowSampler);
