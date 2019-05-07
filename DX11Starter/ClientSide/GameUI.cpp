@@ -24,6 +24,7 @@ void GameUI::GivePointers(ID3D11Device* device, ID3D11DeviceContext* context)
 
 void GameUI::InitializeUI()
 {
+    AssetManager::get().LoadTexture(L"Textures/Exit.png", device, context);
     InitializeMainMenu();
     InitializeInGameUI();
     InitializeResultScreen();
@@ -73,6 +74,8 @@ void GameUI::InitializeMainMenu()
     int optionsButtonHandle = AssetManager::get().GetTextureHandle("Textures/ControlsButton.png");
     AssetManager::get().LoadTexture(L"Textures/CreditsButton.png", device, context);
     int creditsButtonHandle = AssetManager::get().GetTextureHandle("Textures/CreditsButton.png");
+    int exitHandle = AssetManager::get().GetTextureHandle("Textures/Exit.png");
+
 
     mainMenuHandle = UIManager::get().MakeGraph();
     UIGraph& mainMenu = UIManager::get().GetGraph(mainMenuHandle);
@@ -128,6 +131,7 @@ void GameUI::InitializeMainMenu()
 
 void GameUI::InitializeInGameUI()
 {
+    int exitHandle = AssetManager::get().GetTextureHandle("Textures/Exit.png");
     AssetManager::get().LoadTexture(L"Textures/Death.png", device, context);
     int deathImageHandle = AssetManager::get().GetTextureHandle("Textures/Death.png");
 
@@ -147,7 +151,7 @@ void GameUI::InitializeInGameUI()
     element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
     element.m_transform.m_parent = inGameUI.AddItem(element);
 
-    element.m_textureHandle = 1;
+    element.m_textureHandle = exitHandle;
     element.m_transform.m_size = Vector2(.5f, .5f);
     element.m_transform.m_anchor = Vector2(.5f, .5f);
     element.m_transform.m_pivot = Vector2(.5f, .5f);
@@ -272,6 +276,7 @@ void GameUI::InitializeWaitScreen()
     int playButtonHandle = AssetManager::get().GetTextureHandle("Textures/PlayButton.png");
     AssetManager::get().LoadTexture(L"Textures/WaitingForNetwork.png", device, context);
 	int waitBack = AssetManager::get().GetTextureHandle("Textures/WaitingForNetwork.png");
+    int exitHandle = AssetManager::get().GetTextureHandle("Textures/Exit.png");
 
 	waitingHandle = UIManager::get().MakeGraph();
 	UIGraph& controls = UIManager::get().GetGraph(waitingHandle);
@@ -289,7 +294,7 @@ void GameUI::InitializeWaitScreen()
     element.m_color = DirectX::XMFLOAT4(0, 1, 0, 1);
     element.m_transform.m_parent = controls.AddItem(element);
 
-    element.m_textureHandle = 1;
+    element.m_textureHandle = exitHandle;
     element.m_transform.m_size = Vector2(.5f, .5f);
     element.m_transform.m_anchor = Vector2(.5f, .5f);
     element.m_transform.m_pivot = Vector2(.5f, .5f);
