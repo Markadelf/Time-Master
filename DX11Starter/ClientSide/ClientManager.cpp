@@ -135,13 +135,30 @@ void ClientManager::PrepDrawGroupStatics()
 
     m_drawInfo.m_visibleCount = m_staticCount;
 
-    Vector2 trans2(-5, 5);
+    Vector2 trans2(0, 0);
     m_drawInfo.m_emitterCount = 0;
     EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
-    drawInfo.m_handle = 0;
+    drawInfo.m_handle = 6;
     drawInfo.startTime = -100;
     drawInfo.endTime = 100;
-    drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), 0, trans2.GetY());
+    drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), 10, trans2.GetY());
+
+
+	Vector2 trans3(-10, 10);
+	m_drawInfo.m_emitterCount = 1;
+	EmitterDrawInfo& drawInfo1 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
+	drawInfo1.m_handle = 6;
+	drawInfo1.startTime = -100;
+	drawInfo1.endTime = 100;
+	drawInfo1.pos = DirectX::XMFLOAT3(trans3.GetX(), 10, trans3.GetY());
+
+	Vector2 trans4(10, -10);
+	m_drawInfo.m_emitterCount = 2;
+	EmitterDrawInfo& drawInfo2 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
+	drawInfo2.m_handle = 6;
+	drawInfo2.startTime = -100;
+	drawInfo2.endTime = 100;
+	drawInfo2.pos = DirectX::XMFLOAT3(trans4.GetX(), 10, trans4.GetY());
 
     m_staticEmitters = m_drawInfo.m_emitterCount;
 }
