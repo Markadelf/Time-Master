@@ -13,6 +13,7 @@ struct VertexToPixel
 	//  v    v                v
 	float4 position		: SV_POSITION;
 	float3 normal		: NORMAL;
+	float3 tangent      : TANGENT;
 	float3 worldPos		: POSITION;
 	float2 uv			: TEXCOORD;
 	float4 posForShadow : SHADOW;
@@ -32,8 +33,9 @@ cbuffer externalData : register(b0)
 
 Texture2D diffuseTexture    : register(t0);
 Texture2D roughnessTexture  : register(t1);
-TextureCube Sky             : register(t2);
-Texture2D ShadowMap         : register(t3);
+Texture2D normalTexture     : register(t2);
+TextureCube Sky             : register(t3);
+Texture2D ShadowMap         : register(t4);
 
 SamplerState basicSampler               : register(s0);
 SamplerComparisonState ShadowSampler    : register(s1);
@@ -51,9 +53,24 @@ SamplerComparisonState ShadowSampler    : register(s1);
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
+	//return float4(input.tangent,0);
 	input.normal = normalize(input.normal);
+	input.tangent = normalize(input.tangent);
 
-	float4 surfaceColor = pow(diffuseTexture.Sample(basicSampler, input.uv), 2.2);
+	// Sample from the normal map (and UNPACK values)
+	float3 normalFromMap = normalTexture.Sample(basicSampler, input.uv).rgb * 2 - 1;
+
+	// Create the matrix that will allow us to go from tangent space to world space
+	float3 N = input.normal;
+	float3 T = normalize(input.tangent - N * dot(input.tangent, N));
+	float3 B = cross(T, N);
+	float3x3 TBN = float3x3(T, B, N);
+
+	// Overwrite the initial normal with the version from the
+	// normal map, after we've converted to world space
+	input.normal = normalize(mul(normalFromMap, TBN));
+
+	float4 surfaceColor = pow(abs(diffuseTexture.Sample(basicSampler, input.uv)), 2.2);
 	float roughness = roughnessTexture.Sample(basicSampler, input.uv).r;
 	roughness = lerp(0, roughness, 1);// x*(1-s) + y*s lerp(x,y,s)
 

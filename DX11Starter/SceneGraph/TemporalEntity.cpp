@@ -107,6 +107,10 @@ void TemporalEntity::Initialize(int maxImages, int maxPhenomena, int entityId)
 	m_imageCount = 0;
 	m_phenomenaCount = 0;
     m_reverseCount = 0;
+#ifdef CLIENT
+    m_timesReversed[m_reverseCount++] = 0;
+#endif // CLIENT
+
 }
 
 PhenomenaHandle TemporalEntity::GetKilledBy()

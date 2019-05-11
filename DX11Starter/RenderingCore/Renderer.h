@@ -20,7 +20,7 @@ class Renderer
 	SimplePixelShader* m_ps;
 	SimpleVertexShader* m_vs;
 	SimpleVertexShader* m_shadowVS;
-
+	
 	// Smapler States
 	ID3D11SamplerState* m_sampler;
 	ID3D11SamplerState* m_shadowSampler;
@@ -98,7 +98,7 @@ private:
     // Renders an object with the given parameters
 	void Render(SimplePixelShader* ps, SimpleVertexShader* vs, Material* mat, ID3D11SamplerState* sampler, DirectX::XMFLOAT4X4& transform, Mesh* mesh, Camera& camera, Light* lights, int lightCount, float transparency=1);
 	// Renders a mesh to a shadow map
-    void RenderToShadowMap(DirectX::XMFLOAT4X4& transform, Mesh* mesh);
+    void RenderDepth(DirectX::XMFLOAT4X4& transform, Mesh* mesh);
 
 };
 

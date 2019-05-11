@@ -18,7 +18,9 @@ class ClientManager
 	DrawGroup m_drawInfo;
 
 	// Number of objects in the draw group we don't override each frame.
-	int m_staticCount;
+    int m_staticCount;
+    int m_staticLightCount;
+    int m_staticEmitters;
 
     // Nullptr if not communicating over the network
     ClientHelper* m_networkConnection;

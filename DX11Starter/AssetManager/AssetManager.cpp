@@ -9,9 +9,9 @@ AssetManager::AssetManager()
 }
 
 //Load Material. vHandle- vertex shader handle, pHandle- Pixelshader handle, handle name, where it is string)
-void AssetManager::LoadMaterial(int vHandle, int pHandle,const char* materialName, const char* texture_albedo_filepath,const char* texture_roughness_filepath)
+void AssetManager::LoadMaterial(int vHandle, int pHandle,const char* materialName, const char* texture_albedo_filepath,const char* texture_roughness_filepath, const char* texture_normal_filepath)
 {
-	materialManager.AddResource(materialName, Material(vHandle, pHandle, textureManager.GetHandle(texture_albedo_filepath), textureManager.GetHandle(texture_roughness_filepath), 0,64.0f));
+	materialManager.AddResource(materialName, Material(vHandle, pHandle, textureManager.GetHandle(texture_albedo_filepath), textureManager.GetHandle(texture_roughness_filepath), 0,64.0f, textureManager.GetHandle(texture_normal_filepath)));
 }
 
 //Pass string "handle name" as argument. Return int for that handle. 

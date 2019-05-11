@@ -27,7 +27,7 @@ public:
 
 public:
 	//Load Material. vHandle- vertex shader handle, pHandle- Pixelshader handle, handle name, where it is string)
-	void LoadMaterial(int vHandle, int pHandle, const char* materailName, const char* texture_albedo_filepath, const char* texture_roughness_filepath);
+	void LoadMaterial(int vHandle, int pHandle, const char* materailName, const char* texture_albedo_filepath, const char* texture_roughness_filepath, const char* texture_normal_filepath);
 	//Pass string "handle name" as argument. Return int for that handle. 
 	int GetMaterialHandle(const char* file);
 

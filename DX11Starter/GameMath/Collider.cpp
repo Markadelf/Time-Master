@@ -209,7 +209,9 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 
 	// Our friend the dot product
 	TimeStamp t = tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / sqrMag;
-	if (t < tI)
+    Vector2 delta;
+    Vector2 overlap;
+    if (t < tI)
 	{
 		if (CheckCollision(posA.GetTransform(tI), circleA, posB, rectB))
 		{
@@ -225,9 +227,9 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 			return true;
 		}
 	}
-	else if (CheckCollision(posA.GetTransform(t), circleA, posB, rectB))
+	else if (CheckCollision(posA.GetTransform(t), circleA, posB, rectB, delta, overlap))
 	{
-		timeStamp = t;
+		timeStamp = t - std::sqrt(overlap.SquareMagnitude() / relVel.SquareMagnitude());
 		return true;
 	}
 	return false;
