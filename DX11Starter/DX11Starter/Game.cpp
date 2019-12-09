@@ -139,12 +139,13 @@ void Game::CreateBasicGeometry()
     ID3D11Device* device = m_renderer.GetDevice();
     ID3D11DeviceContext* context = m_renderer.GetContext();
     // Load in the files and get the handles for each from the meshManager
-    int coneHandle = AssetManager::get().LoadMesh("OBJ_Files/cone.obj", device);
-    int cubeHandle = AssetManager::get().LoadMesh("OBJ_Files/cube.obj", device);
+    int coneHandle = AssetManager::get().LoadMesh("OBJ_Files/8Ball.fbx", device);
+	int cubeHandle = AssetManager::get().LoadMesh("OBJ_Files/cube.obj", device);
     int cylinderHandle = AssetManager::get().LoadMesh("OBJ_Files/cylinder.obj", device);
     int sphereHandle = AssetManager::get().LoadMesh("OBJ_Files/sphere.obj", device);
     int duckHandle = AssetManager::get().LoadMesh("OBJ_Files/duck.fbx", device);
     int planeHandle = AssetManager::get().LoadMesh("OBJ_Files/Plane.obj", device);
+	//int BulletHandle = AssetManager::get().LoadMesh("OBJ_Files/Bullet.obj", device);
 
     clientInterface = new ClientManager();
 }
@@ -191,10 +192,10 @@ void Game::InitEmitters()
         // Set up particles
     AssetManager::get().LoadEmitter("Emitter1",
         110,							// Max particles
-        20,								// Particles per second
+        80,								// Particles per second
         0.5,							// Particle lifetime
-        0.1f,							// Start size
-        0.8f,							// End size
+        0.08f,							// Start size
+        0.1f,							// End size
         XMFLOAT4(1, 0.2f, 0.2f, 0.2f),	// Start color
         XMFLOAT4(1, 0.3f, 0.3f, 0.3f),	// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
@@ -209,10 +210,10 @@ void Game::InitEmitters()
     // Set up particles
     AssetManager::get().LoadEmitter("Emitter4",
         110,							// Max particles
-        10,								// Particles per second
+        80,								// Particles per second
         0.5,							// Particle lifetime
-        0.1f,							// Start size
-        0.5f,							// End size
+        0.08f,							// Start size
+        0.1f,							// End size
         XMFLOAT4(1, 0.6f, 0.1f, .9f),	// Start color
         XMFLOAT4(1, 0.8f, 0.5f, 0.8f),		// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
@@ -228,10 +229,10 @@ void Game::InitEmitters()
     // Set up particles
     AssetManager::get().LoadEmitter("Emitter2",
         110,							// Max particles
-        20,								// Particles per second
+        80,								// Particles per second
         0.5,							// Particle lifetime
-        0.1f,							// Start size
-        0.8f,							// End size
+        0.08f,							// Start size
+        0.1f,							// End size
         XMFLOAT4(0, 0.8f, 0.1f, 0.7f),											// Start color
         XMFLOAT4(0, 1.f, 0.1f, 0),			// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
@@ -246,10 +247,10 @@ void Game::InitEmitters()
     // Set up particles
     AssetManager::get().LoadEmitter("Emitter5",
         110,							// Max particles
-        10,								// Particles per second
+        80,								// Particles per second
         0.5,							// Particle lifetime
-        0.1f,							// Start size
-        0.5f,							// End size
+        0.08f,							// Start size
+        0.1f,							// End size
         XMFLOAT4(1, 0.6f, 0.8f, .9f),	// Start color
         XMFLOAT4(1, 0.2f, 0.5f, 0.8f),		// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
@@ -263,10 +264,10 @@ void Game::InitEmitters()
 
     AssetManager::get().LoadEmitter("Emitter3",
         110,							// Max particles
-        20,								// Particles per second
+        80,								// Particles per second
         0.5,							// Particle lifetime
-        0.1f,							// Start size
-        0.8f,							// End size
+        0.08f,							// Start size
+        0.1f,							// End size
         XMFLOAT4(.5f, 0.1f, 1.0f, 0.7f),											// Start color
         XMFLOAT4(1, 0.6f, .8f, 0),
         XMFLOAT3(0, 0, 0),				// Start velocity
@@ -281,10 +282,10 @@ void Game::InitEmitters()
     // Set up particles
     AssetManager::get().LoadEmitter("Emitter6",
         110,							// Max particles
-        10,								// Particles per second
+        80,								// Particles per second
         0.5,							// Particle lifetime
-        0.1f,							// Start size
-        0.5f,							// End size
+        0.08f,							// Start size
+        0.1f,							// End size
         XMFLOAT4(1, 0.1f, 0.1f, .9f),	// Start color
         XMFLOAT4(1, 0.2f, 0.5f, 0.8f),		// End color
         XMFLOAT3(0, 0, 0),				// Start velocity
@@ -437,14 +438,14 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
     RECT rcClient;
     POINT ptDiff;
-    GetClientRect(m_renderer.GethWnd(), &rcClient);
-    ptDiff.x = (rcClient.right - rcClient.left);
+    GetWindowRect(m_renderer.GethWnd(), &rcClient);
+    ptDiff.x = (rcClient.right - rcClient.left)/2;
     ptDiff.y = (rcClient.bottom - rcClient.top);
 
 
 
     int dY = (y - prevMousePos.y);
-    int dX = (x - (int)(ptDiff.x / 2));
+	int dX = (x - (int)(ptDiff.x / 2));
 
     //dX = dX % 10;
     dY = dY % 10;
@@ -456,10 +457,10 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 
     if (m_state == GameState::InGame && m_mouseLock)
     {
+		//GetCursorPos();
         clientInterface->GetPlayer().Rotate(dX / 1800.f);
         SetCursorPos((int)(ptDiff.x / 2), (int)(ptDiff.y / 2));
     }
-
 }
 
 // --------------------------------------------------------

@@ -61,4 +61,5 @@ private:
 
 	// Helper function that builds a draw item from a transform and a handle
 	void ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle);
+	void ItemFromTransHandle2(DrawItem & item, Transform trans, HandleObject handle);
 };

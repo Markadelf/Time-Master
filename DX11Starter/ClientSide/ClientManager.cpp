@@ -257,13 +257,15 @@ void ClientManager::PrepDrawGroup()
             float excess = .5f;
             if (trans.GetEndTime() + excess > time && trans.GetStartTime() <= time)
             {
-                //ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+				ItemFromTransHandle2(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+               // ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
                 // Projectiles
                 EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
                 drawInfo.m_handle = phenomenas[j].GetHandle().m_mesh * 2;
                 //AssetManager::get().GetEmitterHandle("Emitter1");
                 drawInfo.startTime = trans.GetStartTime();
                 drawInfo.endTime = trans.GetEndTime() + excess;
+				
 
                 Vector2 trans2;
                 if (trans.GetEndTime() < time)
@@ -327,14 +329,28 @@ void ClientManager::DrawPhantom(HandleObject& handle, TimeInstableTransform tran
 
 void ClientManager::ItemFromTransHandle(DrawItem& item, Transform trans, HandleObject handle)
 {
-    DirectX::XMFLOAT3 pos(trans.GetPos().GetX(), handle.m_yPos, trans.GetPos().GetY());
-    DirectX::XMFLOAT3 scale(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
-    DirectX::XMFLOAT3 rot(0, trans.GetRot(), 0);
+	DirectX::XMFLOAT3 pos(trans.GetPos().GetX(), handle.m_yPos, trans.GetPos().GetY());
+	DirectX::XMFLOAT3 scale(handle.m_scale[0], handle.m_scale[1], handle.m_scale[2]);
+	DirectX::XMFLOAT3 rot(0, trans.GetRot(), 0);
 
-    item.SetPosition(pos);
-    item.SetScale(scale);
-    item.SetRotation(rot);
+	item.SetPosition(pos);
+	item.SetScale(scale);
+	item.SetRotation(rot);
 
-    item.SetMeshHandle(handle.m_mesh);
-    item.SetMaterialHandle(handle.m_material);
+	item.SetMeshHandle(handle.m_mesh);
+	item.SetMaterialHandle(handle.m_material);
+}
+
+void ClientManager::ItemFromTransHandle2(DrawItem& item, Transform trans, HandleObject handle)
+{
+	DirectX::XMFLOAT3 pos(trans.GetPos().GetX(), handle.m_yPos, trans.GetPos().GetY());
+	DirectX::XMFLOAT3 scale(0.02, 0.02, 0.08);
+	DirectX::XMFLOAT3 rot(0, trans.GetRot(), 0);
+
+	item.SetPosition(pos);
+	item.SetScale(scale);
+	item.SetRotation(rot);
+
+	item.SetMeshHandle(0);
+	item.SetMaterialHandle(1);
 }
