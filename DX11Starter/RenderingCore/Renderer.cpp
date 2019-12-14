@@ -335,7 +335,7 @@ void Renderer::End()
 void Renderer::RenderGroup(DrawGroup& drawGroup)
 {
 	// Create the view and projection for the shadow map light
-    XMFLOAT3 pos = XMFLOAT3(0, 0, 0); //drawGroup.m_camera.GetPosition();
+    XMFLOAT3 pos = XMFLOAT3(7.5f, 0, 7.5f); //drawGroup.m_camera.GetPosition();
 	XMMATRIX shView = XMMatrixLookToLH(
 		XMVectorAdd(XMLoadFloat3(&pos), XMVectorMultiply(XMLoadFloat3(&drawGroup.m_lightList[0].Direction), XMVectorSet(-D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, -D_LIGHT_SHADOW_DISTANCE, 0))),
 		XMLoadFloat3(&drawGroup.m_lightList[0].Direction),

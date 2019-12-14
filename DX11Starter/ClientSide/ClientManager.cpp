@@ -144,7 +144,7 @@ void ClientManager::PrepDrawGroupStatics()
     drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), 10, trans2.GetY());
 
 
-    Vector2 trans3(-10, 10);
+    Vector2 trans3(7.5f, 10.0f);
     m_drawInfo.m_emitterCount = 1;
     EmitterDrawInfo& drawInfo1 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
     drawInfo1.m_handle = 6;
@@ -152,7 +152,7 @@ void ClientManager::PrepDrawGroupStatics()
     drawInfo1.endTime = 100;
     drawInfo1.pos = DirectX::XMFLOAT3(trans3.GetX(), 10, trans3.GetY());
 
-    Vector2 trans4(10, -10);
+    Vector2 trans4(7.5f, 4.f);
     m_drawInfo.m_emitterCount = 2;
     EmitterDrawInfo& drawInfo2 = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
     drawInfo2.m_handle = 6;
@@ -257,7 +257,6 @@ void ClientManager::PrepDrawGroup()
             float excess = .5f;
             if (trans.GetEndTime() + excess > time && trans.GetStartTime() <= time)
             {
-				ItemFromTransHandle2(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
                // ItemFromTransHandle(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
                 // Projectiles
                 EmitterDrawInfo& drawInfo = m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++];
@@ -271,32 +270,34 @@ void ClientManager::PrepDrawGroup()
                 if (trans.GetEndTime() < time)
                 {
                     trans2 = trans.GetPos(trans.GetEndTime());
-                }
+				}
                 else
                 {
                     trans2 = trans.GetPos(time);
-                }
+					ItemFromTransHandle2(m_drawInfo.m_opaqueObjects[m_drawInfo.m_visibleCount++], trans.GetTransform(time), phenomenas[j].GetHandle());
+					if (m_drawInfo.m_lightCount < MAX_LIGHTS)
+					{
+						float lerp = trans.GetProgress(time);
+						if (lerp > 1)
+						{
+							lerp = 2 - lerp;
+							lerp *= lerp;
+						}
+						Light& light = m_drawInfo.m_lightList[m_drawInfo.m_lightCount++];
+						DirectX::XMFLOAT4 col = AssetManager::get().GetEmitterPointer(drawInfo.m_handle)->startColor;
+						light.Color = DirectX::XMFLOAT3(col.x, col.y, col.z);
+						light.Type = LIGHT_TYPE_POINT;
+						light.Position = drawInfo.pos;
+						light.Range = lerp * 10.0f;
+						light.DiffuseIntensity = lerp * 5;
+						light.AmbientIntensity = 0.0f;
+					}
+				}
                 drawInfo.pos = DirectX::XMFLOAT3(trans2.GetX(), handle.m_yPos, trans2.GetY());
                 m_drawInfo.m_emitters[m_drawInfo.m_emitterCount] = drawInfo;
                 m_drawInfo.m_emitters[m_drawInfo.m_emitterCount++].m_handle++;
 
-                if (m_drawInfo.m_lightCount < MAX_LIGHTS)
-                {
-                    float lerp = trans.GetProgress(time);
-                    if (lerp > 1)
-                    {
-                        lerp = 2 - lerp;
-                        lerp *= lerp;
-                    }
-                    Light& light = m_drawInfo.m_lightList[m_drawInfo.m_lightCount++];
-                    DirectX::XMFLOAT4 col = AssetManager::get().GetEmitterPointer(drawInfo.m_handle)->startColor;
-                    light.Color = DirectX::XMFLOAT3(col.x, col.y, col.z);
-                    light.Type = LIGHT_TYPE_POINT;
-                    light.Position = drawInfo.pos;
-                    light.Range = lerp * 10.0f;
-                    light.DiffuseIntensity = lerp * 5;
-                    light.AmbientIntensity = 0.0f;
-                }
+                
             }
         }
     }

@@ -14,7 +14,7 @@
 class Renderer
 	: public DXCore
 {
-	const float D_LIGHT_SHADOW_DISTANCE = 10;
+	const float D_LIGHT_SHADOW_DISTANCE = 15;
 
 	// Shaders
 	SimplePixelShader* m_ps;
