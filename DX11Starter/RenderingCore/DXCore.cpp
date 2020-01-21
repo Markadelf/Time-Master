@@ -404,13 +404,14 @@ HRESULT DXCore::Run()
 		else
 		{
 			// Update timer and title bar (if necessary)
-			UpdateTimer();
-			if(titleBarStats)
-				UpdateTitleBarStats();
+			if (UpdateTimer(1 / 60.f)) {
+				if (titleBarStats)
+					UpdateTitleBarStats();
 
-			// The game loop
-			update(deltaTime, totalTime);
-			draw(deltaTime, totalTime);
+				// The game loop
+				update(deltaTime, totalTime);
+				draw(deltaTime, totalTime);
+			}
 		}
 	}
 
@@ -434,11 +435,12 @@ void DXCore::Quit()
 // Uses high resolution time stamps to get very accurate
 // timing information, and calculates useful time stats
 // --------------------------------------------------------
-void DXCore::UpdateTimer()
+bool DXCore::UpdateTimer(float minStep)
 {
 	// Grab the current time
 	__int64 now;
 	QueryPerformanceCounter((LARGE_INTEGER*)&now);
+
 	currentTime = now;
 
 	// Calculate delta time and clamp to zero
@@ -446,11 +448,16 @@ void DXCore::UpdateTimer()
 	//    or the process itself gets moved to another core
 	deltaTime = max((float)((currentTime - previousTime) * perfCounterSeconds), 0.0f);
 
-	// Calculate the total time from start to now
-	totalTime = (float)((currentTime - emitterStartTime) * perfCounterSeconds);
+	if (deltaTime > minStep)
+	{
+		// Calculate the total time from start to now
+		totalTime = (float)((currentTime - emitterStartTime) * perfCounterSeconds);
 
-	// Save current time for next frame
-	previousTime = currentTime;
+		// Save current time for next frame
+		previousTime = currentTime;
+		return true;
+	}
+	return false;
 }
 
 

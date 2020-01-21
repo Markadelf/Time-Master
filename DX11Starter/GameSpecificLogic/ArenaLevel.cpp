@@ -19,10 +19,12 @@ ArenaLevel::ArenaLevel()
 
 	// Add static objects to scene graph
 	HandleObject handle;
-	const int floor = 64;
+	const int floor = 15;
 	const int wall = 32;
 	const int sept = 10;
-	StaticObject objs[floor + wall + sept];
+
+	const int total = floor * floor + wall + sept * 4 + 1;
+	StaticObject objs[total];
 	Transform trans;
 
 	//Floor	
@@ -32,9 +34,9 @@ ArenaLevel::ArenaLevel()
 	handle.m_scale[1] = 0.1f;
 	handle.m_yPos = -0.5f;
 	int ctr = 0;
-	for (float i = 0; i < 8; i++)
+	for (float i = 0; i < floor; i++)
 	{
-		for (float j = 0; j < 8; j++)
+		for (float j = 0; j < floor; j++)
 		{
 			trans = Transform(Vector2(0 + i, 0 + j), 0);
 			objs[ctr] = StaticObject(trans, handle);
@@ -46,18 +48,22 @@ ArenaLevel::ArenaLevel()
 	handle.m_material = woodMaterial;
 	handle.m_mesh = cubeHandle;
 	handle.SetUniformScale(1);
-	//handle.m_scale[2] = 0.1f;
+	handle.m_scale[2] = 0.5f;
 	handle.m_yPos = 0;
-	handle.m_collider = ColliderManager::get().GetRectangularHandle(0.5f, 0.5f);
-	for (float i = 0; i < 8; i++)
+	handle.m_scale[0] = floor / 8.f;
+	float halfWidth = handle.m_scale[0] / 2;
+	float thick = handle.m_scale[2];
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(halfWidth, thick / 2);
+	for (int i = 0; i < wall / 4; i++)
 	{
-		trans = Transform(Vector2(i, -0.5f), pi);
+		float dist = halfWidth + i * handle.m_scale[0];
+		trans = Transform(Vector2(dist, .5f), pi);
 		objs[ctr] = StaticObject(trans, handle);
-		trans = Transform(Vector2(i, 7.5f), pi);
+		trans = Transform(Vector2(dist, floor -.5f), pi);
 		objs[ctr + 1] = StaticObject(trans, handle);
-		trans = Transform(Vector2(-0.5f, i), pi / 2);
+		trans = Transform(Vector2(.5f, dist), pi / 2);
 		objs[ctr + 2] = StaticObject(trans, handle);
-		trans = Transform(Vector2(7.5f, i), pi / 2);
+		trans = Transform(Vector2(floor - .5f, dist), pi / 2);
 		objs[ctr + 3] = StaticObject(trans, handle);
 		ctr = ctr + 4;
 	}
@@ -65,19 +71,45 @@ ArenaLevel::ArenaLevel()
 	//Separator
 	handle.m_material = wallMaterial;
 	handle.m_mesh = cubeHandle;
-	handle.SetUniformScale(1);
-	handle.m_yPos = 0;
-	handle.m_collider = ColliderManager::get().GetRectangularHandle(0.5f, 0.5f);
-	for (float i = 0; i < 5; i++ )
+	float dist = 1.f;
+	handle.SetUniformScale(dist);
+	//handle.m_scale[0] = 1.5f;
+	handle.m_yPos = -.5f + dist / 2;
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(dist / 2, dist / 2);
+
+	float floor_4 = floor / 4.f;
+
+	Vector2 pivot[] = { 
+		Vector2(floor_4, floor_4),
+		Vector2(floor_4 * 3, floor_4),
+		Vector2(floor_4, floor_4 * 3),
+		Vector2(floor_4 * 3, floor_4 * 3),
+	};
+
+	for (size_t i = 0; i < 4; i++)
 	{
-		trans = Transform(Vector2(1.5f + i, 3.5f), pi);
-		objs[ctr] = StaticObject(trans, handle);
-		trans = Transform(Vector2(3.5f, 1.5f+i), pi / 2);
-		objs[ctr + 1] = StaticObject(trans, handle);
-		ctr = ctr +2;
+		for (float j = -2; j <= 2; j++)
+		{
+			trans = Transform(pivot[i] + Vector2(j * dist, 0), pi);
+			objs[ctr] = StaticObject(trans, handle);
+			trans = Transform(pivot[i] + Vector2(0, j * dist), pi / 2);
+			objs[ctr + 1] = StaticObject(trans, handle);
+			ctr = ctr + 2;
+		}
 	}
 	
-	m_staticObjectCount = floor + wall + sept;
+	// Center
+	handle.SetUniformScale(dist * 2);
+	handle.m_scale[1] = dist;
+	//handle.m_scale[0] = 1.5f;
+	handle.m_collider = ColliderManager::get().GetRectangularHandle(dist, dist);
+	
+	Vector2 center(floor / 2.f, floor / 2.f);
+	trans = Transform(center, 0);
+	objs[ctr] = StaticObject(trans, handle);
+
+
+	m_staticObjectCount = total;
 	m_staticObjs = new StaticObject[m_staticObjectCount];
 	memcpy(m_staticObjs, objs, m_staticObjectCount * sizeof(StaticObject));
 
@@ -89,10 +121,9 @@ ArenaLevel::ArenaLevel()
     handle.SetUniformScale(1);
 	handle.m_scale[0] = 0.5;
 	handle.m_scale[2] = 0.5;
-    Vector2 center(4, 4);
-    Vector2 pos(2, 2);
+    Vector2 pos(floor / 3, 0);
 
-	m_entityCount = 3;
+	m_entityCount = 2;
 	m_entities = new EntitySpawnInfo[m_entityCount];
 	for (int i = 0; i < m_entityCount; i++)
 	{
@@ -101,7 +132,7 @@ ArenaLevel::ArenaLevel()
 		m_entities[i].m_initialTime = 0;
 		m_entities[i].m_maxImages = 2048;
 		m_entities[i].m_maxPhenomena = 100;
-		m_entities[i].m_startingPos = Transform(center + pos.Rotate(i * 6.28f / m_entityCount), -i * 6.28f / m_entityCount);
+		m_entities[i].m_startingPos = Transform(center + pos.Rotate(i * 2 * pi / m_entityCount), -pi / 2 + i * 2 * pi / m_entityCount);
 		m_entities[i].m_action.m_deploymentTime = .1f;
 		m_entities[i].m_action.m_duration = .1f;
 		m_entities[i].m_action.m_phenomenaType = i;
@@ -131,7 +162,7 @@ ArenaLevel::ArenaLevel()
 
     //Initiating lighting
 #ifdef CLIENT
-    m_lightList = new Light[3];
+    m_lightList = new Light[1];
 
     Light directLight, spotLight, pointLight;
 
@@ -142,15 +173,15 @@ ArenaLevel::ArenaLevel()
     directLight.AmbientIntensity = .3f;//0.4f;
 
     pointLight.Type = LIGHT_TYPE_POINT;
-    pointLight.Position = DirectX::XMFLOAT3(-3, -3, 0);
+    pointLight.Position = DirectX::XMFLOAT3(center.m_x, 0, center.m_y);
     pointLight.Direction = DirectX::XMFLOAT3(1, 1, 0);
-    pointLight.Range = 20.0f;
-    pointLight.Color = DirectX::XMFLOAT3(1.0f, 0.1f, 0);
+    pointLight.Range = 10.0f;
+    pointLight.Color = DirectX::XMFLOAT3(1, 0, 1);
     pointLight.DiffuseIntensity = 1.0f;
     pointLight.AmbientIntensity = 0.0f;
 
     spotLight.Type = LIGHT_TYPE_SPOT;
-    spotLight.Position = DirectX::XMFLOAT3(0, 5, 0);
+    spotLight.Position = DirectX::XMFLOAT3(center.m_x, 1, center.m_y);
     spotLight.Direction = DirectX::XMFLOAT3(0, -1, 0);
 
     spotLight.Range = 20.0f;
@@ -160,10 +191,10 @@ ArenaLevel::ArenaLevel()
     spotLight.AmbientIntensity = 0.1f;
 
     m_lightList[0] = directLight;
-    m_lightList[1] = pointLight;
-    m_lightList[2] = spotLight;
+    //m_lightList[1] = pointLight;
+    //m_lightList[2] = spotLight;
 
-    m_lightCount = 3;
+    m_lightCount = 1;
 #endif // CLIENT
 
 }

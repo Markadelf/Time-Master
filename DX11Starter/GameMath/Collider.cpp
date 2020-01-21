@@ -4,7 +4,7 @@
 using namespace Colliders2D;
 
 // CIRCLE
-CircleCollider::CircleCollider(float radius): m_radius(radius)
+CircleCollider::CircleCollider(float radius) : m_radius(radius)
 {
 }
 
@@ -18,7 +18,7 @@ float CircleCollider::GetRadius() const
 }
 
 // RECTANGLE
-RectangleCollider::RectangleCollider(float width, float height): m_width(width), m_height(height)
+RectangleCollider::RectangleCollider(float width, float height) : m_width(width), m_height(height)
 {
 }
 
@@ -37,7 +37,7 @@ float Colliders2D::RectangleCollider::GetHeight() const
 }
 
 // COLLISION CHECKS
-float Colliders2D::CheckCircleCollisionPrecise(const Vector2 & posA, const Vector2 & posB, float combineRad)
+float Colliders2D::CheckCircleCollisionPrecise(const Vector2& posA, const Vector2& posB, float combineRad)
 {
 	return combineRad - sqrtf((posB - posA).SquareMagnitude());
 }
@@ -125,7 +125,7 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 	}
 	else if (t > tF)
 	{
-		if (CheckCollision(posA.GetPos(tF), posB.GetPos(tF), circleA.GetRadius() + circleB.GetRadius())) 
+		if (CheckCollision(posA.GetPos(tF), posB.GetPos(tF), circleA.GetRadius() + circleB.GetRadius()))
 		{
 			timeStamp = tF;
 			return true;
@@ -207,29 +207,39 @@ bool Colliders2D::CheckCollision(const TimeInstableTransform& posA, const Circle
 		}
 	}
 
+	Vector2 axis[2] = {
+		Vector2(rectB.GetWidth() + circleA.GetRadius(), 0).Rotate(posB.m_rotation),
+		Vector2(0, rectB.GetHeight() + circleA.GetRadius()).Rotate(posB.m_rotation),
+	};
+
 	// Our friend the dot product
-	TimeStamp t = tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / sqrMag;
-    Vector2 delta;
-    Vector2 overlap;
-    if (t < tI)
+	TimeStamp t[5] = { 
+		// Time closest to the center
+		tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB)) / sqrMag,
+		tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB + axis[0] + axis[1])) / sqrMag,
+		tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB + axis[0] - axis[1])) / sqrMag,\
+		tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB - axis[0] + axis[1])) / sqrMag,
+		tI + (TimeStamp)-(Vector2::DotProduct(relVel, aRelB - axis[0] - axis[1])) / sqrMag,
+	};
+	for (size_t i = 0; i < 5; i++)
 	{
-		if (CheckCollision(posA.GetTransform(tI), circleA, posB, rectB))
+		Vector2 delta;
+		Vector2 overlap;
+
+		if (t[i] > tI && t[i] < tF && CheckCollision(posA.GetTransform(t[i]), circleA, posB, rectB, delta, overlap))
 		{
-			timeStamp = tI;
+			timeStamp = t[i] - std::sqrt(overlap.SquareMagnitude() / relVel.SquareMagnitude());
 			return true;
 		}
 	}
-	else if (t > tF)
+	if (CheckCollision(posA.GetTransform(tI), circleA, posB, rectB))
 	{
-		if (CheckCollision(posA.GetTransform(tF), circleA, posB, rectB))
-		{
-			timeStamp = tF;
-			return true;
-		}
+		timeStamp = tI;
+		return true;
 	}
-	else if (CheckCollision(posA.GetTransform(t), circleA, posB, rectB, delta, overlap))
+	if (CheckCollision(posA.GetTransform(tF), circleA, posB, rectB))
 	{
-		timeStamp = t - std::sqrt(overlap.SquareMagnitude() / relVel.SquareMagnitude());
+		timeStamp = tF;
 		return true;
 	}
 	return false;
